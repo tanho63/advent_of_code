@@ -199,17 +199,9 @@ summary {
 
 <pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
 
-library(tidyverse,quietly = TRUE)</code></pre>
-<pre><code>## -- Attaching packages ------------------------------------------------------------------ tidyverse 1.3.0 --</code></pre>
-<pre><code>## v ggplot2 3.3.2     v purrr   0.3.4
-## v tibble  3.0.3     v dplyr   1.0.2
-## v tidyr   1.1.2     v stringr 1.4.0
-## v readr   1.4.0     v forcats 0.5.0</code></pre>
-<pre><code>## -- Conflicts --------------------------------------------------------------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<div id="day-1-report-repair" class="section level2">
-<h2>— Day 1: Report Repair —</h2>
+suppressPackageStartupMessages(library(tidyverse))</code></pre>
+<div id="day-1-report-repair" class="section level3">
+<h3>— Day 1: Report Repair —</h3>
 <p><a href="https://adventofcode.com/2020/day/1" class="uri">https://adventofcode.com/2020/day/1</a></p>
 <blockquote>
 <p>After saving Christmas <a href="https://adventofcode.com/events">five years in a row</a>, you’ve decided to take a vacation at a nice resort on a tropical island. Surely, Christmas will go on without you.</p>
@@ -229,8 +221,8 @@ library(tidyverse,quietly = TRUE)</code></pre>
 <p>Of course, your expense report is much larger. <em>Find the two entries that sum to <code>2020</code>; what do you get if you multiply them together?</em></p>
 </blockquote>
 </div>
-<div id="data" class="section level2">
-<h2>Data</h2>
+<div id="data" class="section level3">
+<h3>Data</h3>
 <p><a href="https://adventofcode.com/2020/day/1/input" class="uri">https://adventofcode.com/2020/day/1/input</a></p>
 <p>Copy-paste + datapasta’s Fiddle Selection. (Thank you, Miles!)</p>
 <pre class="r"><code>input_data &lt;- c(
@@ -255,8 +247,8 @@ library(tidyverse,quietly = TRUE)</code></pre>
   1819, 1973, 1426, 1975, 2010, 1863, 1593, 1996, 1796, 1986, 
   1995, 657, 1784, 1644, 1941, 1596, 1849, 1065, 1927, 1525)</code></pre>
 </div>
-<div id="part-one-find-a-solution-where-the-sum-of-two-entries-equals-2020." class="section level2">
-<h2>Part One: Find a solution where the sum of two entries equals 2020.</h2>
+<div id="part-one-find-a-solution-where-the-sum-of-two-entries-equals-2020." class="section level3">
+<h3>Part One: Find a solution where the sum of two entries equals 2020.</h3>
 <p>The first solution that comes to mind is finding the difference each entry and 2020, and then left-joining the entries onto this difference.</p>
 <pre class="r"><code>pair_2020 &lt;- tibble(expense = input_data) %&gt;% 
   mutate(difference = 2020 - expense) %&gt;% 
@@ -279,8 +271,8 @@ pair_2020</code></pre>
   pull()</code></pre>
 <pre><code>## [1] 840324</code></pre>
 </div>
-<div id="part-two-find-a-solution-where-the-sum-of-three-entries-equals-2020" class="section level2">
-<h2>Part Two: Find a solution where the sum of three entries equals 2020</h2>
+<div id="part-two-find-a-solution-where-the-sum-of-three-entries-equals-2020" class="section level3">
+<h3>Part Two: Find a solution where the sum of three entries equals 2020</h3>
 <p>Okay, I can’t use the first solution here, so now I’ll hit crossing to make a big dataframe, then sum it all afterwards and filter to where sum == 2020.</p>
 <pre class="r"><code>triple_2020 &lt;- crossing(first = input_data, 
                         second = input_data, 

@@ -8,7 +8,7 @@ output: html_document
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 
-library(tidyverse,quietly = TRUE)
+suppressPackageStartupMessages(library(tidyverse))
 ```
 
 ### --- Day 1: Report Repair ---
