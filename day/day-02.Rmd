@@ -1,0 +1,84 @@
+---
+title: "Adv2020 - Day Two"
+author: "Tan Ho"
+date: "01/12/2020"
+output: html_document
+---
+
+Day two!
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Problem
+
+> To try to debug the problem, they have created a list (your puzzle input) of passwords (according to the corrupted database) and the corporate policy when that password was set.
+>
+> For example, suppose you have the following list:
+>
+> - 1-3 a: abcde
+> - 1-3 b: cdefg
+> - 2-9 c: ccccccccc
+>
+>Each line gives the password policy and then the password. The password policy indicates the lowest and highest number of times a given letter must appear for the password to be valid. For example, 1-3 a means that the password must contain a at least 1 time and at most 3 times.
+>
+>In the above example, 2 passwords are valid. The middle password, cdefg, is not; it contains no instances of b, but needs at least 1. The first and third passwords are valid: they contain one a or nine c, both within the limits of their respective policies.
+
+### Input Data
+
+```{r}
+input_data <- read.delim("day-02.txt",header = FALSE)
+```
+
+### How many passwords are valid?
+
+```{r}
+password_table_one <- input_data %>% 
+  separate(1,into = c("qty","character","password"),sep = " ") %>% 
+  separate(qty, into = c("min","max"), sep = "-",convert = TRUE) %>% 
+  mutate(character = str_remove(character,":"),
+         password = str_split(password,""),
+         count = map2_dbl(password,character,~sum(.x %in% .y)),
+         valid = count <= max & count >=min)
+
+head(password_table_one)
+
+sum(password_table_one$valid)
+```
+
+### Part Two: how many passwords are valid under the second policy?
+
+>While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
+>
+>The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
+>
+>Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter. Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
+
+> Given the same example list from above:
+
+>    - 1-3 a: abcde is valid: position 1 contains a and position 3 does not.
+>    - 1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
+>    - 2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
+
+>How many passwords are valid according to the new interpretation of the policies?
+
+```{r}
+password_table_two <- input_data %>% 
+  separate(1,into = c("qty","character","password"),sep = " ") %>% 
+  separate(qty, into = c("pos1","pos2"), sep = "-",convert = TRUE) %>% 
+  mutate(character = str_remove(character,":"),
+         password = str_split(password,""),
+         password = pmap(list(password,pos1,pos2),~magrittr::extract(..1,c(..2,..3))),
+         count = map2_dbl(password,character, ~sum(.x %in% .y)),
+         valid = count == 1)
+
+head(password_table_two)
+
+sum(password_table_two$valid)
+```
+
