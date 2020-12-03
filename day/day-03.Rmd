@@ -1,0 +1,126 @@
+---
+title: "Adv2020 - Day Three"
+author: "Tan Ho"
+date: "2020-12-03"
+output: html_document
+---
+
+Day three!
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Problem
+
+> You start on the open square (.) in the top-left corner and need to reach the bottom (below the bottom-most row on your map).
+> 
+> The toboggan can only follow a few specific slopes (you opted for a cheaper model that prefers rational numbers); start by counting all the trees you would encounter for the slope right 3, down 1:
+> 
+> From your starting position at the top-left, check the position that is right 3 and down 1. Then, check the position that is right 3 and down 1 from there, and so on until you go past the bottom of the map.
+>
+> Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?
+
+### Input Data
+
+Converting to a matrix of 1s and 0s, where "#" is 1 and "." is 0
+
+```{r}
+input_matrix <- read_table("day-03.txt",col_names = "x") %>% 
+  mutate(x = str_split(x,"")) %>% 
+  unnest_wider(x,names_sep = "_") %>% 
+  mutate_all(~case_when(.x == "#" ~ 1, .x == "." ~ 0)) %>% 
+  as.matrix()
+```
+
+### Problem 1
+
+> Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you encounter?
+
+Key here is that the pattern repeats to the right until you get down to the bottom, i.e. until you access row 323 in this case.
+
+```{r}
+input_rows <- nrow(input_matrix)
+
+input_rows
+
+```
+So 323 is the goal rows, and that means we'll need ~ `r 323 * 3` columns. We can tackle this cbind with a while loop. 
+
+```{r}
+input_columns <- input_rows * 3
+
+wide_matrix <- input_matrix
+
+while(ncol(wide_matrix) < input_columns) wide_matrix <- cbind(wide_matrix,input_matrix)
+```
+
+Now building an accessor tibble with row numbers and column numbers
+
+```{r}
+row_accessor <- 2:input_rows # start at 1,1 so the next row is 2
+
+column_accessor <- 1:input_rows * 3 + 1 # start at 1,1 and move right three, so next column is 4
+
+column_accessor <- column_accessor[-323] # need the accessors to be same length
+
+indices <- tibble(
+  row = row_accessor,
+  column = column_accessor) %>%
+  mutate(path = map2_dbl(row,column,~wide_matrix[.x,.y]))
+  
+head(indices)
+
+sum(indices$path)
+
+```
+
+### Problem 2: Find this path for multiple slopes
+
+Find the path for
+
+- 1,1
+- 3,1
+- 5,1
+- 7,1
+- 1,2
+
+A good time to generalise the previous steps!
+
+```{r}
+
+fn_slope <- function(right,down,matrix){
+  
+  # Calculate number of columns
+  column_count <- (nrow(matrix) * right)
+  
+  # Create matrix
+  wide_matrix <- matrix
+  while(ncol(wide_matrix) < column_count) wide_matrix <- cbind(wide_matrix,matrix)
+  
+  # Create accessors
+  row_accessor <- (1:nrow(matrix) * down) + 1
+  row_accessor <- row_accessor[row_accessor <=nrow(matrix)]
+  
+  column_accessor <- (1:nrow(matrix) * right) + 1
+  column_accessor <- column_accessor[1:length(row_accessor)]
+  
+  x <- tibble(row = row_accessor,
+              column = column_accessor) %>% 
+    mutate(path = map2_dbl(row,column,~wide_matrix[.x,.y]))
+  
+  sum(x$path)
+}
+
+toboggan_paths <- tibble(right = c(1,3,5,7,1),
+                         down = c(1,1,1,1,2)) %>% 
+  mutate(paths = map2_dbl(right,down,fn_slope,input_matrix))
+
+toboggan_paths
+
+reduce(toboggan_paths$paths,`*`)
+
+```
