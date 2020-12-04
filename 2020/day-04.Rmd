@@ -33,7 +33,7 @@ Count the number of valid passports - those that have `all required fields`. Tre
 ### Input Data
 
 ```{r}
-input_data <- read_lines(here("day/day-04.txt"))
+input_data <- read_lines(here("2020/day-04.txt"))
 
 head(input_data)
 ```
