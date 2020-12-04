@@ -84,4 +84,8 @@ valid_p2 <- valid_p1 %>%
     ecl %in% c("amb","blu","brn","gry","grn","hzl","oth"),
     str_detect(pid,"^[0-9]{9}$"),
   )
+
+head(valid_p2)
+nrow(valid_p2)
+
 ```
