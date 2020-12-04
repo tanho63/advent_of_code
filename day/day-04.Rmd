@@ -1,0 +1,87 @@
+---
+title: "Adv2020 - Day Three"
+author: "Tan Ho"
+date: "2020-12-03"
+output: html_document
+---
+
+Day three!
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Problem Description
+> The automatic passport scanners are slow because they're having trouble detecting which passports have all required fields. The  expected fields are as follows:
+> 
+>     - byr (Birth Year)
+>     - iyr (Issue Year)
+>     - eyr (Expiration Year)
+>     - hgt (Height)
+>     - hcl (Hair Color)
+>     - ecl (Eye Color)
+>     - pid (Passport ID)
+>     - cid (Country ID)
+> 
+> Passport data is validated in batch files (your puzzle input). Each passport is represented as a sequence of key:value pairs separated by spaces or newlines. Passports are separated by blank lines.
+
+Count the number of valid passports - those that have `all required fields`. Treat cid as optional. In your batch file, how many passports are valid?
+
+### Input Data
+
+```{r}
+input_data <- read_lines(here("day/day-04.txt"))
+
+head(input_data)
+```
+
+Cleaning data into a tibble.
+
+```{r}
+df_passports <- tibble(data = input_data) %>%
+  mutate(blank = ifelse(data == "",1,0),
+         passport_id = cumsum(blank)+1) %>% 
+  filter(!blank) %>% 
+  select(-blank) %>% 
+  separate_rows(data, sep = " ") %>% 
+  separate(data, sep = ":", into = c("key","value")) %>% 
+  pivot_wider(names_from = key, values_from = value)
+
+head(df_passports)
+```
+
+### Problem 1: How many complete/non-missing passports?
+
+```{r}
+
+valid_p1 <- df_passports %>% 
+  select(-cid) %>% 
+  filter_all(~!is.na(.x))
+
+head(valid_p1)
+nrow(valid_p1)
+```
+
+### Problem 2: Validate columns
+
+```{r}
+
+valid_p2 <- valid_p1 %>% 
+  mutate_at(c("byr","iyr","eyr"),as.numeric) %>% 
+  filter(
+    between(byr,1920,2002),
+    between(iyr,2010,2020),
+    between(eyr,2020,2030),
+    case_when(
+      str_ends(hgt,"cm") & between(parse_number(hgt),150,193) ~ TRUE,
+      str_ends(hgt,"in") & between(parse_number(hgt),59,76) ~ TRUE,
+      TRUE ~ FALSE
+      ),
+    str_detect(hcl,"^#[A-z,0-9]{6}$"),
+    ecl %in% c("amb","blu","brn","gry","grn","hzl","oth"),
+    str_detect(pid,"^[0-9]{9}$"),
+  )
+```
