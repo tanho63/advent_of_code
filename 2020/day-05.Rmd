@@ -37,16 +37,11 @@ First, some cleaning.
 
 ```{r}
 
-range <- 0:127
-string <- 'FBFBBFFRLR'
-
 search_function <- function(string,range){
   
   midpoint <- length(range)%/%2
-
   accessor <- str_sub(string,1,1) 
 
-  
   new_range <- switch(
     accessor,
     "L" = ,
@@ -54,14 +49,14 @@ search_function <- function(string,range){
     "R" = ,
     "B" = range[-(1:midpoint)])
 
-  
   if(length(new_range) == 1) return(new_range)
   
   new_string <- str_remove(string,"^.")
   
   search_function(new_string,new_range)
-  
 }
+
+search_function("FBFBBFF",0:127)
 
 df_boardingpasses <- tibble(input = input_05) %>% 
   mutate(row_string = str_sub(input,1,7),
