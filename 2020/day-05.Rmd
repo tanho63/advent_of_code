@@ -1,0 +1,97 @@
+---
+title: "Adv2020 - Day Five"
+author: "Tan Ho"
+date: "2020-12-05"
+output: html_document
+---
+
+Day five!
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> Instead of zones or groups, this airline uses binary space partitioning to seat people. A seat might be specified like FBFBBFFRLR, where F means "front", B means "back", L means "left", and R means "right".
+>
+> The first 7 characters will either be F or B; these specify exactly one of the 128 rows on the plane (numbered 0 through 127). Each letter tells you which half of a region the given seat is in. Start with the whole list of rows; the first letter indicates whether the seat is in the front (0 through 63) or the back (64 through 127). The next letter indicates which half of that region the seat is in, and so on until you're left with exactly one row.
+> 
+> The last three characters will be either L or R; these specify exactly one of the 8 columns of seats on the plane (numbered 0 through 7). The same process as above proceeds again, this time with only three steps. L means to keep the lower half, while R means to keep the upper half.
+>      
+> So, decoding FBFBBFFRLR reveals that it is the seat at row 44, column 5.
+> 
+> Every seat also has a unique seat ID: multiply the row by 8, then add the column. In this example, the seat has ID 44 * 8 + 5 = 357.
+
+### Data and Cleaning
+
+
+```{r}
+input_05 <- read_lines(here("2020","day-05.txt"))
+```
+
+### Problem 1: highest seat ID?
+
+First, some cleaning.
+
+```{r}
+
+range <- 0:127
+string <- 'FBFBBFFRLR'
+
+search_function <- function(string,range){
+  
+  midpoint <- length(range)%/%2
+
+  accessor <- str_sub(string,1,1) 
+
+  
+  new_range <- switch(
+    accessor,
+    "L" = ,
+    "F" = range[1:midpoint],
+    "R" = ,
+    "B" = range[-(1:midpoint)])
+
+  
+  if(length(new_range) == 1) return(new_range)
+  
+  new_string <- str_remove(string,"^.")
+  
+  search_function(new_string,new_range)
+  
+}
+
+df_boardingpasses <- tibble(input = input_05) %>% 
+  mutate(row_string = str_sub(input,1,7),
+         seat_string = str_sub(input,-3,-1),
+         row = map_dbl(row_string,search_function,0:127),
+         seat = map_dbl(seat_string,search_function,0:7),
+         seat_id = row * 8 + seat)
+
+head(df_boardingpasses)
+
+max(df_boardingpasses$seat_id)
+```
+
+### Problem 2: Your Seat
+
+> It's a completely full flight, so your seat should be the only missing boarding pass in your list. However, there's a catch: some of the seats at the very front and back of the plane don't exist on this aircraft, so they'll be missing from your list as well.
+>
+> Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.
+
+```{r}
+actual_seats <-  df_boardingpasses %>% 
+  arrange(row,seat) %>% 
+  filter(
+    row != min(row),
+    row != max(row)
+  )
+
+x <- seq.int(min(actual_seats$seat_id),max(actual_seats$seat_id))
+
+x[!(x %in% actual_seats$seat_id)]
+
+```
+
