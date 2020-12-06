@@ -1,0 +1,71 @@
+---
+title: "Adv2020 - Day Six"
+author: "Tan Ho"
+date: "2020-12-06"
+output: html_document
+---
+
+Day six!
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> The form asks a series of 26 yes-or-no questions marked a through z. All you need to do is identify the questions for which anyone in your group answers "yes". Since your group is just you, this doesn't take very long.
+>
+>However, the person sitting next to you seems to be experiencing a language barrier and asks if you can help. For each of the people in their group, you write down the questions for which they answer "yes", one per line. For example:
+>
+> - abcx
+> - abcy
+>- abcz
+>
+>In this group, there are 6 questions to which anyone answered "yes": a, b, c, x, y, and z. (Duplicate answers to the same question don't count extra; each question counts at most once.)
+
+### Data
+```{r}
+input_06 <- read_lines(here("2020","day-06.txt"))
+```
+
+### Cleaning
+```{r}
+
+df_surveys <- tibble(data = input_06) %>% 
+  mutate(group_id = ifelse(data == "",1,0),
+         group_id = cumsum(group_id) + 1) %>% 
+  filter(data!="") %>% 
+  mutate(passenger_id = row_number(),
+         data = str_split(data,"")) %>% 
+  unnest_longer(data)
+
+```
+
+### Problem 1
+For each group, count the number of questions to which anyone answered "yes". What is the sum of those counts?
+
+```{r}
+
+df_surveys %>% 
+  group_by(group_id) %>% 
+  summarise(count = length(unique(data))) %>% 
+  summarise(sum(count))
+```
+
+### Problem 2
+
+```{r}
+df_surveys %>% 
+  group_by(group_id, data) %>%
+  mutate(answer_count = n()) %>% 
+  group_by(group_id) %>%
+  mutate(group_count = length(unique(passenger_id))) %>% 
+  ungroup() %>% 
+  filter(answer_count == group_count) %>% 
+  group_by(group_id) %>% 
+  summarise(count = length(unique(data))) %>% 
+  summarise(sum(count))
+```
+
+New time PB of fifteen minutes is pretty satisfying!
