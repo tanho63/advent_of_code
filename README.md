@@ -1,6 +1,7 @@
 Advent of Code
 
 2020 Stats
+```
       --------Part 1--------   --------Part 2--------
 Day       Time   Rank  Score       Time   Rank  Score
   6   00:10:04   3730      0   00:15:20   2587      0
@@ -9,3 +10,4 @@ Day       Time   Rank  Score       Time   Rank  Score
   3   00:33:36   6826      0   01:01:46   8007      0
   2   07:40:44  35065      0   07:49:04  33133      0
   1   09:26:00  34474      0   09:31:58  31630      0
+```
