@@ -55,6 +55,8 @@ df_surveys %>%
 
 ### Problem 2
 
+Now count only where everyone in the group answered ALL the same questions.
+
 ```{r}
 df_surveys %>% 
   group_by(group_id, data) %>%
