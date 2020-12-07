@@ -91,9 +91,11 @@ unique(parents$name) %>% length()
 
 ### Problem 2 - how many bags are inside your shiny gold bag?
 
+The ultimate "I'm too tired for this shit" move is to pull out parallel processing on it. Cause ugh.
+
 ```{r}
 
-library(furrr)
+library(furrr) 
 
 plan(multiprocess)
 
