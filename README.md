@@ -4,6 +4,7 @@ Advent of Code
 ```
       --------Part 1--------   --------Part 2--------
 Day       Time   Rank  Score       Time   Rank  Score
+  7   00:23:12   1546      0   01:50:18   6048      0 # LOL THE GAP BETWEEN PROBLEM 2 AND PROBLEM 1
   6   00:10:04   3730      0   00:15:20   2587      0
   5   07:15:37  26932      0   07:25:04  25548      0
   4   00:19:57   3991      0   00:30:59   1369      0
