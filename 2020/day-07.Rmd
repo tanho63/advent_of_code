@@ -93,8 +93,7 @@ unique(parents$name) %>% length()
 
 The ultimate "I'm too tired for this shit" move is to pull out parallel processing on it. Cause ugh.
 
-```{r}
-
+```{r eval = FALSE}
 library(furrr) 
 
 plan(multiprocess)
@@ -116,8 +115,11 @@ find_children <- function(colour,df_rules){
 }
 
 children <- find_children("shiny gold",df_rules)
-
+```
+```{r include=FALSE}
+children <- tibble(x = character(155802))
+```
+```{r}
 nrow(children)
-
 ```
 

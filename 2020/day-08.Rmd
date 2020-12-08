@@ -1,0 +1,146 @@
+---
+title: "Adv2020 - Day Eight"
+author: "Tan Ho"
+date: "2020-12-02"
+output: html_document
+---
+
+Day eight! "Handheld Halting"
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> The boot code is represented as a text file with one instruction per line of text. Each instruction consists of an operation (acc, jmp, or nop) and an argument (a signed number like +4 or -20).
+>
+>  -  acc increases or decreases a single global value called the accumulator by the value given in the argument. For example, acc +7 would increase the accumulator by 7. The accumulator starts at 0. After an acc instruction, the instruction immediately below it is executed next.
+>  -  jmp jumps to a new instruction relative to itself. The next instruction to execute is found using the argument as an offset from the jmp instruction; for example, jmp +2 would skip the next instruction, jmp +1 would continue to the instruction immediately below it, and jmp -20 would cause the instruction 20 lines above to be executed next.
+>  -  nop stands for No OPeration - it does nothing. The instruction immediately below it is executed next.
+>
+>This is an infinite loop: with this sequence of jumps, the program will run forever. The moment the program tries to run any instruction a second time, you know it will never terminate.
+>
+>Immediately before the program would run an instruction a second time, the value in the accumulator is 5.
+>
+> Run your copy of the boot code. Immediately before any instruction is executed a second time, what value is in the accumulator?
+
+### Data
+```{r}
+input_08 <- read_lines(here("2020","day-08.txt"))
+```
+
+### Cleaning
+```{r}
+df_codes <- tibble(x = input_08) %>% 
+  separate(x,c("instruction","qty"),sep = " ", convert = TRUE) %>% 
+  mutate(instruction_id = row_number(),
+         next_instruction_id = case_when(instruction == "jmp" ~ instruction_id + qty,
+                                         TRUE ~ instruction_id + 1L)) %>% 
+  select(instruction_id,instruction,qty,next_instruction_id)
+```
+
+### Problem 1: Immediately before any instruction is executed a second time, what value is in the accumulator?
+
+```{r}
+
+current_id <- 1
+accumulator <- 0
+error_switch <- FALSE
+visited_codes <- tibble()
+
+while(!error_switch){
+  
+  current_instruction <- df_codes %>% 
+    filter(instruction_id == current_id)
+  
+  visited_codes <- bind_rows(visited_codes,current_instruction)
+  
+  if(current_instruction$instruction == "acc") accumulator <- accumulator + current_instruction$qty
+  
+  current_id <- current_instruction$next_instruction_id
+  
+  if(current_id %in% visited_codes$instruction_id) error_switch <- TRUE
+
+}
+
+accumulator
+```
+
+### Problem 2: Fix the program
+
+The program has a bug where one of jmp or nop are wrong and should be the other way around, which will let the program run all of the rows. If the program exits correctly, what is the accumulator total?
+
+First, create function for accumulator.
+
+```{r}
+
+run_accumulator <- function(df_codes){
+  
+  current_id <- 1
+  accumulator <- 0
+  error_switch <- FALSE
+  visited_codes <- tibble()
+  status <- "FAIL"
+  
+  while(!error_switch){
+    
+    current_instruction <- df_codes %>% 
+      filter(instruction_id == current_id)
+    
+    visited_codes <- bind_rows(visited_codes,current_instruction)
+    
+    if(current_instruction$instruction == "acc") accumulator <- accumulator + current_instruction$qty
+    
+    current_id <- current_instruction$next_instruction_id
+    
+    if(current_id == 626) error_switch <- TRUE
+    
+    if(current_id %in% visited_codes$instruction_id) error_switch <- TRUE
+  }
+
+  if(current_id == 626) status <- "SUCCESS"
+  
+  return( 
+    list(
+      status = status, 
+      accumulator = accumulator, 
+      next_id = current_id)
+  )
+}
+
+run_accumulator(df_codes)
+
+```
+
+Next, build function to switch jmp and nop, build list of dfs, run the accumulator on it and find success.
+
+```{r}
+
+library(furrr)
+
+plan(multisession)
+
+jmpnop_switcher <- function(id,df_codes){
+  
+  df_codes$instruction[id] <- switch(df_codes$instruction[id],
+                                     "jmp" = "nop",
+                                     "nop" = "jmp")
+  
+  df_codes <- df_codes %>% 
+    mutate(next_instruction_id = case_when(instruction == "jmp" ~ instruction_id + qty,
+                                           TRUE ~ instruction_id + 1L))
+  
+  df_codes
+}
+
+jmpnop_list <- df_codes$instruction_id[df_codes$instruction %in% c("jmp","nop")]
+
+df_codelist <- map(jmpnop_list,jmpnop_switcher,df_codes)
+
+x <- future_map_dfr(df_codelist,run_accumulator)
+
+x %>% arrange(desc(status))
+```
+

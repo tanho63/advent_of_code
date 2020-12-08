@@ -11,9 +11,9 @@
 
 <meta name="author" content="Tan Ho" />
 
-<meta name="date" content="2020-12-07" />
+<meta name="date" content="2020-12-02" />
 
-<title>Adv2020 - Day Seven</title>
+<title>Adv2020 - Day Eight</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -376,107 +376,153 @@ summary {
 
 
 
-<h1 class="title toc-ignore">Adv2020 - Day Seven</h1>
+<h1 class="title toc-ignore">Adv2020 - Day Eight</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">2020-12-07</h4>
+<h4 class="date">2020-12-02</h4>
 
 </div>
 
 
-<p>Day seven! “Handy Haversacks”</p>
+<p>Day eight! “Handheld Halting”</p>
 <pre class="r"><code>library(tidyverse)
 library(here)
 
 knitr::opts_chunk$set(echo = TRUE)</code></pre>
 <blockquote>
-<p>Due to recent aviation regulations, many rules (your puzzle input) are being enforced about bags and their contents; bags must be color-coded and must contain specific quantities of other color-coded bags. Apparently, nobody responsible for these regulations considered how long they would take to enforce!</p>
-<p>For example, consider the following rules:</p>
+<p>The boot code is represented as a text file with one instruction per line of text. Each instruction consists of an operation (acc, jmp, or nop) and an argument (a signed number like +4 or -20).</p>
 <ul>
-<li>light red bags contain 1 bright white bag, 2 muted yellow bags.</li>
-<li>dark orange bags contain 3 bright white bags, 4 muted yellow bags.</li>
-<li>bright white bags contain 1 shiny gold bag.</li>
-<li>muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.</li>
-<li>shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.</li>
-<li>dark olive bags contain 3 faded blue bags, 4 dotted black bags.</li>
-<li>vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.</li>
-<li>faded blue bags contain no other bags.</li>
-<li>dotted black bags contain no other bags.</li>
+<li>acc increases or decreases a single global value called the accumulator by the value given in the argument. For example, acc +7 would increase the accumulator by 7. The accumulator starts at 0. After an acc instruction, the instruction immediately below it is executed next.</li>
+<li>jmp jumps to a new instruction relative to itself. The next instruction to execute is found using the argument as an offset from the jmp instruction; for example, jmp +2 would skip the next instruction, jmp +1 would continue to the instruction immediately below it, and jmp -20 would cause the instruction 20 lines above to be executed next.</li>
+<li>nop stands for No OPeration - it does nothing. The instruction immediately below it is executed next.</li>
 </ul>
-<p>These rules specify the required contents for 9 bag types. In this example, every faded blue bag is empty, every vibrant plum bag contains 11 bags (5 faded blue and 6 dotted black), and so on.</p>
-<p>You have a shiny gold bag. If you wanted to carry it in at least one other bag, how many different bag colors would be valid for the outermost bag? (In other words: how many colors can, eventually, contain at least one shiny gold bag?)</p>
-<p>In the above rules, the following options would be available to you:</p>
-<ul>
-<li>A bright white bag, which can hold your shiny gold bag directly.</li>
-<li>A muted yellow bag, which can hold your shiny gold bag directly, plus some other bags.</li>
-<li>A dark orange bag, which can hold bright white and muted yellow bags, either of which could then hold your shiny gold bag.</li>
-<li>A light red bag, which can hold bright white and muted yellow bags, either of which could then hold your shiny gold bag.</li>
-</ul>
-<p>So, in this example, the number of bag colors that can eventually contain at least one shiny gold bag is 4.</p>
-<p>How many bag colors can eventually contain at least one shiny gold bag?</p>
+<p>This is an infinite loop: with this sequence of jumps, the program will run forever. The moment the program tries to run any instruction a second time, you know it will never terminate.</p>
+<p>Immediately before the program would run an instruction a second time, the value in the accumulator is 5.</p>
+<p>Run your copy of the boot code. Immediately before any instruction is executed a second time, what value is in the accumulator?</p>
 </blockquote>
 <div id="data" class="section level3">
 <h3>Data</h3>
-<pre class="r"><code>input_07 &lt;- read_lines(here(&quot;2020&quot;,&quot;day-07.txt&quot;))</code></pre>
+<pre class="r"><code>input_08 &lt;- read_lines(here(&quot;2020&quot;,&quot;day-08.txt&quot;))</code></pre>
 </div>
 <div id="cleaning" class="section level3">
 <h3>Cleaning</h3>
-<pre class="r"><code>df_rules &lt;- tibble(input = input_07) %&gt;% 
-  separate(input,into = c(&quot;name&quot;,&quot;rule&quot;),sep = &quot; bags contain &quot;) %&gt;% 
-  mutate(rule = str_split(rule,&quot;bags|bag&quot;)) %&gt;% 
-  unnest_longer(rule)  %&gt;% 
-  mutate(rule = str_remove(rule,&quot;,&quot;),
-         rule = str_remove(rule,&quot;\\.&quot;),
-         rule = str_squish(rule)) %&gt;% 
-  filter(rule != &quot;&quot;) %&gt;% 
-  mutate(rule_qty = parse_number(rule,na = &quot;no other&quot;),
-         rule_colour = if_else(is.na(rule_qty), 
-                               NA_character_,
-                               str_remove(rule,as.character(rule_qty))),
-         rule_colour = str_squish(rule_colour))</code></pre>
+<pre class="r"><code>df_codes &lt;- tibble(x = input_08) %&gt;% 
+  separate(x,c(&quot;instruction&quot;,&quot;qty&quot;),sep = &quot; &quot;, convert = TRUE) %&gt;% 
+  mutate(instruction_id = row_number(),
+         next_instruction_id = case_when(instruction == &quot;jmp&quot; ~ instruction_id + qty,
+                                         TRUE ~ instruction_id + 1L)) %&gt;% 
+  select(instruction_id,instruction,qty,next_instruction_id)</code></pre>
 </div>
-<div id="problem-1---how-many-bag-colours-eventually-contain-one-shiny-gold-bag" class="section level3">
-<h3>Problem 1 - how many bag colours eventually contain one shiny gold bag?</h3>
-<pre class="r"><code>find_parents &lt;- function(colour,df_rules){
+<div id="problem-1-immediately-before-any-instruction-is-executed-a-second-time-what-value-is-in-the-accumulator" class="section level3">
+<h3>Problem 1: Immediately before any instruction is executed a second time, what value is in the accumulator?</h3>
+<pre class="r"><code>current_id &lt;- 1
+accumulator &lt;- 0
+error_switch &lt;- FALSE
+visited_codes &lt;- tibble()
+
+while(!error_switch){
   
-  x &lt;- df_rules %&gt;% 
-    filter(rule_colour == colour, rule_qty &gt;= 1)
+  current_instruction &lt;- df_codes %&gt;% 
+    filter(instruction_id == current_id)
   
-  map_dfr(x$name,find_parents,df_rules) %&gt;% 
-    bind_rows(x,.)
+  visited_codes &lt;- bind_rows(visited_codes,current_instruction)
   
+  if(current_instruction$instruction == &quot;acc&quot;) accumulator &lt;- accumulator + current_instruction$qty
+  
+  current_id &lt;- current_instruction$next_instruction_id
+  
+  if(current_id %in% visited_codes$instruction_id) error_switch &lt;- TRUE
+
 }
 
-parents &lt;- find_parents(&quot;shiny gold&quot;,df_rules)
-
-unique(parents$name) %&gt;% length()</code></pre>
-<pre><code>## [1] 119</code></pre>
+accumulator</code></pre>
+<pre><code>## [1] 1797</code></pre>
 </div>
-<div id="problem-2---how-many-bags-are-inside-your-shiny-gold-bag" class="section level3">
-<h3>Problem 2 - how many bags are inside your shiny gold bag?</h3>
-<p>The ultimate “I’m too tired for this shit” move is to pull out parallel processing on it. Cause ugh.</p>
-<pre class="r"><code>library(furrr) 
+<div id="problem-2-fix-the-program" class="section level3">
+<h3>Problem 2: Fix the program</h3>
+<p>The program has a bug where one of jmp or nop are wrong and should be the other way around, which will let the program run all of the rows. If the program exits correctly, what is the accumulator total?</p>
+<p>First, create function for accumulator.</p>
+<pre class="r"><code>run_accumulator &lt;- function(df_codes){
+  
+  current_id &lt;- 1
+  accumulator &lt;- 0
+  error_switch &lt;- FALSE
+  visited_codes &lt;- tibble()
+  status &lt;- &quot;FAIL&quot;
+  
+  while(!error_switch){
+    
+    current_instruction &lt;- df_codes %&gt;% 
+      filter(instruction_id == current_id)
+    
+    visited_codes &lt;- bind_rows(visited_codes,current_instruction)
+    
+    if(current_instruction$instruction == &quot;acc&quot;) accumulator &lt;- accumulator + current_instruction$qty
+    
+    current_id &lt;- current_instruction$next_instruction_id
+    
+    if(current_id == 626) error_switch &lt;- TRUE
+    
+    if(current_id %in% visited_codes$instruction_id) error_switch &lt;- TRUE
+  }
 
-plan(multiprocess)
-
-find_children &lt;- function(colour,df_rules){
+  if(current_id == 626) status &lt;- &quot;SUCCESS&quot;
   
-  x &lt;- df_rules %&gt;% 
-    filter(name == colour,!is.na(rule_qty))
-  
-  if(nrow(x)==0) return(tibble())
-  
-  x &lt;- x %&gt;% 
-    mutate(rule_colour = map2(rule_colour,rule_qty,rep_len)) %&gt;% 
-    unnest_longer(rule_colour)
-  
-  y &lt;- future_map_dfr(x$rule_colour,find_children,df_rules)
-  
-  bind_rows(x,y)
+  return( 
+    list(
+      status = status, 
+      accumulator = accumulator, 
+      next_id = current_id)
+  )
 }
 
-children &lt;- find_children(&quot;shiny gold&quot;,df_rules)</code></pre>
-<pre class="r"><code>nrow(children)</code></pre>
-<pre><code>## [1] 155802</code></pre>
+run_accumulator(df_codes)</code></pre>
+<pre><code>## $status
+## [1] &quot;FAIL&quot;
+## 
+## $accumulator
+## [1] 1797
+## 
+## $next_id
+## [1] 606</code></pre>
+<p>Next, build function to switch jmp and nop, build list of dfs, run the accumulator on it and find success.</p>
+<pre class="r"><code>library(furrr)</code></pre>
+<pre><code>## Loading required package: future</code></pre>
+<pre class="r"><code>plan(multisession)
+
+jmpnop_switcher &lt;- function(id,df_codes){
+  
+  df_codes$instruction[id] &lt;- switch(df_codes$instruction[id],
+                                     &quot;jmp&quot; = &quot;nop&quot;,
+                                     &quot;nop&quot; = &quot;jmp&quot;)
+  
+  df_codes &lt;- df_codes %&gt;% 
+    mutate(next_instruction_id = case_when(instruction == &quot;jmp&quot; ~ instruction_id + qty,
+                                           TRUE ~ instruction_id + 1L))
+  
+  df_codes
+}
+
+jmpnop_list &lt;- df_codes$instruction_id[df_codes$instruction %in% c(&quot;jmp&quot;,&quot;nop&quot;)]
+
+df_codelist &lt;- map(jmpnop_list,jmpnop_switcher,df_codes)
+
+x &lt;- future_map_dfr(df_codelist,run_accumulator)
+
+x %&gt;% arrange(desc(status))</code></pre>
+<pre><code>## # A tibble: 298 x 3
+##    status  accumulator next_id
+##    &lt;chr&gt;         &lt;dbl&gt;   &lt;int&gt;
+##  1 SUCCESS        1036     626
+##  2 FAIL           1818     448
+##  3 FAIL           1797     606
+##  4 FAIL           1797     606
+##  5 FAIL           1797     606
+##  6 FAIL           1797     606
+##  7 FAIL           1797     606
+##  8 FAIL           1797     606
+##  9 FAIL            726     606
+## 10 FAIL            682     606
+## # ... with 288 more rows</code></pre>
 </div>
 
 
