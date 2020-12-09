@@ -1,0 +1,98 @@
+---
+title: "Adv2020 - Day Nine"
+author: "Tan Ho"
+date: "2020-12-09"
+output: html_document
+---
+
+Day nine - encoding error!
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+--- Description --- 
+
+> XMAS starts by transmitting a preamble of 25 numbers. After that, each number you receive should be the sum of any two of the 25 immediately previous numbers. The two numbers will have different values, and there might be more than one such pair.
+> 
+> For example, suppose your preamble consists of the numbers 1 through 25 in a random order. To be valid, the next number must be the sum of two of those numbers. 
+>
+>The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it. What is the first number that does not have this property?
+
+--- Data ---
+```{r}
+input_09 <- read_lines(here("2020","day-09.txt"))
+```
+
+--- Cleaning ---
+
+Offhand, I'm going to use Davis Vaughan's "slider" package to create the rolling windows for each row, and then tackle it for each problem. 
+
+```{r}
+library(slider)
+
+df_cipher <- tibble(num = input_09) %>% 
+  mutate_all(as.numeric) %>% 
+  mutate(rolling = slide(num,~.x,.before = 25, .complete = TRUE)) %>% 
+  slice(-(1:25)) %>% 
+  mutate(rolling = map(rolling,magrittr::extract,1:25))
+
+```
+
+--- Problem 1 ---
+
+> Find the first number which is not the sum of the two numbers before it.
+
+```{r}
+
+problem_1 <- df_cipher %>% 
+  mutate(rolling_sum = map2_lgl(rolling,num, 
+                       ~ crossing(x = .x, y = .x) %>% 
+                          mutate(sum = x + y,
+                                 flag = sum == .y) %>% 
+                         summarise(flag = any(flag)) %>% 
+                         pull(flag)))
+
+problem_1 %>% 
+  filter(!rolling_sum)
+
+solution_1 <- problem_1 %>% 
+  filter(!rolling_sum) %>% 
+  pull(num)
+
+```
+
+--- Problem 2 --- 
+
+> The final step in breaking the XMAS encryption relies on the invalid number you just found: you must find a contiguous set of at least two numbers in your list which sum to the invalid number from step 1.
+
+Back to slider again, this time using a loop to iterate the size of the rolling window upward until the solution is found.
+
+```{r}
+
+problem_2 <- df_cipher %>% 
+  filter(num < solution_1) %>% # shrinking the problem set earlier for faster looping
+  select(num)
+
+success <- FALSE
+size <- 1
+
+while(!success){
+  size <- size + 1
+  
+  test_solve <- problem_2 %>% 
+    mutate(rolling_sum = slide_dbl(num,sum,.complete = TRUE,.before = size - 1),
+           success = rolling_sum == solution_1)
+  
+  success <- any(test_solve$success,na.rm = TRUE)
+}
+
+cleanup_solution <- test_solve %>% 
+  slice((which(test_solve$success)-size+1):which(test_solve$success))
+  
+min(cleanup_solution$num) + max(cleanup_solution$num)
+
+```
