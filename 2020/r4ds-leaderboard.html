@@ -191,7 +191,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-09 14:58:36</h4>
+<h4 class="date">Last Updated: 2020-12-09 15:03:15</h4>
 
 </div>
 
@@ -227,41 +227,42 @@ stars</code></pre>
 <pre><code>## # A tibble: 90 x 8
 ##    user_name user_id aoc_score total_stars day   star1_timestamp    
 ##    &lt;chr&gt;     &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;             
-##  1 aleighbr~ 1008588       108          15 2     2020-12-02 07:21:52
-##  2 aleighbr~ 1008588       108          15 4     2020-12-04 08:25:44
-##  3 aleighbr~ 1008588       108          15 3     2020-12-03 09:33:04
-##  4 aleighbr~ 1008588       108          15 7     2020-12-08 09:34:17
-##  5 aleighbr~ 1008588       108          15 5     2020-12-05 09:55:04
-##  6 aleighbr~ 1008588       108          15 1     2020-12-01 10:44:51
-##  7 aleighbr~ 1008588       108          15 6     2020-12-08 07:22:15
-##  8 aleighbr~ 1008588       108          15 8     2020-12-09 08:31:45
-##  9 Alison L~ 1026315        83          14 5     2020-12-05 12:48:14
-## 10 Alison L~ 1026315        83          14 7     2020-12-07 14:15:32
+##  1 aleighbr~ 1008588       108          15 8     2020-12-09 08:31:45
+##  2 aleighbr~ 1008588       108          15 1     2020-12-01 10:44:51
+##  3 aleighbr~ 1008588       108          15 6     2020-12-08 07:22:15
+##  4 aleighbr~ 1008588       108          15 2     2020-12-02 07:21:52
+##  5 aleighbr~ 1008588       108          15 4     2020-12-04 08:25:44
+##  6 aleighbr~ 1008588       108          15 3     2020-12-03 09:33:04
+##  7 aleighbr~ 1008588       108          15 7     2020-12-08 09:34:17
+##  8 aleighbr~ 1008588       108          15 5     2020-12-05 09:55:04
+##  9 SamBryce~ 1147940        11           2 3     2020-12-03 22:45:27
+## 10 Tokhir D~ 1010046       170          18 9     2020-12-09 06:15:00
 ## # ... with 80 more rows, and 2 more variables: star2_timestamp &lt;dttm&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
-  summarise(median_time_to_star2 = median(time_to_star2,na.rm = TRUE) %&gt;% round(1),
-            mean_time_to_star2 = mean(time_to_star2,na.rm = TRUE) %&gt;% round(1)) %&gt;% 
+  summarise(
+    median_star2 = median(time_to_star2,na.rm = TRUE) %&gt;% round(1),
+    mean_star2 = mean(time_to_star2,na.rm = TRUE) %&gt;% round(1)) %&gt;% 
   ungroup() %&gt;% 
-  arrange(desc(total_stars),median_time_to_star2)
+  arrange(desc(total_stars),median_star2)
 
 leaderboard</code></pre>
 <pre><code>## # A tibble: 12 x 6
-##    user_name    user_id aoc_score total_stars median_time_to_s~ mean_time_to_st~
-##    &lt;chr&gt;        &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;            &lt;drtn&gt;          
-##  1 kdaily16     1033297       101          18   8.5 mins         10.0 mins      
-##  2 @_TanHo      1032765       187          18  11.0 mins         22.2 mins      
-##  3 Liam Young   1011508       165          18  14.8 mins         59.6 mins      
-##  4 Kate         1050275       164          18  24.0 mins         53.0 mins      
-##  5 Tokhir Dada~ 1010046       170          18  38.8 mins         88.2 mins      
-##  6 kevin-m-kent 1126163       114          17  52.2 mins         54.2 mins      
-##  7 aleighbrown  1008588       108          15  22.0 mins         78.5 mins      
-##  8 Alison Lans~ 1026315        83          14 114.9 mins        188.6 mins      
-##  9 Anne         1020594       109          13  48.8 mins         81.3 mins      
-## 10 Michael Jez~ 991228         46          12  88.6 mins        336.2 mins      
-## 11 jsavn        1016340        38          11   4.9 mins         16.6 mins      
-## 12 SamBryce-Sm~ 1147940        11           2  16.7 mins         16.7 mins</code></pre>
+##    user_name         user_id aoc_score total_stars median_star2 mean_star2
+##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
+##  1 kdaily16          1033297       101          18   8.5 mins    10.0 mins
+##  2 @_TanHo           1032765       187          18  11.0 mins    22.2 mins
+##  3 Liam Young        1011508       165          18  14.8 mins    59.6 mins
+##  4 Kate              1050275       164          18  24.0 mins    53.0 mins
+##  5 Tokhir Dadaev     1010046       170          18  38.8 mins    88.2 mins
+##  6 kevin-m-kent      1126163       114          17  52.2 mins    54.2 mins
+##  7 aleighbrown       1008588       108          15  22.0 mins    78.5 mins
+##  8 Alison Lanski     1026315        83          14 114.9 mins   188.6 mins
+##  9 Anne              1020594       109          13  48.8 mins    81.3 mins
+## 10 Michael Jeziorski 991228         46          12  88.6 mins   336.2 mins
+## 11 jsavn             1016340        38          11   4.9 mins    16.6 mins
+## 12 SamBryce-Smith    1147940        11           2  16.7 mins    16.7 mins</code></pre>
 
 
 
