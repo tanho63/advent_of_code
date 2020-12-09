@@ -42,7 +42,8 @@ stars
 
 leaderboard <- stars %>% 
   group_by(user_name,user_id,aoc_score,total_stars) %>% 
-  summarise(median_time_to_star2 = median(time_to_star2,na.rm = TRUE) %>% round(1)) %>% 
+  summarise(median_time_to_star2 = median(time_to_star2,na.rm = TRUE) %>% round(1),
+            mean_time_to_star2 = mean(time_to_star2,na.rm = TRUE) %>% round(1)) %>% 
   ungroup() %>% 
   arrange(desc(total_stars),median_time_to_star2)
 
