@@ -1,0 +1,51 @@
+---
+title: "R4DS AOC Leaderboard"
+author: "Tan Ho"
+date: "Last Updated: `r Sys.time()`"
+output: 
+  html_document:
+    theme: darkly
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(httr)
+})
+
+options(dplyr.summarise.inform = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+stars <- httr::GET("https://adventofcode.com/2020/leaderboard/private/view/1032765.json",
+                   httr::set_cookies(session = Sys.getenv("session_cookie"))) %>% 
+  content() %>% 
+  as_tibble() %>% 
+  hoist("members",
+        "user_name"="name",
+        "user_id"="id",
+        "aoc_score"="local_score",
+        "completed_stars"="completion_day_level",
+        "total_stars" = "stars"
+        ) %>% 
+  unnest_longer('completed_stars',indices_to = "day") %>% 
+  unnest_longer("completed_stars",indices_to = "star") %>% 
+  unnest_longer("completed_stars",indices_include = FALSE) %>% 
+  select("user_name","user_id","aoc_score","total_stars","day","star","timestamp"="completed_stars") %>%
+  filter(!is.na(star)) %>% 
+  pivot_wider(names_from = star, values_from = timestamp, names_glue = "star{star}_timestamp") %>% 
+  mutate_at(c("star1_timestamp","star2_timestamp"),~ as.numeric(.x) %>% lubridate::as_datetime()) %>% 
+  mutate(time_to_star2 = (star2_timestamp-star1_timestamp) %>% round(1))
+
+stars
+
+leaderboard <- stars %>% 
+  group_by(user_name,user_id,aoc_score,total_stars) %>% 
+  summarise(median_time_to_star2 = median(time_to_star2,na.rm = TRUE) %>% round(1)) %>% 
+  ungroup() %>% 
+  arrange(desc(total_stars),median_time_to_star2)
+
+leaderboard
+```
+
