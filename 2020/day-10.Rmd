@@ -58,26 +58,27 @@ p2 <- df_adapters %>%
   arrange(desc(adapter)) %>% 
   mutate(
     ways = slide(adapter,~.x,.before = 3,.after = -1),
-    ways = map2(ways,adapter,~.x[.x-.y<=3])) %>% 
-  tail(-1)
+    ways = map2(ways,adapter,~.x[.x-.y<=3]))
 
-path_keys <- numeric()
-path_keys[[max(df_adapters$adapter)]] <- 1
+lookup_table <- numeric()
+lookup_table[[max(df_adapters$adapter)]] <- 1 # seed lookup_table for 166 as 1 path
+
+p2 <- p2 %>% slice(-1) # remove 166, ways you can plug 166 in is blank
 
 sum_ways <- function(ways,adapter){
   
   ways <- unlist(ways)
   
-  paths <- sum(path_keys[ways])
-  path_keys[adapter] <<- paths
-  paths
+  total_ways <- sum(lookup_table[ways]) # read lookup table for each of the ways
+    
+  lookup_table[adapter] <<- total_ways # superassign into lookup table the total ways for this adapter
+  
+  return(total_ways)
 }
 
 p2_solve <- p2 %>% 
-  mutate(paths = map2_dbl(ways,adapter,sum_ways))
+  mutate(total_ways = map2_dbl(ways,adapter,sum_ways))
 
-max(p2_solve$paths)
-
-
+max(p2_solve$total_ways)
 ```
 
