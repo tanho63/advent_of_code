@@ -11,9 +11,9 @@
 
 <meta name="author" content="Tan Ho" />
 
-<meta name="date" content="2020-12-09" />
+<meta name="date" content="2020-12-10" />
 
-<title>Adv2020 - Day Nine</title>
+<title>Adv2020 - Day Ten</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -376,82 +376,68 @@ summary {
 
 
 
-<h1 class="title toc-ignore">Adv2020 - Day Nine</h1>
+<h1 class="title toc-ignore">Adv2020 - Day Ten</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">2020-12-09</h4>
+<h4 class="date">2020-12-10</h4>
 
 </div>
 
 
-<p>Day nine - encoding error!</p>
-<pre class="r"><code>library(tidyverse)
-library(here)
+<p>Day ten - Adapter Array!</p>
+<pre class="r"><code>suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+})
 
 knitr::opts_chunk$set(echo = TRUE)</code></pre>
-<p>— Description —</p>
 <blockquote>
-<p>XMAS starts by transmitting a preamble of 25 numbers. After that, each number you receive should be the sum of any two of the 25 immediately previous numbers. The two numbers will have different values, and there might be more than one such pair.</p>
-<p>For example, suppose your preamble consists of the numbers 1 through 25 in a random order. To be valid, the next number must be the sum of two of those numbers.</p>
-<p>The first step of attacking the weakness in the XMAS data is to find the first number in the list (after the preamble) which is not the sum of two of the 25 numbers before it. What is the first number that does not have this property?</p>
+<p>Find a chain that uses all of your adapters to connect the charging outlet to your device’s built-in adapter and count the joltage differences between the charging outlet, the adapters, and your device. What is the number of 1-jolt differences multiplied by the number of 3-jolt differences?</p>
 </blockquote>
 <p>— Data —</p>
-<pre class="r"><code>input_09 &lt;- read_lines(here(&quot;2020&quot;,&quot;day-09.txt&quot;))</code></pre>
+<pre class="r"><code>input_10 &lt;- read_lines(here(&quot;2020&quot;,&quot;day-10.txt&quot;))</code></pre>
 <p>— Cleaning —</p>
-<p>Offhand, I’m going to use Davis Vaughan’s <a href="https://davisvaughan.github.io/slider/">slider</a> package to create the rolling windows for each row, and then tackle it for each problem.</p>
-<pre class="r"><code>library(slider)
-
-df_cipher &lt;- tibble(num = input_09) %&gt;% 
-  mutate_all(as.numeric) %&gt;% 
-  mutate(rolling = slide(num,~.x,.before = 24, .complete = TRUE) %&gt;% lag()) %&gt;% 
-  slice(-(1:25))</code></pre>
+<pre class="r"><code>df_adapters &lt;- tibble(adapter = input_10) %&gt;% 
+  mutate(adapter = as.numeric(adapter)) %&gt;% 
+  add_row(adapter = max(.$adapter)+3) %&gt;% 
+  arrange(adapter) %&gt;% 
+  mutate(diff = adapter - lag(adapter,default = 0))</code></pre>
 <p>— Problem 1 —</p>
-<blockquote>
-<p>Find the first number which is not the sum of the two numbers before it.</p>
-</blockquote>
-<pre class="r"><code>problem_1 &lt;- df_cipher %&gt;% 
-  mutate(rolling_sum = map2_lgl(rolling,num, 
-                                ~ crossing(x = .x, y = .x) %&gt;% 
-                                  mutate(sum = x + y,
-                                         flag = sum == .y) %&gt;% 
-                                  summarise(flag = any(flag)) %&gt;% 
-                                  pull(flag)))
+<pre class="r"><code>p1 &lt;- df_adapters %&gt;% 
+  count(diff)
 
-problem_1 %&gt;% 
-  filter(!rolling_sum)</code></pre>
-<pre><code>## # A tibble: 1 x 3
-##        num rolling    rolling_sum
-##      &lt;dbl&gt; &lt;list&gt;     &lt;lgl&gt;      
-## 1 10884537 &lt;dbl [25]&gt; FALSE</code></pre>
-<pre class="r"><code>solution_1 &lt;- problem_1 %&gt;% 
-  filter(!rolling_sum) %&gt;% 
-  pull(num)</code></pre>
+prod(p1$n)</code></pre>
+<pre><code>## [1] 2263</code></pre>
 <p>— Problem 2 —</p>
-<blockquote>
-<p>The final step in breaking the XMAS encryption relies on the invalid number you just found: you must find a contiguous set of at least two numbers in your list which sum to the invalid number from step 1.</p>
-</blockquote>
-<p>Back to slider again, this time using a loop to iterate the size of the rolling window upward until the solution is found.</p>
-<pre class="r"><code>problem_2 &lt;- df_cipher %&gt;% 
-  filter(num &lt; solution_1) %&gt;%
-  select(num)
+<p>What is the total number of distinct ways you can arrange the adapters to connect the charging outlet to your device?</p>
+<pre class="r"><code>library(slider)
+options(scipen = 999)
 
-success &lt;- FALSE
-size &lt;- 1
+p2 &lt;- df_adapters %&gt;%
+  select(adapter) %&gt;%
+  add_row(adapter = 0) %&gt;% 
+  arrange(desc(adapter)) %&gt;% 
+  mutate(
+    ways = slide(adapter,~.x,.before = 3,.after = -1),
+    ways = map2(ways,adapter,~.x[.x-.y&lt;=3])) %&gt;% 
+  tail(-1)
 
-while(!success){
-  size &lt;- size + 1
+path_keys &lt;- numeric()
+path_keys[[max(df_adapters$adapter)]] &lt;- 1
+
+sum_ways &lt;- function(ways,adapter){
   
-  test_solve &lt;- problem_2 %&gt;% 
-    mutate(rolling_sum = slide_dbl(num,sum,.complete = TRUE,.before = size - 1),
-           success = rolling_sum == solution_1)
+  ways &lt;- unlist(ways)
   
-  success &lt;- any(test_solve$success,na.rm = TRUE)
+  paths &lt;- sum(path_keys[ways])
+  path_keys[adapter] &lt;&lt;- paths
+  paths
 }
 
-cleanup_solution &lt;- test_solve %&gt;% 
-  slice((which(test_solve$success)-size+1):which(test_solve$success))
-  
-min(cleanup_solution$num) + max(cleanup_solution$num)</code></pre>
-<pre><code>## [1] 1261309</code></pre>
+p2_solve &lt;- p2 %&gt;% 
+  mutate(paths = map2_dbl(ways,adapter,sum_ways))
+
+max(p2_solve$paths)</code></pre>
+<pre><code>## [1] 396857386627072</code></pre>
 
 
 

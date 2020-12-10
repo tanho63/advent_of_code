@@ -1,0 +1,83 @@
+---
+title: "Adv2020 - Day Ten"
+author: "Tan Ho"
+date: "2020-12-10"
+output: html_document
+---
+
+Day ten - Adapter Array!
+
+```{r setup, message = FALSE}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+})
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> Find a chain that uses all of your adapters to connect the charging outlet to your device's built-in adapter and count the joltage differences between the charging outlet, the adapters, and your device. What is the number of 1-jolt differences multiplied by the number of 3-jolt differences?
+
+
+--- Data ---
+```{r}
+input_10 <- read_lines(here("2020","day-10.txt"))
+```
+
+--- Cleaning ---
+```{r}
+df_adapters <- tibble(adapter = input_10) %>% 
+  mutate(adapter = as.numeric(adapter)) %>% 
+  add_row(adapter = max(.$adapter)+3) %>% 
+  arrange(adapter) %>% 
+  mutate(diff = adapter - lag(adapter,default = 0))
+```
+
+--- Problem 1 ---
+
+```{r}
+
+p1 <- df_adapters %>% 
+  count(diff)
+
+prod(p1$n)
+```
+
+--- Problem 2 ---
+
+What is the total number of distinct ways you can arrange the adapters to connect the charging outlet to your device?
+
+```{r}
+
+library(slider)
+options(scipen = 999)
+
+p2 <- df_adapters %>%
+  select(adapter) %>%
+  add_row(adapter = 0) %>% 
+  arrange(desc(adapter)) %>% 
+  mutate(
+    ways = slide(adapter,~.x,.before = 3,.after = -1),
+    ways = map2(ways,adapter,~.x[.x-.y<=3])) %>% 
+  tail(-1)
+
+path_keys <- numeric()
+path_keys[[max(df_adapters$adapter)]] <- 1
+
+sum_ways <- function(ways,adapter){
+  
+  ways <- unlist(ways)
+  
+  paths <- sum(path_keys[ways])
+  path_keys[adapter] <<- paths
+  paths
+}
+
+p2_solve <- p2 %>% 
+  mutate(paths = map2_dbl(ways,adapter,sum_ways))
+
+max(p2_solve$paths)
+
+
+```
+

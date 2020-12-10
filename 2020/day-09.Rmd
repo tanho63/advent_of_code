@@ -29,17 +29,15 @@ input_09 <- read_lines(here("2020","day-09.txt"))
 
 --- Cleaning ---
 
-Offhand, I'm going to use Davis Vaughan's "slider" package to create the rolling windows for each row, and then tackle it for each problem. 
+Offhand, I'm going to use Davis Vaughan's [slider](https://davisvaughan.github.io/slider/) package to create the rolling windows for each row, and then tackle it for each problem. 
 
 ```{r}
 library(slider)
 
 df_cipher <- tibble(num = input_09) %>% 
   mutate_all(as.numeric) %>% 
-  mutate(rolling = slide(num,~.x,.before = 25, .complete = TRUE)) %>% 
-  slice(-(1:25)) %>% 
-  mutate(rolling = map(rolling,magrittr::extract,1:25))
-
+  mutate(rolling = slide(num,~.x,.before = 24, .complete = TRUE) %>% lag()) %>% 
+  slice(-(1:25))
 ```
 
 --- Problem 1 ---
@@ -47,14 +45,13 @@ df_cipher <- tibble(num = input_09) %>%
 > Find the first number which is not the sum of the two numbers before it.
 
 ```{r}
-
 problem_1 <- df_cipher %>% 
   mutate(rolling_sum = map2_lgl(rolling,num, 
-                       ~ crossing(x = .x, y = .x) %>% 
-                          mutate(sum = x + y,
-                                 flag = sum == .y) %>% 
-                         summarise(flag = any(flag)) %>% 
-                         pull(flag)))
+                                ~ crossing(x = .x, y = .x) %>% 
+                                  mutate(sum = x + y,
+                                         flag = sum == .y) %>% 
+                                  summarise(flag = any(flag)) %>% 
+                                  pull(flag)))
 
 problem_1 %>% 
   filter(!rolling_sum)
@@ -72,9 +69,8 @@ solution_1 <- problem_1 %>%
 Back to slider again, this time using a loop to iterate the size of the rolling window upward until the solution is found.
 
 ```{r}
-
 problem_2 <- df_cipher %>% 
-  filter(num < solution_1) %>% # shrinking the problem set earlier for faster looping
+  filter(num < solution_1) %>%
   select(num)
 
 success <- FALSE
@@ -94,5 +90,4 @@ cleanup_solution <- test_solve %>%
   slice((which(test_solve$success)-size+1):which(test_solve$success))
   
 min(cleanup_solution$num) + max(cleanup_solution$num)
-
 ```
