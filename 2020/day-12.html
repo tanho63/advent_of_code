@@ -513,8 +513,8 @@ move_waypoint_lr &lt;- function(direction,value,current_position){
   }
   
   if(value == 180){
-    new_position$waypoint_x &lt;- -current_position$waypoint_x
-    new_position$waypoint_y &lt;- -current_position$waypoint_y
+    new_position$waypoint_x &lt;- current_position$waypoint_x * -1
+    new_position$waypoint_y &lt;- current_position$waypoint_y * -1
   }
   
   if(value == 270){
