@@ -42,17 +42,22 @@ seat_map <- tibble(col = input_11) %>%
   mutate_all(~replace(.x,.x == ".",NA)) %>% 
   mutate_all(~replace(.x,.x == "L",0)) %>% 
   mutate_all(as.numeric)
+
+seat_matrix <- as.matrix(seat_map)
+
+seat_index <- seat_map %>% 
+  rownames_to_column(var = "row_index") %>% 
+  mutate(row_index = as.numeric(row_index)) %>% 
+  pivot_longer(cols = -row_index,names_to = "column_index") %>% 
+  mutate(column_index = parse_number(column_index))
 ```
 
 Functions
 
 ```{r eval = FALSE}
-generate_adjacent <- function(row_index,column_index,seat_index){
+generate_adjacent <- function(row_index,column_index,seat_matrix){
   
-  check <- seat_index %>% 
-    filter(.data$row_index==.env$row_index,
-           .data$column_index == .env$column_index) %>% 
-    pull(value)
+  check <- seat_matrix[[row_index,column_index]]
   
   if(is.na(check)) return(NA)
   
@@ -60,25 +65,24 @@ generate_adjacent <- function(row_index,column_index,seat_index){
   c <- c(column_index -1, column_index, column_index + 1)
   
   x <- expand_grid(row = r,col = c) %>% 
-    filter(!(row == row_index & col == column_index)) %>%
-    left_join(seat_index, by = c("row"="row_index","col"="column_index")) %>% 
+    filter(!(row==row_index & col==column_index)) %>% 
+    filter(between(row,1,nrow(seat_matrix)),between(col,1,ncol(seat_matrix))) %>% 
+    mutate(value = map2_dbl(row,col,~seat_matrix[[.x,.y]])) %>% 
     filter(!is.na(value))
-  
+    
   return(x)
 }
 
-get_seat <- function(row,col,iteration){
-  p1$value[p1$row_index == row & p1$column_index == col]
+get_seat <- function(row,col,p1){
+  p1[[row, col]]
 }
 
-get_seat <- memoise::memoise(get_seat,cache = cache_filesystem(here("2020/day-11-cache")))
-
-count_occupied <- function(adjacent_seats,iteration){
+count_occupied <- function(adjacent_seats,p1){
 
   if(is.logical(adjacent_seats)) return(NA)
   
   x <- adjacent_seats %>% 
-    mutate(value = map2_dbl(.data$row,.data$col,get_seat,iteration))
+    mutate(value = map2_dbl(.data$row,.data$col,get_seat,p1))
   
   sum(x$value,na.rm = TRUE)
 }
@@ -86,31 +90,30 @@ count_occupied <- function(adjacent_seats,iteration){
 ```
 
 --- Problem 1 ---
+
 > Simulate your seating area by applying the seating rules repeatedly until no seats change state. How many seats end up occupied?
 
 ```{r eval = FALSE}
-seat_index <- seat_map %>%
-  rownames_to_column(var = "row_index") %>% 
-  mutate(row_index = as.numeric(row_index)) %>% 
-  pivot_longer(cols = -row_index,names_to = "column_index") %>% 
-  mutate(column_index = parse_number(column_index)) %>% 
-  mutate(adjacent_seats = future_map2(row_index,column_index,generate_adjacent,.))
+p1_index <- seat_index %>% 
+  mutate(adjacent_seats = future_map2(row_index,column_index,generate_adjacent,seat_matrix))
 
-p1 <- seat_index
-total_value <- sum(p1$value,na.rm = TRUE)
+p1 <- seat_matrix
+total_value <- sum(p1,na.rm = TRUE)
 total_change <- 1
 iteration <- 1
 list_changes <- c()
 
 while(total_change!=0){
   
-  p1 <- p1 %>% 
-    mutate(adjacent_status = future_map_dbl(adjacent_seats,count_occupied,iteration),
+  p1_index <- p1_index %>% 
+    mutate(adjacent_status = future_map_dbl(adjacent_seats,count_occupied,p1),
            value = case_when(adjacent_status == 0 ~ 1,
                               adjacent_status >=4 ~ 0,
                               TRUE ~ value))
   
-  change <- sum(p1$value,na.rm = TRUE)
+  p1 <- matrix(p1_index$value,nrow = nrow(seat_matrix), ncol = ncol(seat_matrix), byrow=TRUE)
+  
+  change <- sum(p1,na.rm = TRUE)
   total_change <- change - total_value
   total_value <- change
   
@@ -187,12 +190,7 @@ count_occupied2 <- function(adjacent_seats,iteration){
 
 
 ```{r eval = FALSE}
-seat_matrix <- seat_map %>% as.matrix
-
-seat_index <- seat_map %>% 
-  rownames_to_column(var = "row_index") %>%  
-  pivot_longer(cols = -row_index,names_to = "column_index") %>% 
-  mutate(column_index = parse_number(column_index)) %>% 
+p2_index <- seat_index %>% 
   mutate(row_index = as.numeric(row_index),
          adjacent_seats = future_map2(row_index,column_index,generate_los,seat_matrix))
 ```
@@ -206,13 +204,13 @@ list_changes2 <- c()
 
 while(total_change2!=0){
   
-  seat_index <- seat_index %>% 
-    mutate(seat_index, adjacent_status = future_map_dbl(adjacent_seats,count_occupied2,iteration2),
+  p2_index <- p2_index %>% 
+    mutate(adjacent_status = future_map_dbl(adjacent_seats,count_occupied2,iteration2),
            value = case_when(adjacent_status == 0 ~ 1,
                              adjacent_status >=5 ~ 0,
                              TRUE ~ value))
   
-  p2 <- matrix(seat_index$value,nrow = nrow(seat_matrix), ncol = ncol(seat_matrix), byrow=TRUE)
+  p2 <- matrix(p2_index$value,nrow = nrow(seat_matrix), ncol = ncol(seat_matrix), byrow=TRUE)
   
   change2 <- sum(p2,na.rm = TRUE)
   total_change2 <- change2 - total_value2
