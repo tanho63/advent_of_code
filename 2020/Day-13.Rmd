@@ -1,0 +1,232 @@
+---
+title: "Adv2020 - Day Thirteen"
+author: "Tan Ho"
+date: "2020-12-13"
+output: html_document
+---
+
+Day thirteen - shuttle search!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  library(httr)
+
+  # plan(multisession)
+  options(scipen  =  9999999)
+  knitr::opts_chunk$set(echo = TRUE)
+})
+```
+
+--- Description ---
+
+> Your notes (your puzzle input) consist of two lines. The first line is your estimate of the earliest timestamp you could depart on a bus. The second line lists the bus IDs that are in service according to the shuttle company; entries that show x must be out of service, so you decide to ignore them.
+> 
+> To save time once you arrive, your goal is to figure out the earliest bus you can take to the airport. (There will be exactly one such bus.)
+
+--- Data ---
+```{r eval = FALSE}
+input_13 <- read_lines(here("2020","day-13.txt"))
+
+input_13_e <- c("939","7,13,x,x,59,x,31,19")
+```
+
+---Cleaning---
+
+```{r eval = FALSE}
+earliest_timestamp <- input_13[[1]] %>% as.numeric
+
+earliest_timestamp_e <- input_13_e[[1]] %>% as.numeric
+
+bus_departures <- tibble(id = input_13[[2]]) %>% 
+  separate_rows(id,sep = ",")
+
+bus_departures_e <- tibble(id = input_13_e[[2]]) %>% 
+  separate_rows(id,sep = ",")
+```
+
+--- Problem 1 ---
+
+```{r eval = FALSE}
+p1 <- bus_departures %>% 
+  filter(id != "x") %>% 
+  mutate(id = as.numeric(id)) %>% 
+  mutate(next_departure = earliest_timestamp %/% id * id,
+         next_departure = case_when(earliest_timestamp > next_departure ~ next_departure + id,
+                                    TRUE ~ next_departure)) %>% 
+  arrange(next_departure)
+```
+```{r}
+earliest_timestamp <- 1006726
+p1 <- structure(list(id = c(647, 23, 13, 37, 19, 29, 17, 41, 557), 
+    next_departure = c(1006732, 1006733, 1006733, 1006733, 1006734, 
+    1006735, 1006740, 1006755, 1007056)), row.names = c(NA, -9L
+), class = c("tbl_df", "tbl", "data.frame"))
+```
+```{r echo = FALSE}
+head(p1)
+p1$id[[1]] * (p1$next_departure[[1]] - earliest_timestamp)
+```
+
+--- Problem 2 ---
+
+```{r eval = FALSE}
+p2 <- bus_departures %>% 
+  mutate(offset = row_number()-1) %>% 
+  filter(id != "x") %>% 
+  mutate(id = as.numeric(id))
+
+```
+
+My naive solution looked like this:
+
+```{r eval = FALSE}
+run_checks <- function(timestamp,id,offset){
+  sum((timestamp+offset) %% id)
+}
+
+biggest_factor <- max(p2$id)
+
+timestamp <- 100000000000000 %/% biggest_factor * biggest_factor
+
+sum <- 1
+
+while(sum!=0){
+  timestamp <- timestamp+biggest_factor
+  sum <- run_checks(timestamp,p2$id,p2$offset)
+}
+
+timestamp
+```
+
+While I was waiting for the first loop, I started reading solutions in other languages. I'm admittedly getting a little out of my depth, and noticed a) people talking about the naive/brute-force solution being incredibly slow even in a language like C, b) how many people looked up and implemented Chinese Remainder Theorem (some math concept I'd never heard of) and c) how many people just copied their problem into an online solver. 
+
+I don't have the math chops to teach myself CRT at 1:30 am, so I decided to look around at some other options. 
+
+Firstly, trying the {numbers} package I found on CRAN, which professed to have a `chinese()` function. 
+
+```{r eval = FALSE}
+library(numbers)
+options(scipen = 999)
+
+chinese(p2$offset,p2$id)
+```
+```{r echo = FALSE}
+663851081414962
+```
+
+This ... seemed ... promising - but failed to pass muster as the solution.  
+
+I futzed with this, thinking that I'd done it wrong and set things up incorrectly - but alas, no dice. 
+
+Next, Reddit suggested Rosetta Code as a place to get functions in any programming language for CRT, so I toyed with that:
+
+```{r eval = FALSE}
+mul_inv <- function(a, b)
+{
+  b0 <- b
+  x0 <- 0L
+  x1 <- 1L
+ 
+  if (b == 1) return(1L)
+  while(a > 1){
+    q <- a/b
+ 
+    t <- b
+    b <- a %% b
+    a <- t
+ 
+    t <- x0
+    x0 <- x1 - q*x0
+    x1 <- t
+  }
+ 
+  if (x1 < 0) x1 <- x1 + b0
+  return(x1)
+}
+ 
+chinese_remainder <- function(n, a)
+{
+  len <- length(n)
+ 
+  prod <- 1L
+  sum <- 0L
+ 
+  for (i in 1:len) prod <- prod * n[i]
+ 
+  for (i in 1:len){
+    p <- prod / n[i]
+    sum <- sum + a[i] * mul_inv(p, n[i]) * p
+  }
+ 
+  return(sum %% prod)
+}
+ 
+n <- p2$id
+a <- p2$offset
+ 
+chinese_remainder(n, a)
+```
+```{r echo = FALSE}
+502023422045264
+```
+
+but also no dice. I figure it's reaching R's bigint limits, or something, and causing rounding/float errors. 
+
+Finally, I resorted to just getting old faithful, Wolfram Alpha, to solve the system of equations.
+
+I'm an honorable cheat though: I figured I'd limit myself to learning and using the Wolfram Alpha API instead. 
+
+Here's some of my standard set of packages for interacting with APIs:
+```{r eval = FALSE}
+library(httr)
+library(glue)
+library(xml2)
+library(rvest)
+```
+
+You need to sign up for an API app ID, which is free but limited to 2000 queries per month. https://products.wolframalpha.com/api
+
+I've got my apikey saved as a system environment variable, there are other ways to handle the secret (rstudioapi, keyring, etc)
+
+```{r eval = FALSE}
+apikey <- Sys.getenv("wolfram_alpha")
+```
+
+Create the system of equations and reduce it into a single comma separated string
+
+```{r eval = FALSE}
+equations <- glue::glue("(x + {p2$offset}) mod {p2$id}=0") %>% paste(collapse = ",")
+```
+
+Send the equations and the apikey as html query parameters in a GET request
+
+```{r eval = FALSE}
+response <- httr::GET("http://api.wolframalpha.com/v2/query",
+               query = list(input = equations,
+                            appid = apikey))
+```
+
+Parse the response, drilling down to the plaintext.
+
+```{r eval = FALSE}
+resp_content <- content(response,as = "parsed")
+
+plaintext <- resp_content %>% 
+  html_nodes("plaintext") %>% 
+  html_text()
+```
+```{r include = FALSE}
+plaintext <- c("{(x + 0) mod 23 = 0, (x + 13) mod 41 = 0, (x + 23) mod 647 = 0, (x + 41) mod 13 = 0, (x + 42) mod 19 = 0, (x + 52) mod 29 = 0, (x + 54) mod 557 = 0, (x + 60) mod 37 = 0, (x + 71) mod 17 = 0}", 
+"{x mod 23 = 0, (x + 13) mod 41 = 0, (x + 23) mod 647 = 0, (x + 41) mod 13 = 0, (x + 42) mod 19 = 0, (x + 52) mod 29 = 0, (x + 54) mod 557 = 0, (x + 60) mod 37 = 0, (x + 71) mod 17 = 0}", 
+"{x - 23 floor(x/23) = 0, -41 floor((x + 13)/41) + x + 13 = 0, -647 floor((x + 23)/647) + x + 23 = 0, -13 floor((x + 2)/13) + x + 2 = 0, -19 floor((x + 4)/19) + x + 4 = 0, -29 floor((x + 23)/29) + x + 23 = 0, -557 floor((x + 54)/557) + x + 54 = 0, -37 floor((x + 23)/37) + x + 23 = 0, -17 floor((x + 3)/17) + x + 3 = 0}", 
+"x = 1531146567793219 n + 867295486378319, n element Z")
+```
+```{r}
+plaintext
+```
+Visually inspecting the plaintext shows that the answer to the equation is `r plaintext[[4]]` - and the lowest/first possible answer is where n = 0, so that would just leave the intercept of 867295486378319.
+
+This indeed was the final answer!

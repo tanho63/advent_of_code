@@ -5,7 +5,7 @@ date: "2020-12-12"
 output: html_document
 ---
 
-Day twelve - seating system!
+Day twelve - Rain Risk!
 
 ```{r setup}
 suppressPackageStartupMessages({
@@ -234,5 +234,3 @@ current_position
 
 abs(current_position$ship_x) + abs(current_position$ship_y)
 ```
-
-
