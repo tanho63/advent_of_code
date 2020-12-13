@@ -421,11 +421,7 @@ bus_departures_e &lt;- tibble(id = input_13_e[[2]]) %&gt;%
          next_departure = case_when(earliest_timestamp &gt; next_departure ~ next_departure + id,
                                     TRUE ~ next_departure)) %&gt;% 
   arrange(next_departure)</code></pre>
-<pre class="r"><code>earliest_timestamp &lt;- 1006726
-p1 &lt;- structure(list(id = c(647, 23, 13, 37, 19, 29, 17, 41, 557), 
-    next_departure = c(1006732, 1006733, 1006733, 1006733, 1006734, 
-    1006735, 1006740, 1006755, 1007056)), row.names = c(NA, -9L
-), class = c(&quot;tbl_df&quot;, &quot;tbl&quot;, &quot;data.frame&quot;))</code></pre>
+<pre class="r"><code>head(p1)</code></pre>
 <pre><code>## # A tibble: 6 x 2
 ##      id next_departure
 ##   &lt;dbl&gt;          &lt;dbl&gt;
@@ -435,6 +431,7 @@ p1 &lt;- structure(list(id = c(647, 23, 13, 37, 19, 29, 17, 41, 557),
 ## 4    37        1006733
 ## 5    19        1006734
 ## 6    29        1006735</code></pre>
+<pre class="r"><code>p1$id[[1]] * (p1$next_departure[[1]] - earliest_timestamp)</code></pre>
 <pre><code>## [1] 3882</code></pre>
 <p>— Problem 2 —</p>
 <pre class="r"><code>p2 &lt;- bus_departures %&gt;% 

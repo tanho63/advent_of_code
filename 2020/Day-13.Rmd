@@ -58,14 +58,14 @@ p1 <- bus_departures %>%
                                     TRUE ~ next_departure)) %>% 
   arrange(next_departure)
 ```
-```{r}
+```{r include = FALSE}
 earliest_timestamp <- 1006726
 p1 <- structure(list(id = c(647, 23, 13, 37, 19, 29, 17, 41, 557), 
     next_departure = c(1006732, 1006733, 1006733, 1006733, 1006734, 
     1006735, 1006740, 1006755, 1007056)), row.names = c(NA, -9L
 ), class = c("tbl_df", "tbl", "data.frame"))
 ```
-```{r echo = FALSE}
+```{r}
 head(p1)
 p1$id[[1]] * (p1$next_departure[[1]] - earliest_timestamp)
 ```
