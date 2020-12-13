@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-12 11:22:48</h4>
+<h4 class="date">Last Updated: 2020-12-13 10:21:23</h4>
 
 </div>
 
@@ -428,20 +428,20 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1))
 
 stars</code></pre>
-<pre><code>## # A tibble: 119 x 8
+<pre><code>## # A tibble: 127 x 8
 ##    user_name user_id aoc_score total_stars day   star1_ts           
 ##    &lt;chr&gt;     &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;             
-##  1 aleighbr~ 1008588       128          17 6     2020-12-08 07:22:15
-##  2 aleighbr~ 1008588       128          17 2     2020-12-02 07:21:52
-##  3 aleighbr~ 1008588       128          17 7     2020-12-08 09:34:17
-##  4 aleighbr~ 1008588       128          17 1     2020-12-01 10:44:51
-##  5 aleighbr~ 1008588       128          17 3     2020-12-03 09:33:04
-##  6 aleighbr~ 1008588       128          17 9     2020-12-10 09:12:25
-##  7 aleighbr~ 1008588       128          17 5     2020-12-05 09:55:04
-##  8 aleighbr~ 1008588       128          17 8     2020-12-09 08:31:45
-##  9 aleighbr~ 1008588       128          17 4     2020-12-04 08:25:44
-## 10 kdaily16  1033297       143          22 10    2020-12-10 18:58:11
-## # ... with 109 more rows, and 2 more variables: star2_ts &lt;dttm&gt;,
+##  1 Alison L~ 1026315        92          14 3     2020-12-03 14:00:45
+##  2 Alison L~ 1026315        92          14 2     2020-12-02 13:11:37
+##  3 Alison L~ 1026315        92          14 8     2020-12-08 13:32:00
+##  4 Alison L~ 1026315        92          14 7     2020-12-07 14:15:32
+##  5 Alison L~ 1026315        92          14 4     2020-12-04 13:27:09
+##  6 Alison L~ 1026315        92          14 1     2020-12-01 13:44:37
+##  7 Alison L~ 1026315        92          14 5     2020-12-05 12:48:14
+##  8 Alison L~ 1026315        92          14 9     2020-12-09 13:19:51
+##  9 Kate      1050275       244          23 1     2020-12-01 17:49:56
+## 10 Kate      1050275       244          23 10    2020-12-10 05:16:11
+## # ... with 117 more rows, and 2 more variables: star2_ts &lt;dttm&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
@@ -455,13 +455,13 @@ leaderboard</code></pre>
 <pre><code>## # A tibble: 13 x 6
 ##    user_name         user_id aoc_score total_stars median_star2 mean_star2
 ##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
-##  1 @_TanHo           1032765       282          24  22.0 mins    81.3 mins
-##  2 Kate              1050275       244          23  27.4 mins    49.4 mins
-##  3 Tokhir Dadaev     1010046       240          23  90.7 mins   170.9 mins
-##  4 kdaily16          1033297       143          22   8.5 mins    11.2 mins
-##  5 Liam Young        1011508       228          22  22.8 mins    59.4 mins
-##  6 scalgary          1048276       156          21  25.8 mins   159.1 mins
-##  7 kevin-m-kent      1126163       142          19  52.2 mins    54.2 mins
+##  1 @_TanHo           1032765       310          26  25.6 mins    86.1 mins
+##  2 kdaily16          1033297       176          25   9.3 mins    12.4 mins
+##  3 Liam Young        1011508       259          25  32.9 mins    76.4 mins
+##  4 Tokhir Dadaev     1010046       252          24  90.7 mins   170.9 mins
+##  5 Kate              1050275       244          23  27.4 mins    49.4 mins
+##  6 scalgary          1048276       168          22  28.7 mins   164.1 mins
+##  7 kevin-m-kent      1126163       169          22  56.2 mins    69.8 mins
 ##  8 aleighbrown       1008588       128          17  26.0 mins    72.5 mins
 ##  9 Anne              1020594       129          14  48.8 mins    81.3 mins
 ## 10 Alison Lanski     1026315        92          14 114.9 mins   188.6 mins
