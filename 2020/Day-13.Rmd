@@ -225,7 +225,7 @@ plaintext <- c("{(x + 0) mod 23 = 0, (x + 13) mod 41 = 0, (x + 23) mod 647 = 0, 
 "x = 1531146567793219 n + 867295486378319, n element Z")
 ```
 ```{r}
-plaintext
+plaintext 
 ```
 Visually inspecting the plaintext shows that the answer to the equation is `r plaintext[[4]]` - and the lowest/first possible answer is where n = 0, so that would just leave the intercept of 867295486378319.
 
