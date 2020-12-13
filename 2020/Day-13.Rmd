@@ -229,4 +229,4 @@ plaintext
 ```
 Visually inspecting the plaintext shows that the answer to the equation is `r plaintext[[4]]` - and the lowest/first possible answer is where n = 0, so that would just leave the intercept of 867295486378319.
 
-This indeed was the final answer!
+This indeed was the final answer! FWIW, I also left the while loop running while I worked on the other approaches - and it did not succeed. 

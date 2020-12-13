@@ -523,7 +523,7 @@ library(glue)
 library(xml2)
 library(rvest)</code></pre>
 <p>You need to sign up for an API app ID, which is free but limited to 2000 queries per month. <a href="https://products.wolframalpha.com/api" class="uri">https://products.wolframalpha.com/api</a></p>
-<p>I’ve got my apikey saved as a system environment variable, there are other ways to do this.</p>
+<p>I’ve got my apikey saved as a system environment variable, there are other ways to handle the secret (rstudioapi, keyring, etc)</p>
 <pre class="r"><code>apikey &lt;- Sys.getenv(&quot;wolfram_alpha&quot;)</code></pre>
 <p>Create the system of equations and reduce it into a single comma separated string</p>
 <pre class="r"><code>equations &lt;- glue::glue(&quot;(x + {p2$offset}) mod {p2$id}=0&quot;) %&gt;% paste(collapse = &quot;,&quot;)</code></pre>
@@ -543,6 +543,7 @@ plaintext &lt;- resp_content %&gt;%
 ## [3] &quot;{x - 23 floor(x/23) = 0, -41 floor((x + 13)/41) + x + 13 = 0, -647 floor((x + 23)/647) + x + 23 = 0, -13 floor((x + 2)/13) + x + 2 = 0, -19 floor((x + 4)/19) + x + 4 = 0, -29 floor((x + 23)/29) + x + 23 = 0, -557 floor((x + 54)/557) + x + 54 = 0, -37 floor((x + 23)/37) + x + 23 = 0, -17 floor((x + 3)/17) + x + 3 = 0}&quot;
 ## [4] &quot;x = 1531146567793219 n + 867295486378319, n element Z&quot;</code></pre>
 <p>Visually inspecting the plaintext shows that the answer to the equation is x = 1531146567793219 n + 867295486378319, n element Z - and the lowest/first possible answer is where n = 0, so that would just leave the intercept of 867295486378319.</p>
+<p>This indeed was the final answer! FWIW, I also left the while loop running while I worked on the other approaches - and it did not succeed.</p>
 
 
 
