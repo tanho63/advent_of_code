@@ -1,0 +1,201 @@
+---
+title: "Adv2020 - Day Thirteen"
+author: "Tan Ho"
+date: "2020-12-13"
+output: html_document
+---
+
+Day fourteen - Docking Data!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(binaryLogic)
+
+  options(scipen  =  9999999)
+  knitr::opts_chunk$set(echo = TRUE)
+})
+```
+
+--- Description ---
+
+> The initialization program (your puzzle input) can either update the bitmask or write a value to memory. Values and memory addresses are both 36-bit unsigned integers. For example, ignoring bitmasks for a moment, a line like mem[8] = 11 would write the value 11 to memory address 8.
+
+--- Data ---
+```{r eval = FALSE}
+input_14 <- read_lines(here("2020","day-14.txt"))
+
+input_14_e1 <- read_lines(here("2020","day-14-example1.txt"))
+```
+
+--- Problem 1 ---
+
+So I think I'll try super-assigning into a global "current_mask" and "current_memory" list, and create functions to update the mask and to write into the memory list. 
+
+```{r eval = FALSE}
+current_mask <- list()
+current_memory <- numeric()
+
+choose_function <- function(instruction){
+  
+  if(str_detect(instruction,"mask")) update_mask(instruction)
+  
+  if(str_detect(instruction,"mem")) write_memory(instruction)
+}
+
+update_mask <- function(instruction){
+  
+  mask <- str_remove(instruction, "mask = ") %>% str_split("") %>% unlist()
+  
+  mask_locations <- str_which(mask,"X",negate = TRUE)
+
+  current_mask <<- list(
+    location = mask_locations,
+    value = mask[mask_locations] %>% as.integer()
+  )
+  
+  return(current_mask)
+}
+
+update_mask(input_14_e1[1])
+```
+```{r echo = FALSE}
+list(location = c(30L, 35L), value = 1:0)
+```
+```{r eval = FALSE}
+write_memory <- function(instruction){
+  
+  mem_instruction <- str_split(instruction," = ") %>% unlist()
+  
+  mem_location <- parse_number(mem_instruction[[1]])
+  
+  mem_value <- parse_integer(mem_instruction[[2]]) %>% 
+    as.binary(signed = TRUE, size = 5)
+  
+  mem_value[current_mask$location+4] <- current_mask$value
+  
+  mem_value <- as.numeric(mem_value)
+  
+  current_memory[[mem_location]]<<-mem_value
+  
+  return(mem_value)
+}
+write_memory(input_14_e1[2])
+```
+```{r echo = FALSE}
+73
+```
+```{r eval = FALSE}
+walk(input_14,choose_function)
+
+sum(current_memory %>% unlist(),na.rm = TRUE)
+```
+```{r echo = FALSE}
+10035335144140
+```
+
+--- Problem 2 ---
+
+```{r eval = FALSE}
+input_14_e2 <- read_lines(here("2020","day-14-example2.txt"))
+```
+
+> Instead, it acts as a memory address decoder. Immediately before a value is written to memory, each bit in the bitmask modifies the corresponding bit of the destination memory address in the following way:
+>
+>    - If the bitmask bit is 0, the corresponding memory address bit is unchanged.
+>    - If the bitmask bit is 1, the corresponding memory address bit is overwritten with 1.
+>    - If the bitmask bit is X, the corresponding memory address bit is floating.
+
+This suggests a revised "mask decoder" function:
+
+```{r eval = FALSE}
+instruction <- input_14_e2[1]
+
+update_decoder <- function(instruction){
+  
+  mask <- str_remove(instruction, "mask = ") %>% str_split("") %>% unlist()
+  
+  overwrite_locations <- str_which(mask,"1")
+
+  float_locations <- str_which(mask,"X")
+  
+  current_mask <<- list(
+    overwrite = overwrite_locations,
+    float = float_locations)
+  
+  return(current_mask)
+}
+
+update_decoder(instruction)
+```
+```{r echo = FALSE}
+list(overwrite = c(32L, 35L), float = c(31L, 36L))
+```
+
+> A floating bit is not connected to anything and instead fluctuates unpredictably. In practice, this means the floating bits will take on all possible values, potentially causing many memory addresses to be written all at once!
+
+So instead of masking what the value is, the address being written to is "masked" by floats. I'll try to use expand_grid to get all the combination of float values. 
+
+```{r eval = FALSE}
+instruction <- input_14_e2[2]
+current_memory <- tibble()
+
+write_memory_two <- function(instruction){
+  
+  mem_instruction <- str_split(instruction," = ") %>% unlist()
+  
+  mem_location <- parse_number(mem_instruction[[1]]) %>% 
+    as.binary(signed = TRUE, size = 5)
+  
+  mem_location[current_mask$overwrite+4] <- 1
+    
+  x <- tibble(float_locations = current_mask$float + 4,
+              float_values = list(c(0,1))) %>% 
+    deframe() %>% 
+    expand.grid() 
+    
+  mem_locations <- pmap(x,~ {mem_location[current_mask$float +4] <- c(...); as.numeric(mem_location)}) %>% unlist()
+    
+  mem_value <- parse_integer(mem_instruction[[2]])
+    
+  current_memory <<- bind_rows(current_memory,
+                               tibble(mem_locations = mem_locations,
+                                      mem_value = mem_value))
+  return(current_memory)
+}
+
+write_memory_two(instruction)
+```
+```{r echo = FALSE}
+structure(list(mem_locations = c(26, 58, 27, 59, 26, 58, 27, 
+59), mem_value = c(100L, 100L, 100L, 100L, 100L, 100L, 100L, 
+100L)), row.names = c(NA, -8L), class = c("tbl_df", "tbl", "data.frame"
+))
+```
+
+```{r eval = FALSE}
+current_memory <- tibble()
+current_mask <- list()
+
+choose_operation <- function(instruction){
+  
+  if(str_detect(instruction,"mask")) update_decoder(instruction)
+  
+  if(str_detect(instruction,"mem")) write_memory_two(instruction)
+}
+
+walk(input_14,choose_operation)
+
+current_memory %>% 
+  group_by(mem_locations) %>% 
+  slice_tail() %>% 
+  ungroup() %>% 
+  pull(mem_value) %>% 
+  sum()
+```
+```{r echo = FALSE}
+3817372618036
+```
+
+Ran into some memory overflow issues, so decided to just save all the instructions and slice tail later. (In hindsight, that's probably more R-like anyway)
