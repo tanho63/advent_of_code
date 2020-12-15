@@ -1,0 +1,110 @@
+---
+title: "Adv2020 - Day Fifteen"
+author: "Tan Ho"
+date: "2020-12-15"
+output: html_document
+---
+
+Day fifteen - !
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(slider)
+
+  options(scipen  =  9999999)
+  knitr::opts_chunk$set(echo = TRUE)
+})
+```
+
+--- Description ---
+
+> So, after the starting numbers, each turn results in that player speaking aloud either 0 (if the last number is new) or an age (if the last number is a repeat).
+
+--- Data ---
+
+```{r eval = FALSE}
+input_15 <- c(15,12,0,14,3,1)
+```
+
+--- Problem 1 ---
+
+```{r eval = FALSE}
+p1 <- tibble(index = 1:6,value = input_15) %>% 
+  bind_rows(list(index = 7:2020))
+
+find_next <- function(i){
+  prev <- p1$value[i - 1]
+  new <- 0
+  
+  if(prev %in% p1$value[-(i-1)]) {
+    new <- p1 %>% 
+      filter(prev == value) %>% 
+      slice_tail(n = 2) %>% 
+      pull(index) %>% 
+      diff()
+    }
+  
+  p1$value[i] <<- new
+}
+
+walk(7:2020,find_next)
+tail(p1$value,1)
+```
+```{r echo = FALSE}
+249
+```
+
+--- Problem 2 ---
+
+30,000,000 iterations slows this down a bit! Breaking it down to vectors.
+
+```{r eval = FALSE}
+
+find_next2 <- function(p1, range) {
+  
+  p2 <- p1 %>% 
+  group_by(value) %>% 
+  slice_tail(n=2) %>%
+  mutate(rank = rank(desc(index))) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = rank, names_prefix = "prev_",values_from = index) %>% 
+  arrange(value) %>% 
+  left_join(
+    y = .,
+    x = tibble(value = 0:100000),
+    by = 'value'
+  )
+  
+  value <- p2$value %>% as.integer()
+  
+  prev_1 <- p2$prev_1
+  
+  prev_2 <- p2$prev_2
+  
+  index <- which(prev_1 == max(prev_1,na.rm=TRUE))
+  
+  for (i in range) {
+    
+    prev_value <- prev_2[index]
+    index <- 1
+    
+    if(!is.na(prev_value)) index <- i - prev_value
+    
+    prev_2[index] <- prev_1[index]
+    prev_1[index] <- i
+    
+    # if(i %% 1000000 ==0) message(i)
+  }
+  
+  # Return the last value
+  return(index - 1)
+}
+
+find_next2(p1,2021:30000000)
+```
+```{r echo = FALSE}
+41687
+```
+
