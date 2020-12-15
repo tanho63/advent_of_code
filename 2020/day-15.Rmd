@@ -65,17 +65,17 @@ tail(p1$value,1)
 find_next2 <- function(p1, range) {
   
   p2 <- p1 %>% 
-  group_by(value) %>% 
-  slice_tail(n=2) %>%
-  mutate(rank = rank(desc(index))) %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = rank, names_prefix = "prev_",values_from = index) %>% 
-  arrange(value) %>% 
-  left_join(
-    y = .,
-    x = tibble(value = 0:100000),
-    by = 'value'
-  )
+    group_by(value) %>% 
+    slice_tail(n=2) %>%
+    mutate(rank = rank(desc(index))) %>% 
+    ungroup() %>% 
+    pivot_wider(names_from = rank, names_prefix = "prev_",values_from = index) %>% 
+    arrange(value) %>% 
+    left_join(
+      y = .,
+      x = tibble(value = 0:100000),
+      by = 'value'
+    )
   
   value <- p2$value %>% as.integer()
   
@@ -101,10 +101,12 @@ find_next2 <- function(p1, range) {
   # Return the last value
   return(index - 1)
 }
-
+tictoc::tic()
 find_next2(p1,2021:30000000)
+tictoc::toc()
 ```
 ```{r echo = FALSE}
 41687
+message("11.85 sec elapsed")
 ```
 

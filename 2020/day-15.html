@@ -425,17 +425,17 @@ tail(p1$value,1)</code></pre>
 <pre class="r"><code>find_next2 &lt;- function(p1, range) {
   
   p2 &lt;- p1 %&gt;% 
-  group_by(value) %&gt;% 
-  slice_tail(n=2) %&gt;%
-  mutate(rank = rank(desc(index))) %&gt;% 
-  ungroup() %&gt;% 
-  pivot_wider(names_from = rank, names_prefix = &quot;prev_&quot;,values_from = index) %&gt;% 
-  arrange(value) %&gt;% 
-  left_join(
-    y = .,
-    x = tibble(value = 0:100000),
-    by = &#39;value&#39;
-  )
+    group_by(value) %&gt;% 
+    slice_tail(n=2) %&gt;%
+    mutate(rank = rank(desc(index))) %&gt;% 
+    ungroup() %&gt;% 
+    pivot_wider(names_from = rank, names_prefix = &quot;prev_&quot;,values_from = index) %&gt;% 
+    arrange(value) %&gt;% 
+    left_join(
+      y = .,
+      x = tibble(value = 0:100000),
+      by = &#39;value&#39;
+    )
   
   value &lt;- p2$value %&gt;% as.integer()
   
@@ -461,9 +461,11 @@ tail(p1$value,1)</code></pre>
   # Return the last value
   return(index - 1)
 }
-
-find_next2(p1,2021:30000000)</code></pre>
+tictoc::tic()
+find_next2(p1,2021:30000000)
+tictoc::toc()</code></pre>
 <pre><code>## [1] 41687</code></pre>
+<pre><code>## 11.85 sec elapsed</code></pre>
 
 
 
