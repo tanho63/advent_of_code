@@ -58,7 +58,17 @@ tail(p1$value,1)
 
 --- Problem 2 ---
 
-30,000,000 iterations slows this down a bit! Breaking it down to vectors.
+30,000,000 iterations slows this down heck of a lot! 
+
+Listing changes I made to first solution: 
+
+- instead of storing what each iteration said, store when each number was last said
+- reconfigure to store a vector of previous value and a second vector of value before previous value
+- pre-emptively build out the previous vectors to 100,000 long - if overflow, increase incrementally - this avoids copy on modify
+- pass solutions from prev_1 to prev_2 by location
+- don't recalculate indexes twice for each loop - pre-set it before the loop and then do it at the end of loop
+- superassigning is slow, move the superassigned thing inside the function
+- tibbles are slow. matrices are slow. data.table is slow in this context too. 
 
 ```{r eval = FALSE}
 
