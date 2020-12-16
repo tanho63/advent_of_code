@@ -20,6 +20,10 @@ suppressPackageStartupMessages({
 
 --- Description ---
 
+> Unfortunately, you can't actually read the words on the ticket. You can, however, read the numbers, and so you figure out the fields these tickets must have and the valid ranges for values in those fields.
+>
+> You collect the rules for ticket fields, the numbers on your ticket, and the numbers on other nearby tickets for the same train service (via the airport security cameras) together into a single document you can reference (your puzzle input).
+
 --- Data ---
 
 ```{r eval = FALSE}
@@ -27,6 +31,8 @@ input_16 <- read_lines(here("2020","day-16.txt"))
 ```
 
 --- Cleaning ---
+
+Definitely a problem that would benefit from tidying. Also going to go ahead and create an integer vector for each rule range, which will facilitate `%in%` checks later.
 
 ```{r eval = FALSE}
 x <- tibble(input = input_16) %>% 
@@ -58,6 +64,10 @@ other_tickets <- x %>%
 
 --- Problem 1 ---
 
+> Start by determining which tickets are completely invalid; these are tickets that contain values which aren't valid for any field. Ignore your ticket for now.
+>
+> Consider the validity of the nearby tickets you scanned. What is your ticket scanning error rate?
+
 ```{r eval = FALSE}
 rule_range <- rules$range %>% unlist() %>% unique()
 
@@ -66,9 +76,22 @@ check_invalid <- other_tickets %>%
   filter(!check)
 ```
 ```{r echo = FALSE}
-check_invalid <- structure(list(input = c(8L, 4L, 3L, 24L, 979L, 984L), ticket_id = c(2L, 
-13L, 23L, 25L, 29L, 34L), check = c(FALSE, FALSE, FALSE, FALSE, 
-FALSE, FALSE)), row.names = c(NA, -6L), class = c("tbl_df", "tbl", 
+check_invalid <- structure(list(input = c(8L, 4L, 3L, 24L, 979L, 984L, 1L, 993L, 
+980L, 976L, 7L, 17L, 19L, 9L, 20L, 995L, 983L, 988L, 995L, 10L, 
+22L, 994L, 976L, 982L, 976L, 986L, 16L, 17L, 988L, 16L, 976L, 
+1L, 2L, 989L, 7L, 982L, 979L, 995L, 7L, 24L, 986L, 15L, 21L, 
+2L, 979L, 986L, 986L, 0L, 998L, 984L, 8L), ticket_id = c(2L, 
+13L, 23L, 25L, 29L, 34L, 35L, 43L, 51L, 53L, 54L, 62L, 65L, 72L, 
+74L, 75L, 84L, 85L, 97L, 99L, 102L, 105L, 114L, 115L, 120L, 128L, 
+130L, 134L, 140L, 144L, 146L, 153L, 154L, 156L, 160L, 164L, 168L, 
+172L, 174L, 176L, 184L, 188L, 192L, 193L, 196L, 198L, 209L, 219L, 
+225L, 236L, 238L), check = c(FALSE, FALSE, FALSE, FALSE, FALSE, 
+FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 
+FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 
+FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 
+FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 
+FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 
+FALSE)), row.names = c(NA, -51L), class = c("tbl_df", "tbl", 
 "data.frame"))
 ```
 ```{r}
@@ -78,6 +101,10 @@ sum(check_invalid$input)
 ```
 
 --- Problem 2 ---
+
+> Using the valid ranges for each field, determine what order the fields appear on the tickets. The order is consistent between all tickets: if seat is the third field, it is the third field on every ticket, including your ticket.
+
+Looks straightforward enough: filter out the ticket ids that are invalid, then create a field_id and summarise the values for each field_id as a vector. 
 
 ```{r eval = FALSE}
 valid_other <- other_tickets %>%
@@ -89,10 +116,135 @@ valid_other <- other_tickets %>%
 field_summary <- valid_other %>%
   arrange(input) %>% 
   group_by(field_id) %>% 
-  summarise(values = list(input)) %>% 
-  mutate(min = map(values,min,na.rm = TRUE),
-         max = map(values,max,na.rm = TRUE))
+  summarise(values = list(input),
+            min = min(input,na.rm = TRUE),
+            max = max(input,na.rm = TRUE))
+```
+```{r echo = FALSE}
+field_summary <- structure(list(field_id = 1:6, values = list(c(50L, 55L, 56L, 
+60L, 65L, 66L, 67L, 68L, 84L, 84L, 89L, 90L, 92L, 135L, 137L, 
+139L, 147L, 156L, 160L, 161L, 163L, 167L, 170L, 170L, 171L, 172L, 
+174L, 179L, 184L, 188L, 194L, 201L, 206L, 207L, 211L, 211L, 216L, 
+216L, 218L, 218L, 219L, 220L, 221L, 245L, 250L, 252L, 259L, 261L, 
+269L, 271L, 271L, 272L, 274L, 277L, 277L, 280L, 280L, 281L, 283L, 
+288L, 301L, 302L, 302L, 307L, 310L, 311L, 312L, 318L, 322L, 325L, 
+329L, 331L, 339L, 341L, 342L, 344L, 345L, 347L, 357L, 357L, 365L, 
+366L, 369L, 370L, 378L, 380L, 383L, 384L, 385L, 386L, 389L, 398L, 
+399L, 399L, 402L, 402L, 403L, 416L, 443L, 445L, 447L, 447L, 455L, 
+458L, 482L, 482L, 483L, 489L, 491L, 492L, 493L, 493L, 494L, 495L, 
+496L, 500L, 506L, 507L, 507L, 516L, 517L, 521L, 534L, 547L, 556L, 
+556L, 556L, 560L, 564L, 565L, 568L, 569L, 574L, 587L, 591L, 593L, 
+595L, 606L, 616L, 628L, 629L, 629L, 631L, 631L, 645L, 651L, 653L, 
+654L, 654L, 662L, 668L, 670L, 670L, 694L, 709L, 719L, 721L, 744L, 
+778L, 788L, 788L, 793L, 796L, 812L, 812L, 825L, 827L, 827L, 843L, 
+844L, 846L, 851L, 854L, 854L, 855L, 875L, 875L, 880L, 889L, 890L, 
+892L, 897L, 900L, 902L, 903L, 905L, 906L, 909L, 915L, 916L), 
+    c(55L, 58L, 60L, 63L, 68L, 87L, 90L, 137L, 140L, 143L, 143L, 
+    146L, 147L, 149L, 153L, 153L, 153L, 154L, 157L, 165L, 174L, 
+    184L, 187L, 188L, 190L, 195L, 197L, 198L, 198L, 211L, 213L, 
+    215L, 216L, 237L, 241L, 244L, 245L, 252L, 265L, 270L, 274L, 
+    275L, 281L, 286L, 299L, 300L, 300L, 307L, 309L, 311L, 322L, 
+    322L, 324L, 330L, 334L, 338L, 338L, 339L, 341L, 343L, 346L, 
+    358L, 360L, 362L, 364L, 365L, 366L, 368L, 373L, 382L, 384L, 
+    388L, 390L, 391L, 396L, 397L, 402L, 402L, 406L, 448L, 452L, 
+    454L, 457L, 465L, 482L, 487L, 488L, 491L, 498L, 500L, 506L, 
+    509L, 509L, 519L, 524L, 527L, 527L, 529L, 530L, 532L, 535L, 
+    554L, 572L, 585L, 590L, 592L, 597L, 599L, 601L, 603L, 603L, 
+    605L, 606L, 622L, 628L, 631L, 631L, 632L, 640L, 641L, 650L, 
+    664L, 667L, 668L, 671L, 683L, 691L, 716L, 731L, 733L, 734L, 
+    734L, 734L, 736L, 740L, 746L, 773L, 775L, 777L, 780L, 782L, 
+    790L, 791L, 794L, 799L, 799L, 807L, 813L, 813L, 815L, 815L, 
+    817L, 820L, 822L, 822L, 823L, 831L, 854L, 855L, 856L, 857L, 
+    858L, 859L, 866L, 867L, 870L, 871L, 871L, 873L, 878L, 878L, 
+    882L, 891L, 894L, 897L, 904L, 906L, 914L, 915L, 916L, 919L, 
+    923L, 923L, 927L, 932L, 934L, 936L, 943L, 945L, 946L), c(50L, 
+    52L, 55L, 58L, 61L, 63L, 64L, 66L, 67L, 70L, 84L, 87L, 90L, 
+    136L, 145L, 151L, 153L, 161L, 164L, 176L, 181L, 187L, 189L, 
+    195L, 201L, 204L, 204L, 209L, 211L, 243L, 253L, 260L, 261L, 
+    263L, 265L, 266L, 266L, 268L, 270L, 270L, 271L, 272L, 277L, 
+    278L, 282L, 304L, 304L, 312L, 313L, 316L, 324L, 324L, 329L, 
+    332L, 332L, 341L, 350L, 352L, 356L, 357L, 364L, 366L, 366L, 
+    372L, 378L, 380L, 383L, 384L, 391L, 395L, 398L, 400L, 402L, 
+    405L, 414L, 416L, 443L, 452L, 453L, 454L, 454L, 455L, 456L, 
+    483L, 484L, 484L, 490L, 491L, 492L, 494L, 495L, 497L, 501L, 
+    514L, 526L, 529L, 530L, 531L, 536L, 551L, 561L, 566L, 573L, 
+    590L, 594L, 598L, 601L, 603L, 630L, 630L, 638L, 638L, 643L, 
+    645L, 646L, 648L, 648L, 654L, 658L, 659L, 691L, 698L, 699L, 
+    721L, 728L, 731L, 731L, 733L, 738L, 738L, 740L, 741L, 742L, 
+    746L, 774L, 779L, 787L, 789L, 797L, 798L, 799L, 800L, 802L, 
+    806L, 808L, 810L, 812L, 820L, 825L, 825L, 843L, 844L, 850L, 
+    851L, 853L, 853L, 856L, 858L, 858L, 861L, 866L, 876L, 884L, 
+    885L, 887L, 887L, 892L, 894L, 897L, 900L, 900L, 901L, 906L, 
+    908L, 910L, 910L, 914L, 921L, 927L, 928L, 929L, 930L, 931L, 
+    932L, 932L, 934L, 943L, 946L, 947L, 947L), c(60L, 66L, 71L, 
+    88L, 91L, 91L, 112L, 145L, 148L, 151L, 161L, 163L, 163L, 
+    165L, 174L, 176L, 177L, 178L, 178L, 178L, 179L, 183L, 195L, 
+    196L, 199L, 200L, 207L, 211L, 212L, 216L, 220L, 221L, 237L, 
+    249L, 249L, 249L, 250L, 257L, 262L, 265L, 270L, 280L, 283L, 
+    289L, 299L, 301L, 309L, 311L, 314L, 318L, 320L, 323L, 324L, 
+    326L, 328L, 329L, 332L, 332L, 333L, 334L, 342L, 346L, 348L, 
+    353L, 354L, 358L, 374L, 386L, 386L, 393L, 396L, 399L, 399L, 
+    401L, 404L, 409L, 413L, 415L, 447L, 452L, 458L, 481L, 485L, 
+    491L, 497L, 498L, 503L, 503L, 513L, 518L, 521L, 525L, 527L, 
+    532L, 532L, 532L, 534L, 534L, 539L, 547L, 559L, 561L, 566L, 
+    567L, 567L, 571L, 571L, 573L, 581L, 593L, 594L, 594L, 595L, 
+    596L, 602L, 627L, 628L, 629L, 630L, 634L, 638L, 649L, 650L, 
+    651L, 657L, 657L, 666L, 669L, 672L, 675L, 691L, 695L, 696L, 
+    696L, 697L, 712L, 721L, 722L, 725L, 728L, 729L, 729L, 734L, 
+    735L, 740L, 772L, 777L, 784L, 789L, 792L, 795L, 798L, 806L, 
+    807L, 809L, 812L, 813L, 814L, 821L, 822L, 822L, 827L, 832L, 
+    848L, 852L, 852L, 861L, 868L, 868L, 870L, 874L, 874L, 874L, 
+    881L, 886L, 888L, 890L, 895L, 899L, 911L, 913L, 914L, 917L, 
+    918L, 919L, 921L, 921L, 921L, 928L, 945L), c(51L, 52L, 53L, 
+    55L, 56L, 61L, 69L, 70L, 78L, 86L, 88L, 128L, 142L, 142L, 
+    153L, 153L, 156L, 160L, 175L, 175L, 176L, 177L, 178L, 180L, 
+    182L, 186L, 190L, 191L, 193L, 194L, 194L, 199L, 202L, 211L, 
+    212L, 228L, 246L, 256L, 260L, 268L, 271L, 273L, 273L, 276L, 
+    277L, 277L, 280L, 284L, 303L, 306L, 306L, 308L, 313L, 322L, 
+    322L, 322L, 324L, 325L, 328L, 332L, 334L, 336L, 355L, 356L, 
+    365L, 377L, 378L, 386L, 394L, 397L, 405L, 406L, 417L, 434L, 
+    443L, 448L, 451L, 452L, 454L, 468L, 488L, 495L, 505L, 505L, 
+    513L, 513L, 513L, 515L, 515L, 515L, 517L, 524L, 534L, 538L, 
+    539L, 548L, 557L, 557L, 562L, 570L, 572L, 578L, 586L, 587L, 
+    591L, 592L, 604L, 608L, 628L, 629L, 633L, 635L, 656L, 658L, 
+    668L, 674L, 699L, 706L, 719L, 723L, 733L, 737L, 737L, 741L, 
+    766L, 772L, 773L, 776L, 785L, 790L, 790L, 792L, 793L, 794L, 
+    798L, 798L, 800L, 802L, 802L, 803L, 804L, 804L, 806L, 824L, 
+    827L, 827L, 832L, 843L, 852L, 852L, 853L, 854L, 856L, 856L, 
+    859L, 864L, 865L, 866L, 867L, 867L, 871L, 871L, 873L, 876L, 
+    882L, 884L, 884L, 888L, 889L, 892L, 893L, 894L, 899L, 903L, 
+    904L, 904L, 905L, 906L, 913L, 920L, 921L, 923L, 923L, 926L, 
+    935L, 936L, 940L, 944L, 945L, 948L), c(52L, 53L, 55L, 65L, 
+    68L, 69L, 89L, 111L, 112L, 136L, 138L, 141L, 141L, 141L, 
+    143L, 153L, 161L, 162L, 163L, 166L, 171L, 172L, 175L, 184L, 
+    187L, 187L, 190L, 197L, 197L, 201L, 203L, 203L, 205L, 210L, 
+    217L, 218L, 221L, 244L, 256L, 259L, 264L, 266L, 266L, 269L, 
+    275L, 276L, 299L, 300L, 303L, 305L, 308L, 313L, 313L, 316L, 
+    316L, 318L, 322L, 325L, 329L, 338L, 342L, 343L, 344L, 348L, 
+    357L, 359L, 360L, 366L, 370L, 374L, 376L, 380L, 385L, 386L, 
+    388L, 395L, 398L, 401L, 402L, 411L, 416L, 444L, 447L, 450L, 
+    450L, 453L, 454L, 456L, 457L, 457L, 483L, 483L, 484L, 485L, 
+    485L, 492L, 494L, 499L, 500L, 501L, 503L, 503L, 508L, 510L, 
+    518L, 525L, 526L, 527L, 530L, 532L, 556L, 563L, 564L, 565L, 
+    565L, 565L, 573L, 586L, 596L, 596L, 596L, 596L, 597L, 599L, 
+    603L, 629L, 640L, 641L, 649L, 668L, 670L, 699L, 719L, 728L, 
+    730L, 730L, 730L, 742L, 745L, 745L, 745L, 746L, 772L, 774L, 
+    774L, 774L, 775L, 776L, 777L, 790L, 796L, 797L, 806L, 806L, 
+    808L, 811L, 813L, 815L, 819L, 825L, 844L, 855L, 859L, 860L, 
+    867L, 872L, 873L, 886L, 891L, 892L, 896L, 907L, 910L, 912L, 
+    914L, 917L, 917L, 918L, 918L, 918L, 919L, 923L, 925L, 925L, 
+    938L, 939L, 943L, 944L, 945L, 947L)), min = c(50L, 55L, 50L, 
+60L, 51L, 52L), max = c(916L, 946L, 947L, 945L, 948L, 947L)), row.names = c(NA, 
+-6L), class = c("tbl_df", "tbl", "data.frame"))
 
+```
+```{r}
+head(field_summary)
+```
+
+We can check all fields against all rules with crossing, which'll create one row for every rule x field - from there, run an %in% operator to check whether all values are in a range, and then filter to where these checks are TRUE. Then summarise this by the rule so that we can see what field_options there are for each rule
+
+```{r eval = FALSE}
 check_fields <- crossing(rules,field_summary) %>% 
   mutate(range = map(range,unlist)) %>% 
   mutate(check = map2_lgl(range,values,~all(.y %in% .x))) %>% 
@@ -103,7 +255,42 @@ field_options <- check_fields %>%
   summarise(n = n(),field_id = list(field_id)) %>% 
   ungroup() %>% 
   arrange(n)
+```
 
+```{r echo = FALSE}
+field_options <- structure(list(rule = c("arrival location", "train", "arrival station", 
+"price", "arrival track", "wagon", "route", "departure time", 
+"departure station", "departure platform", "departure date", 
+"departure location", "departure track", "duration", "type", 
+"arrival platform", "zone", "seat", "class", "row"), n = 1:20, 
+    field_id = list(10L, c(6L, 10L), c(3L, 6L, 10L), c(3L, 6L, 
+    10L, 12L), c(3L, 6L, 10L, 12L, 16L), c(3L, 6L, 10L, 11L, 
+    12L, 16L), c(3L, 6L, 10L, 11L, 12L, 14L, 16L), c(3L, 6L, 
+    10L, 11L, 12L, 14L, 16L, 19L), c(1L, 3L, 6L, 10L, 11L, 12L, 
+    14L, 16L, 19L), c(1L, 3L, 6L, 10L, 11L, 12L, 13L, 14L, 16L, 
+    19L), c(1L, 3L, 6L, 10L, 11L, 12L, 13L, 14L, 16L, 19L, 20L
+    ), c(1L, 3L, 6L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 19L, 
+    20L), c(1L, 3L, 6L, 7L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 
+    19L, 20L), c(1L, 2L, 3L, 6L, 7L, 10L, 11L, 12L, 13L, 14L, 
+    15L, 16L, 19L, 20L), c(1L, 2L, 3L, 6L, 7L, 9L, 10L, 11L, 
+    12L, 13L, 14L, 15L, 16L, 19L, 20L), c(1L, 2L, 3L, 4L, 6L, 
+    7L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 19L, 20L), c(1L, 
+    2L, 3L, 4L, 6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 
+    16L, 19L, 20L), c(1L, 2L, 3L, 4L, 6L, 7L, 8L, 9L, 10L, 11L, 
+    12L, 13L, 14L, 15L, 16L, 18L, 19L, 20L), c(1L, 2L, 3L, 4L, 
+    6L, 7L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 
+    19L, 20L), 1:20)), row.names = c(NA, -20L), class = c("tbl_df", 
+"tbl", "data.frame"))
+```
+```{r eval = FALSE}
+field_options
+```
+
+Inspecting these options, we can see that there's only one option for arrival location, two options for train (one of which is the only option for arrival location), three options for arrival station (but two are in the previous etc) - and continuing the visual inspection shows this pattern carries forward for all twenty fields. 
+
+We can write a quick little loop here to assign the fields starting with the first one. 
+
+```{r eval = FALSE}
 unassigned <- field_options
 
 assigned <- tibble(rule = NULL, field_id = NULL)
@@ -119,7 +306,8 @@ while(nrow(unassigned)>0){
     mutate(field_id = map(field_id, ~.x[!.x %in% assigned$field_id]))
   
 }
-
+```
+```{r eval = FALSE}
 your_assignment <- assigned %>% 
   mutate(field_id = map_dbl(field_id,unlist)) %>% 
   left_join(your_ticket, by = c("field_id")) %>% 
