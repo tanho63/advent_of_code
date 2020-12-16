@@ -485,8 +485,31 @@ field_options &lt;- check_fields %&gt;%
   ungroup() %&gt;% 
   arrange(n)</code></pre>
 <pre class="r"><code>field_options</code></pre>
+<pre><code>## # A tibble: 20 x 3
+##    rule                   n field_id  
+##    &lt;chr&gt;              &lt;int&gt; &lt;list&gt;    
+##  1 arrival location       1 &lt;int [1]&gt; 
+##  2 train                  2 &lt;int [2]&gt; 
+##  3 arrival station        3 &lt;int [3]&gt; 
+##  4 price                  4 &lt;int [4]&gt; 
+##  5 arrival track          5 &lt;int [5]&gt; 
+##  6 wagon                  6 &lt;int [6]&gt; 
+##  7 route                  7 &lt;int [7]&gt; 
+##  8 departure time         8 &lt;int [8]&gt; 
+##  9 departure station      9 &lt;int [9]&gt; 
+## 10 departure platform    10 &lt;int [10]&gt;
+## 11 departure date        11 &lt;int [11]&gt;
+## 12 departure location    12 &lt;int [12]&gt;
+## 13 departure track       13 &lt;int [13]&gt;
+## 14 duration              14 &lt;int [14]&gt;
+## 15 type                  15 &lt;int [15]&gt;
+## 16 arrival platform      16 &lt;int [16]&gt;
+## 17 zone                  17 &lt;int [17]&gt;
+## 18 seat                  18 &lt;int [18]&gt;
+## 19 class                 19 &lt;int [19]&gt;
+## 20 row                   20 &lt;int [20]&gt;</code></pre>
 <p>Inspecting these options, we can see that there’s only one option for arrival location, two options for train (one of which is the only option for arrival location), three options for arrival station (but two are in the previous etc) - and continuing the visual inspection shows this pattern carries forward for all twenty fields.</p>
-<p>We can write a quick little loop here to assign the fields starting with the first one.</p>
+<p>Writing a quick little loop here to assign the fields starting with the first one.</p>
 <pre class="r"><code>unassigned &lt;- field_options
 
 assigned &lt;- tibble(rule = NULL, field_id = NULL)

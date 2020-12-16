@@ -281,13 +281,13 @@ field_options <- structure(list(rule = c("arrival location", "train", "arrival s
     19L, 20L), 1:20)), row.names = c(NA, -20L), class = c("tbl_df", 
 "tbl", "data.frame"))
 ```
-```{r eval = FALSE}
+```{r}
 field_options
 ```
 
 Inspecting these options, we can see that there's only one option for arrival location, two options for train (one of which is the only option for arrival location), three options for arrival station (but two are in the previous etc) - and continuing the visual inspection shows this pattern carries forward for all twenty fields. 
 
-We can write a quick little loop here to assign the fields starting with the first one. 
+Writing a quick little loop here to assign the fields starting with the first one. 
 
 ```{r eval = FALSE}
 unassigned <- field_options
