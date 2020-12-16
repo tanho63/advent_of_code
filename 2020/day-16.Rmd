@@ -1,0 +1,140 @@
+---
+title: "Adv2020 - Day Sixteen"
+author: "Tan Ho"
+date: "2020-12-16"
+output: html_document
+---
+
+Day fifteen - Ticket Translation!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(slider)
+
+  options(scipen  =  9999999)
+  knitr::opts_chunk$set(echo = TRUE)
+})
+```
+
+--- Description ---
+
+--- Data ---
+
+```{r eval = FALSE}
+input_16 <- read_lines(here("2020","day-16.txt"))
+```
+
+--- Cleaning ---
+
+```{r eval = FALSE}
+x <- tibble(input = input_16) %>% 
+  mutate(group = cumsum(input == ""))
+
+rules <- x %>% 
+  filter(group == 0) %>% 
+  separate(input,c("rule","values"),sep = ": ") %>% 
+  separate_rows(values, sep = " or ") %>% 
+  separate(values,c("start_value","end_value"),sep = "-",convert = TRUE) %>% 
+  mutate(range = map2(start_value,end_value,~.x:.y)) %>% 
+  select(-group) %>% 
+  group_by(rule) %>% 
+  summarise(range = list(range))
+
+your_ticket <- x %>% 
+  filter(group == 1, input!="",input!="your ticket:") %>% 
+  separate_rows(input, sep = ",", convert = TRUE) %>% 
+  mutate(field_id = row_number()) %>% 
+  select(-group)
+
+other_tickets <- x %>% 
+  filter(group == 2,input!="",input!="nearby tickets:") %>% 
+  mutate(ticket_id = row_number()) %>% 
+  separate_rows(input,sep = ",",convert = TRUE) %>% 
+  select(-group)
+
+```
+
+--- Problem 1 ---
+
+```{r eval = FALSE}
+rule_range <- rules$range %>% unlist() %>% unique()
+
+check_invalid <- other_tickets %>% 
+  mutate(check = input %in% rule_range) %>% 
+  filter(!check)
+```
+```{r echo = FALSE}
+check_invalid <- structure(list(input = c(8L, 4L, 3L, 24L, 979L, 984L), ticket_id = c(2L, 
+13L, 23L, 25L, 29L, 34L), check = c(FALSE, FALSE, FALSE, FALSE, 
+FALSE, FALSE)), row.names = c(NA, -6L), class = c("tbl_df", "tbl", 
+"data.frame"))
+```
+```{r}
+head(check_invalid)
+
+sum(check_invalid$input)
+```
+
+--- Problem 2 ---
+
+```{r eval = FALSE}
+valid_other <- other_tickets %>%
+  filter(!ticket_id %in% check_invalid$ticket_id) %>% 
+  group_by(ticket_id) %>% 
+  mutate(field_id = row_number()) %>% 
+  ungroup()
+
+field_summary <- valid_other %>%
+  arrange(input) %>% 
+  group_by(field_id) %>% 
+  summarise(values = list(input)) %>% 
+  mutate(min = map(values,min,na.rm = TRUE),
+         max = map(values,max,na.rm = TRUE))
+
+check_fields <- crossing(rules,field_summary) %>% 
+  mutate(range = map(range,unlist)) %>% 
+  mutate(check = map2_lgl(range,values,~all(.y %in% .x))) %>% 
+  filter(check)
+
+field_options <- check_fields %>% 
+  group_by(rule) %>% 
+  summarise(n = n(),field_id = list(field_id)) %>% 
+  ungroup() %>% 
+  arrange(n)
+
+unassigned <- field_options
+
+assigned <- tibble(rule = NULL, field_id = NULL)
+
+while(nrow(unassigned)>0){
+  
+  assigned <- unassigned %>% 
+    slice(1) %>% 
+    bind_rows(assigned,.)
+  
+  unassigned <- unassigned %>% 
+    tail(n = -1) %>% 
+    mutate(field_id = map(field_id, ~.x[!.x %in% assigned$field_id]))
+  
+}
+
+your_assignment <- assigned %>% 
+  mutate(field_id = map_dbl(field_id,unlist)) %>% 
+  left_join(your_ticket, by = c("field_id")) %>% 
+  filter(str_starts(rule,"departure"))
+```
+```{r echo = FALSE}
+your_assignment <- structure(list(rule = c("departure time", "departure station", 
+"departure platform", "departure date", "departure location", 
+"departure track"), n = 8:13, field_id = c(19, 1, 13, 20, 15, 
+7), input = c(193L, 61L, 197L, 157L, 181L, 89L)), row.names = c(NA, 
+-6L), class = c("tbl_df", "tbl", "data.frame"))
+```
+```{r}
+your_assignment
+  
+prod(your_assignment$input)
+```
+

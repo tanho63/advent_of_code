@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-14 18:23:46</h4>
+<h4 class="date">Last Updated: 2020-12-16 01:05:28</h4>
 
 </div>
 
@@ -428,20 +428,20 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1))
 
 stars</code></pre>
-<pre><code>## # A tibble: 134 x 8
-##    user_name user_id aoc_score total_stars day   star1_ts           
+<pre><code>## # A tibble: 143 x 8
+##    user_name user_id aoc_score total_stars day   star2_ts           
 ##    &lt;chr&gt;     &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;             
-##  1 Tokhir D~ 1010046       264          25 12    2020-12-12 13:09:12
-##  2 Tokhir D~ 1010046       264          25 11    2020-12-11 13:45:36
-##  3 Tokhir D~ 1010046       264          25 10    2020-12-10 10:09:12
-##  4 Tokhir D~ 1010046       264          25 2     2020-12-02 08:44:15
-##  5 Tokhir D~ 1010046       264          25 1     2020-12-01 09:30:21
-##  6 Tokhir D~ 1010046       264          25 9     2020-12-09 06:15:00
-##  7 Tokhir D~ 1010046       264          25 5     2020-12-05 07:32:24
-##  8 Tokhir D~ 1010046       264          25 14    2020-12-14 16:45:28
-##  9 Tokhir D~ 1010046       264          25 4     2020-12-04 05:33:59
-## 10 Tokhir D~ 1010046       264          25 6     2020-12-06 06:28:17
-## # ... with 124 more rows, and 2 more variables: star2_ts &lt;dttm&gt;,
+##  1 scalgary  1048276       209          26 12    2020-12-12 19:34:40
+##  2 scalgary  1048276       209          26 5     2020-12-05 15:28:38
+##  3 scalgary  1048276       209          26 8     2020-12-08 18:42:14
+##  4 scalgary  1048276       209          26 11    NA                 
+##  5 scalgary  1048276       209          26 3     2020-12-03 18:33:38
+##  6 scalgary  1048276       209          26 7     NA                 
+##  7 scalgary  1048276       209          26 2     2020-12-02 17:01:14
+##  8 scalgary  1048276       209          26 15    NA                 
+##  9 scalgary  1048276       209          26 13    2020-12-13 21:07:21
+## 10 scalgary  1048276       209          26 14    NA                 
+## # ... with 133 more rows, and 2 more variables: star1_ts &lt;dttm&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
@@ -455,13 +455,13 @@ leaderboard</code></pre>
 <pre><code>## # A tibble: 13 x 6
 ##    user_name         user_id aoc_score total_stars median_star2 mean_star2
 ##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
-##  1 @_TanHo           1032765       333          28  26.9 mins   105.8 mins
-##  2 Liam Young        1011508       298          28  51.2 mins   123.6 mins
-##  3 kdaily16          1033297       197          27  10.2 mins   114.6 mins
-##  4 Kate              1050275       280          26  32.8 mins    59.0 mins
-##  5 Tokhir Dadaev     1010046       264          25  90.7 mins   170.9 mins
-##  6 scalgary          1048276       189          24  31.6 mins   179.4 mins
-##  7 kevin-m-kent      1126163       169          22  56.2 mins    69.8 mins
+##  1 @_TanHo           1032765       388          32  32.1 mins   131.1 mins
+##  2 kdaily16          1033297       229          30  16.0 mins   153.8 mins
+##  3 Liam Young        1011508       325          30  52.9 mins   118.9 mins
+##  4 Kate              1050275       289          27  32.8 mins    59.0 mins
+##  5 Tokhir Dadaev     1010046       288          27 126.0 mins   211.3 mins
+##  6 scalgary          1048276       209          26  31.6 mins   179.4 mins
+##  7 kevin-m-kent      1126163       187          24  52.2 mins    63.0 mins
 ##  8 aleighbrown       1008588       128          17  26.0 mins    72.5 mins
 ##  9 Anne              1020594       129          14  48.8 mins    81.3 mins
 ## 10 Alison Lanski     1026315        92          14 114.9 mins   188.6 mins

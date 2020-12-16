@@ -22,6 +22,7 @@ suppressPackageStartupMessages({
 ```
 
 --- Description ---
+
 >The navigation instructions (your puzzle input) consists of a sequence of single-character actions paired with integer input values. After staring at them for a few minutes, you work out what they probably mean:
 >
 >    - Action N means to move north by the given value.
@@ -33,6 +34,7 @@ suppressPackageStartupMessages({
 >    - Action F means to move forward by the given value in the direction the ship is currently facing.
 
 --- Data --- 
+
 ```{r eval = FALSE}
 input_12 <- read_lines(here("2020","day-12.txt"))
 ```
