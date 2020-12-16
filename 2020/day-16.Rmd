@@ -5,13 +5,12 @@ date: "2020-12-16"
 output: html_document
 ---
 
-Day fifteen - Ticket Translation!
+Day sixteen - Ticket Translation!
 
 ```{r setup}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
-  library(slider)
 
   options(scipen  =  9999999)
   knitr::opts_chunk$set(echo = TRUE)
