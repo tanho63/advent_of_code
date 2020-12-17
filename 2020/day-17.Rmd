@@ -1,0 +1,375 @@
+---
+title: "Adv2020 - Day Seventeen"
+author: "Tan Ho"
+date: "2020-12-17"
+output: html_document
+---
+
+Day seventeen - Conway Cubes!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+
+  options(scipen = 9999999)
+  knitr::opts_chunk$set(echo = TRUE)
+})
+```
+
+
+--- Description ---
+
+> The experimental energy source is based on cutting-edge technology: a set of Conway Cubes contained in a pocket dimension! When you hear it's having problems, you can't help but agree to take a look.
+> 
+> The pocket dimension contains an infinite 3-dimensional grid. At every integer 3-dimensional coordinate (x,y,z), there exists a single cube which is either active or inactive.
+
+So essentially Conway's game of life again...but in three dimensions?
+
+--- Data ---
+
+```{r eval = FALSE}
+input_17 <- read_lines(here("2020", "day-17.txt"))
+input_17_e <- read_lines(here("2020", "day-17-example1.txt"))
+```
+
+--- Cleaning ---
+
+Exploring a new part of R to me: arrays, which are vertically stacked matrices.
+
+```{r eval = FALSE}
+example_matrix <- tibble(x = input_17_e) %>%
+  mutate(x = str_split(x, "")) %>%
+  unnest_wider(x, names_sep = "_") %>%
+  mutate_all(~ case_when(.x == "#" ~ 1, TRUE ~ 0)) %>%
+  as.matrix()
+
+example_empty <- matrix(
+  data = rep(0, length(example_matrix)),
+  nrow = nrow(example_matrix),
+  ncol = ncol(example_matrix)
+)
+
+example_array <- c(example_empty, example_matrix, example_empty) %>%
+  array(dim = c(nrow(example_matrix), ncol(example_matrix), 3))
+
+input_matrix <- tibble(x = input_17) %>%
+  mutate(x = str_split(x, "")) %>%
+  unnest_wider(x, names_sep = "_") %>%
+  mutate_all(~ case_when(.x == "#" ~ 1, TRUE ~ 0)) %>%
+  as.matrix()
+
+input_empty <- matrix(
+  data = rep(0, length(input_matrix)), byrow = TRUE,
+  nrow = nrow(input_matrix),
+  ncol = ncol(input_matrix)
+)
+
+input_array <- c(input_empty, input_matrix, input_empty) %>%
+  array(dim = c(nrow(input_matrix), ncol(input_matrix), 3))
+```
+```{r echo = FALSE}
+example_array <- structure(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 
+1, 0, 0, 0, 0, 0, 0, 0, 0, 0), .Dim = c(3L, 3L, 3L))
+```
+
+Okay! So now we have the starting states of the example as `example_array` and the actual problem as `input_array`. We can access the dimensions of the arrays via 
+
+```{r}
+dim(example_array)
+```
+
+and access a specific layer with array[row,column,layer].
+
+```{r}
+example_array[1, 2, 2]
+```
+
+--- Problem 1 ---
+
+We can build out a list of indices with the dimensions, I think!
+
+```{r eval = FALSE}
+# array <- example_array
+
+get_indices <- function(array) {
+  dimensions <- dim(array)
+
+  actual_indices <- crossing(
+    x = seq_len(dimensions[[1]]),
+    y = seq_len(dimensions[[2]]),
+    z = seq_len(dimensions[[3]])
+  ) %>%
+    arrange(z, x, y) %>%
+    mutate(
+      value = pmap_dbl(list(x, y, z), ~ array[...]),
+      x = x + 1,
+      y = y + 1
+    )
+
+  indices <- crossing(
+    x = seq_len(dimensions[[1]] + 2),
+    y = seq_len(dimensions[[2]] + 2),
+    z = seq_len(dimensions[[3]])
+  ) %>%
+    arrange(z, x, y) %>%
+    left_join(actual_indices, by = c("x", "y", "z")) %>%
+    mutate_all(replace_na, 0)
+
+  return(indices)
+}
+
+example_indices <- get_indices(example_array)
+```
+
+Now to create a function to check the neighbouring indices and count nearby occupied cells.
+
+```{r eval = FALSE}
+
+# indices <- example_indices
+# x <- 1
+# y <- 2
+# z <- 2
+
+count_neighbours <- function(x, y, z, indices) {
+  x_max <- max(indices$x)
+  y_max <- max(indices$y)
+  z_max <- max(indices$z)
+
+  increments <- c(-1, 0, 1)
+
+  neighbours <- crossing(
+    x = increments + x,
+    y = increments + y,
+    z = increments + z
+  ) %>%
+    filter(
+      !(.data$x == .env$x & .data$y == .env$y & .data$z == .env$z),
+      between(.data$x, 1, x_max),
+      between(.data$y, 1, y_max),
+      between(.data$z, 1, z_max)
+    ) %>%
+    mutate(value = pmap_dbl(list(x, y, z), ~ indices$value[indices$x == ..1 & indices$y == ..2 & indices$z == ..3])) %>%
+    pull(value) %>%
+    sum()
+
+  return(neighbours)
+}
+
+example_neighbours <- example_indices %>%
+  mutate(neighbours = pmap_dbl(list(x, y, z), count_neighbours, .))
+```
+
+Now that we have the neighbours, we need to increment their values based on the rules. 
+
+```{r eval = FALSE}
+# indices <- example_neighbours
+
+apply_rules <- function(indices) {
+  x <- indices %>%
+    mutate(new_value = case_when(
+      value == 1 & neighbours %in% c(2, 3) ~ 1,
+      value == 1 ~ 0,
+      value == 0 & neighbours == 3 ~ 1,
+      TRUE ~ 0
+    ))
+  return(x)
+}
+
+example_count <- example_neighbours %>%
+  apply_rules()
+```
+
+(I was stumped for a while here as to why my puzzle input did not match up to the example, but consulting no-spoilers-reddit seems that they're dropping empty x/y dimensions which is quite annoying!)
+
+Now to increment the array in every direction (but sticking with a list of indices for now, I find that easier to work with mentally)
+
+```{r eval = FALSE}
+# indices <- example_count
+grow_indices <- function(indices) {
+  new_x <- max(indices$x + 2) %>% seq_len()
+  new_y <- max(indices$y + 2) %>% seq_len()
+  new_z <- max(indices$z + 2) %>% seq_len()
+
+  new_indices <- indices %>%
+    transmute(
+      x = x + 1,
+      y = y + 1,
+      z = z + 1,
+      value = new_value
+    )
+
+  indices <- crossing(
+    x = new_x,
+    y = new_y,
+    z = new_z
+  ) %>%
+    left_join(new_indices, by = c("x", "y", "z")) %>%
+    mutate(value = replace_na(value, 0))
+
+  return(indices)
+}
+# grow_indices(example_count)
+```
+Wrap it all into a caller function and for-loop.
+
+```{r eval = FALSE}
+
+# array <- example_array
+# times <- 6
+
+run_conwaycube <- function(array, times) {
+  indices <- get_indices(array)
+
+  for (i in seq_len(times)) {
+    indices <- indices %>%
+      mutate(neighbours = pmap_dbl(list(x, y, z), count_neighbours, .)) %>%
+      apply_rules() %>%
+      grow_indices()
+
+    message(paste(i, Sys.time()))
+  }
+
+  return(sum(indices$value))
+}
+
+run_conwaycube(input_array,6)
+```
+```{r echo = FALSE}
+message("1 2020-12-17 10:26:13")
+message("2 2020-12-17 10:26:16")
+message("3 2020-12-17 10:26:22")
+message("4 2020-12-17 10:26:33")
+message("5 2020-12-17 10:26:52")
+message("6 2020-12-17 10:27:23")
+
+280
+```
+
+
+--- Problem 2 ---
+
+FOUR DIMENSIONS?! (brain explodes)
+
+Actually, maybe I can just adjust my functions for a fourth dimension `w`
+
+```{r eval = FALSE}
+
+get_indices_4d <- function(array) {
+  dimensions <- dim(array)
+
+  actual_indices <- crossing(
+    x = seq_len(dimensions[[1]]),
+    y = seq_len(dimensions[[2]]),
+    z = seq_len(dimensions[[3]])
+  ) %>%
+    arrange(z, x, y) %>%
+    mutate(
+      value = pmap_dbl(list(x, y, z), ~ array[...]),
+      x = x + 1,
+      y = y + 1,
+      w = 2
+    )
+
+  indices <- crossing(
+    x = seq_len(dimensions[[1]] + 2),
+    y = seq_len(dimensions[[2]] + 2),
+    z = seq_len(dimensions[[3]]),
+    w = seq_len(dimensions[[3]])
+  ) %>%
+    arrange(z, x, y, w) %>%
+    left_join(actual_indices, by = c("x", "y", "z", "w")) %>%
+    mutate_all(replace_na, 0)
+
+  return(indices)
+}
+
+count_neighbours_4d <- function(x, y, z, w, indices) {
+  x_max <- max(indices$x)
+  y_max <- max(indices$y)
+  z_max <- max(indices$z)
+  w_max <- max(indices$w)
+
+  increments <- c(-1, 0, 1)
+
+  neighbours <- crossing(
+    x = increments + x,
+    y = increments + y,
+    z = increments + z,
+    w = increments + w
+  ) %>%
+    filter(
+      !(.data$x == .env$x & .data$y == .env$y & .data$z == .env$z & .data$w == .env$w),
+      between(.data$x, 1, x_max),
+      between(.data$y, 1, y_max),
+      between(.data$z, 1, z_max),
+      between(.data$w, 1, w_max)
+    ) %>%
+    mutate(value = pmap_dbl(list(x, y, z, w), ~ indices$value[indices$x == ..1 & indices$y == ..2 & indices$z == ..3 & indices$w == ..4])) %>%
+    pull(value) %>%
+    sum()
+
+  return(neighbours)
+}
+
+# apply rules doesn't change since rules are the same
+
+grow_indices_4d <- function(indices) {
+  new_x <- max(indices$x + 2) %>% seq_len()
+  new_y <- max(indices$y + 2) %>% seq_len()
+  new_z <- max(indices$z + 2) %>% seq_len()
+  new_w <- max(indices$w + 2) %>% seq_len()
+
+  new_indices <- indices %>%
+    transmute(
+      x = x + 1,
+      y = y + 1,
+      z = z + 1,
+      w = w + 1,
+      value = new_value
+    )
+
+  indices <- crossing(
+    x = new_x,
+    y = new_y,
+    z = new_z,
+    w = new_w
+  ) %>%
+    left_join(new_indices, by = c("x", "y", "z", "w")) %>%
+    mutate(value = replace_na(value, 0))
+
+  return(indices)
+}
+
+run_conwaycube_4d <- function(array, times) {
+  indices <- get_indices_4d(array)
+
+  message(paste(Sys.time(), nrow(indices)))
+
+  for (i in seq_len(times)) {
+    indices <- indices %>%
+      mutate(neighbours = pmap_dbl(list(x, y, z, w), count_neighbours_4d, .)) %>%
+      apply_rules() %>%
+      grow_indices_4d()
+
+    message(paste(i, Sys.time(), nrow(indices)))
+  }
+
+  return(sum(indices$value))
+}
+
+run_conwaycube_4d(input_array, 6)
+```
+```{r echo = FALSE}
+message("2020-12-17 02:01:36 900")
+message("1 2020-12-17 02:01:41 3600")
+message("2 2020-12-17 02:02:12 9604")
+message("3 2020-12-17 02:04:46 20736")
+message("4 2020-12-17 02:15:10 39204")
+message("5 2020-12-17 02:50:04 67600")
+message("6 2020-12-17 04:35:08 108900")
+
+1696
+```
+
+Admittedly, I plugged this in and went to sleep - but it was the correct answer!
