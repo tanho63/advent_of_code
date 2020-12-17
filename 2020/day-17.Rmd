@@ -11,6 +11,8 @@ Day seventeen - Conway Cubes!
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
+  library(furrr)
+  plan(multisession)
 
   options(scipen = 9999999)
   knitr::opts_chunk$set(echo = TRUE)
@@ -246,7 +248,6 @@ run_conwaycube(input_array,6)
 280
 ```
 
-
 --- Problem 2 ---
 
 FOUR DIMENSIONS?! (brain explodes)
@@ -457,7 +458,7 @@ run_conwaycube_4d(input_array, 6)
 [1] 1696
 ```
 
-Just doing that much shrunk the run-time from 2 hours 35 minutes to ~17 minutes! I can do better though, I think - in Day 11's final approach, I arranged things into a matrix and approached it from there - I think I can definitely do the same here!
+Just doing that much shrunk the run-time from 2 hours 35 minutes to ~17 minutes! I can do better though, I think - in Day 11's final approach, I arranged things into a matrix and approached it from there - I think I can definitely do the same here! (and also, add parallel processing because duh)
 
 ```{r eval = FALSE}
 count_neighbours_4d <- function(indices){
@@ -472,16 +473,17 @@ count_neighbours_4d <- function(indices){
                        max(indices$w)))
 
   i <- indices %>%
-    mutate(neighbours = pmap_dbl(list(x,y,z,w),check_each_neighbour,a))
+    mutate(neighbours = future_pmap_dbl(.l = list(.data$x,.data$y,.data$z,.data$w),.f = check_each_neighbour,a = .env$a))
 
-    
   return(i)
 }
 
-check_each_neighbour <- function(x, y, z, w, array){
+check_each_neighbour <- function(x, y, z, w, a){
 
   increments <- c(-1, 0, 1)
 
+  # browser()
+  
   n <- crossing(
     x = increments + x,
     y = increments + y,
@@ -493,11 +495,15 @@ check_each_neighbour <- function(x, y, z, w, array){
           .data$y == .env$y & 
           .data$z == .env$z & 
           .data$w == .env$w),
+      between(.data$x,1,dim(a)[[1]]),
+      between(.data$y,1,dim(a)[[2]]),
+      between(.data$z,1,dim(a)[[3]]),
+      between(.data$w,1,dim(a)[[4]]),
     ) %>%
     mutate(
-      value = pmap(
+      value = pmap_dbl(
         list(.data$x,.data$y,.data$z,.data$w),
-        ~array[...])) %>%
+        ~a[..1,..2,..3,..4])) %>%
     pull(value) %>%
     unlist() %>%
     sum(na.rm = TRUE)
@@ -526,15 +532,14 @@ run_conwaycube_4d(input_array, 6)
 
 ```
 ```
-2020-12-17 18:07:04 900
-1 2020-12-17 18:07:07 3600
-2 2020-12-17 18:07:22 9604
-3 2020-12-17 18:08:01 20736
-4 2020-12-17 18:09:24 39204
-5 2020-12-17 18:12:02 67600
-6 2020-12-17 18:16:36 108900
-
+2020-12-17 18:39:43 900
+1 2020-12-17 18:39:45 3600
+2 2020-12-17 18:39:48 9604
+3 2020-12-17 18:39:56 20736
+4 2020-12-17 18:40:13 39204
+5 2020-12-17 18:40:44 67600
+6 2020-12-17 18:41:39 108900
 [1] 1696
 ```
 
-Shaving another ~six minutes off, finishes in about nine minutes.
+Shaving it down to two minutes runtime is extremely satisfying!
