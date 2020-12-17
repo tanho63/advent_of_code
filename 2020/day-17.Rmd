@@ -235,13 +235,13 @@ run_conwaycube <- function(array, times) {
 
 run_conwaycube(input_array,6)
 ```
-```{r echo = FALSE}
-message("1 2020-12-17 10:26:13")
-message("2 2020-12-17 10:26:16")
-message("3 2020-12-17 10:26:22")
-message("4 2020-12-17 10:26:33")
-message("5 2020-12-17 10:26:52")
-message("6 2020-12-17 10:27:23")
+```
+1 2020-12-17 10:26:13
+2 2020-12-17 10:26:16
+3 2020-12-17 10:26:22
+4 2020-12-17 10:26:33
+5 2020-12-17 10:26:52
+6 2020-12-17 10:27:23
 
 280
 ```
@@ -256,8 +256,9 @@ Actually, maybe I can just adjust my functions for a fourth dimension `w`
 ```{r eval = FALSE}
 
 get_indices_4d <- function(array) {
+  
   dimensions <- dim(array)
-
+  
   actual_indices <- crossing(
     x = seq_len(dimensions[[1]]),
     y = seq_len(dimensions[[2]]),
@@ -270,7 +271,7 @@ get_indices_4d <- function(array) {
       y = y + 1,
       w = 2
     )
-
+  
   indices <- crossing(
     x = seq_len(dimensions[[1]] + 2),
     y = seq_len(dimensions[[2]] + 2),
@@ -280,7 +281,7 @@ get_indices_4d <- function(array) {
     arrange(z, x, y, w) %>%
     left_join(actual_indices, by = c("x", "y", "z", "w")) %>%
     mutate_all(replace_na, 0)
-
+  
   return(indices)
 }
 
@@ -289,9 +290,9 @@ count_neighbours_4d <- function(x, y, z, w, indices) {
   y_max <- max(indices$y)
   z_max <- max(indices$z)
   w_max <- max(indices$w)
-
+  
   increments <- c(-1, 0, 1)
-
+  
   neighbours <- crossing(
     x = increments + x,
     y = increments + y,
@@ -299,16 +300,25 @@ count_neighbours_4d <- function(x, y, z, w, indices) {
     w = increments + w
   ) %>%
     filter(
-      !(.data$x == .env$x & .data$y == .env$y & .data$z == .env$z & .data$w == .env$w),
+      !(.data$x == .env$x & 
+          .data$y == .env$y & 
+          .data$z == .env$z & 
+          .data$w == .env$w),
       between(.data$x, 1, x_max),
       between(.data$y, 1, y_max),
       between(.data$z, 1, z_max),
       between(.data$w, 1, w_max)
     ) %>%
-    mutate(value = pmap_dbl(list(x, y, z, w), ~ indices$value[indices$x == ..1 & indices$y == ..2 & indices$z == ..3 & indices$w == ..4])) %>%
+    mutate(
+      value = pmap_dbl(
+        list(x, y, z, w), 
+        ~ indices$value[indices$x == ..1 & 
+                          indices$y == ..2 & 
+                          indices$z == ..3 & 
+                          indices$w == ..4])) %>%
     pull(value) %>%
     sum()
-
+  
   return(neighbours)
 }
 
@@ -319,7 +329,7 @@ grow_indices_4d <- function(indices) {
   new_y <- max(indices$y + 2) %>% seq_len()
   new_z <- max(indices$z + 2) %>% seq_len()
   new_w <- max(indices$w + 2) %>% seq_len()
-
+  
   new_indices <- indices %>%
     transmute(
       x = x + 1,
@@ -328,7 +338,7 @@ grow_indices_4d <- function(indices) {
       w = w + 1,
       value = new_value
     )
-
+  
   indices <- crossing(
     x = new_x,
     y = new_y,
@@ -337,8 +347,82 @@ grow_indices_4d <- function(indices) {
   ) %>%
     left_join(new_indices, by = c("x", "y", "z", "w")) %>%
     mutate(value = replace_na(value, 0))
-
+  
   return(indices)
+}
+
+run_conwaycube_4d <- function(array, times) {
+  
+  indices <- get_indices_4d(array)
+  
+  message(paste(Sys.time(), nrow(indices)))
+  
+  for (i in seq_len(times)) {
+    indices <- indices %>%
+      mutate(neighbours = pmap_dbl(list(x, y, z, w), count_neighbours_4d, .)) %>%
+      apply_rules() %>%
+      grow_indices_4d()
+    message(paste(i, Sys.time(), nrow(indices)))
+  }
+  return(sum(indices$value))
+}
+
+run_conwaycube_4d(input_array, 6)
+```
+```
+2020-12-17 02:01:36 900
+1 2020-12-17 02:01:41 3600
+2 2020-12-17 02:02:12 9604
+3 2020-12-17 02:04:46 20736
+4 2020-12-17 02:15:10 39204
+5 2020-12-17 02:50:04 67600
+6 2020-12-17 04:35:08 108900
+
+[1] 1696
+```
+
+Admittedly, I plugged this in and went to sleep - but it was the correct answer!
+
+--- Iterating on Problem 2 for speed ---
+
+Problem 2 takes quite some time to run. Trying a few approaches to trimming it down:
+
+Firstly, as Liam Y suggested in the R4DS Slack - arrange the neighbour function so that it's only checking neighbours that have positive integer values:
+
+```{r eval = FALSE}
+count_neighbours_4d <- function(indices){
+
+  filtered_indices <- indices %>%
+    filter(value == 1) # This should reduce the amount of iteration needed!
+
+  indices %>%
+    mutate(neighbours = pmap_dbl(list(x,y,z,w),check_each_neighbour,filtered_indices))
+}
+
+check_each_neighbour <- function(x, y, z, w, indices){
+
+  increments <- c(-1, 0, 1)
+
+  n <- crossing(
+    x = increments + x,
+    y = increments + y,
+    z = increments + z,
+    w = increments + w
+  ) %>%
+    filter(
+      !(.data$x == .env$x & 
+          .data$y == .env$y & 
+          .data$z == .env$z & 
+          .data$w == .env$w)
+    ) %>%
+    mutate(
+      value = pmap(list(.data$x,.data$y,.data$z,.data$w),
+                   ~(indices$value[indices$x == ..1 & indices$y == ..2 & indices$z == ..3 & indices$w == ..4]))) %>%
+    pull(value) %>%
+    unlist() %>%
+    sum(na.rm = TRUE)
+
+  return(n)
 }
 
 run_conwaycube_4d <- function(array, times) {
@@ -348,7 +432,7 @@ run_conwaycube_4d <- function(array, times) {
 
   for (i in seq_len(times)) {
     indices <- indices %>%
-      mutate(neighbours = pmap_dbl(list(x, y, z, w), count_neighbours_4d, .)) %>%
+      count_neighbours_4d() %>% 
       apply_rules() %>%
       grow_indices_4d()
 
@@ -360,16 +444,97 @@ run_conwaycube_4d <- function(array, times) {
 
 run_conwaycube_4d(input_array, 6)
 ```
-```{r echo = FALSE}
-message("2020-12-17 02:01:36 900")
-message("1 2020-12-17 02:01:41 3600")
-message("2 2020-12-17 02:02:12 9604")
-message("3 2020-12-17 02:04:46 20736")
-message("4 2020-12-17 02:15:10 39204")
-message("5 2020-12-17 02:50:04 67600")
-message("6 2020-12-17 04:35:08 108900")
 
-1696
+```
+2020-12-17 16:08:14 900
+1 2020-12-17 16:08:18 3600
+2 2020-12-17 16:08:38 9604
+3 2020-12-17 16:09:29 20736
+4 2020-12-17 16:11:39 39204
+5 2020-12-17 16:15:26 67600
+6 2020-12-17 16:25:28 108900
+
+[1] 1696
 ```
 
-Admittedly, I plugged this in and went to sleep - but it was the correct answer!
+Just doing that much shrunk the run-time from 2 hours 35 minutes to ~17 minutes! I can do better though, I think - in Day 11's final approach, I arranged things into a matrix and approached it from there - I think I can definitely do the same here!
+
+```{r eval = FALSE}
+count_neighbours_4d <- function(indices){
+
+  v <- indices %>% 
+    arrange(w,z,y,x) %>% 
+    pull(value)
+  
+  a <- array(v,dim = c(max(indices$x),
+                       max(indices$y),
+                       max(indices$z),
+                       max(indices$w)))
+
+  i <- indices %>%
+    mutate(neighbours = pmap_dbl(list(x,y,z,w),check_each_neighbour,a))
+
+    
+  return(i)
+}
+
+check_each_neighbour <- function(x, y, z, w, array){
+
+  increments <- c(-1, 0, 1)
+
+  n <- crossing(
+    x = increments + x,
+    y = increments + y,
+    z = increments + z,
+    w = increments + w
+  ) %>%
+    filter(
+      !(.data$x == .env$x & 
+          .data$y == .env$y & 
+          .data$z == .env$z & 
+          .data$w == .env$w),
+    ) %>%
+    mutate(
+      value = pmap(
+        list(.data$x,.data$y,.data$z,.data$w),
+        ~array[...])) %>%
+    pull(value) %>%
+    unlist() %>%
+    sum(na.rm = TRUE)
+
+  return(n)
+}
+
+run_conwaycube_4d <- function(array, times) {
+  indices <- get_indices_4d(array)
+
+  message(paste(Sys.time(), nrow(indices)))
+
+  for (i in seq_len(times)) {
+    indices <- indices %>%
+      count_neighbours_4d() %>% 
+      apply_rules() %>%
+      grow_indices_4d()
+
+    message(paste(i, Sys.time(), nrow(indices)))
+  }
+
+  return(sum(indices$value))
+}
+
+run_conwaycube_4d(input_array, 6)
+
+```
+```
+2020-12-17 18:07:04 900
+1 2020-12-17 18:07:07 3600
+2 2020-12-17 18:07:22 9604
+3 2020-12-17 18:08:01 20736
+4 2020-12-17 18:09:24 39204
+5 2020-12-17 18:12:02 67600
+6 2020-12-17 18:16:36 108900
+
+[1] 1696
+```
+
+Shaving another ~six minutes off, finishes in about nine minutes.
