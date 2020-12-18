@@ -1,0 +1,132 @@
+---
+title: "Adv2020 - Day Eighteen"
+author: "Tan Ho"
+date: "2020-12-18"
+output: html_document
+---
+
+Day eighteen - Operation Order!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(lobstr)
+  # library(furrr)
+  # plan(multisession)
+
+  knitr::opts_chunk$set(echo = TRUE)
+})
+  options(scipen = 9999999)
+
+```
+
+--- Description ---
+
+> Unfortunately, it seems like this "math" follows different rules than you remember.
+> 
+> The homework (your puzzle input) consists of a series of expressions that consist of addition (+), multiplication (*), and parentheses ((...)). Just like normal math, parentheses indicate that the expression inside must be evaluated before it can be used by the surrounding expression. Addition still finds the sum of the numbers on both sides of the operator, and multiplication still finds the product.
+> 
+> However, the rules of operator precedence have changed. Rather than evaluating multiplication before addition, the operators have the same precedence, and are evaluated left-to-right regardless of the order in which they appear.
+
+--- Data ---
+
+```{r}
+input_18 <- read_lines(here("2020", "day-18.txt"))
+```
+
+--- Cleaning ---
+
+```{r}
+operations <- tibble(x = input_18)
+```
+
+--- Problem 1 ---
+
+R doesn't have editable math operator precedence (which is a good thing!), but we can trick the R parser into evaluating `*` at the same level as `+` by string-replacing `*` with `-` and then switching the definition of `-` to be equal to `*`. 
+
+The R parser will read the operator list and decide which ones to do, and it knows that "+" is equal in precedence to "-". So it will evaluate them left to right, and it goes back to the new definition of "-" which is "*". 
+
+```{r eval = FALSE}
+`-` <- `*`
+  
+p1 <- operations %>% 
+  mutate(modified_x = str_replace_all(x,"\\*","\\-"),
+         output = map_dbl(modified_x,~ eval(parse(text = .x))))
+```
+```{r echo = FALSE}
+p1 <- structure(list(modified_x = c("9 - 8 + 2 + (4 - (2 - 2 + 9 - 2) - 9 - 3 - 8) + 8 - 5", 
+"8 - (9 + 5 + 5 - 6 + 8 - 3) - 5 - 7 - 4 + 9", "(9 + (2 - 6 + 7 - 5)) - (7 + 7 - 5 + (6 + 2 + 6) - (7 - 8 - 8 + 9)) + 4 - 2", 
+"((8 + 3 - 6 - 2) - 9 + 3) + 5 + 6 - 3", "6 - (9 + 6 - (7 + 4 + 2 + 5 + 6) - 7 + 3 - (5 - 8 - 6 + 6 - 7 - 8)) + (8 - 8 + 4) + (5 - (2 + 9) - 8) - 4 - 2", 
+"(8 - 6 + 8) + 6 - 8 - (9 - (6 + 8 - 3 + 8) + (7 - 9 - 6 - 3) - 3 + 8 - 4)"
+), output = c(112730, 409929, 7984712, 3606, 1668332768, 9443840
+)), row.names = c(NA, -6L), class = c("tbl_df", "tbl", "data.frame"
+))
+```
+```{r}
+head(p1)
+```
+```{r eval = FALSE}
+sum(p1$output)
+```
+```{r echo = FALSE}
+16332191652452
+```
+
+For extra credit, here's the abstract syntax tree for the first operation as written normally:
+
+```{r}
+lobstr::ast(expression(9 * 8 + 2 + (4 * (2 * 2 + 9 * 2) * 9 * 3 * 8) + 8 * 5))
+```
+
+
+```{r}
+lobstr::ast(expression(9 - 8 + 2 + (4 - (2 - 2 + 9 - 2) - 9 - 3 - 8) + 8 - 5))
+```
+
+
+
+--- Problem 2 ---
+
+Problem 2 is in the same vein but now just needs the `+` evaluated before the `*`, so we can do the same `*` to `-` swap and then now switch `+` to the `*` symbol, so that R thinks it is evaluated before the `-`. 
+
+
+```{r eval = FALSE}
+`-` <- `*`
+`*` <- `+`
+  
+p2 <- operations %>% 
+  mutate(modified_x = str_replace_all(x,"\\*","\\-"),
+         modified_x = str_replace_all(modified_x,"\\+","\\*"),
+         output = map_dbl(modified_x,~ eval(parse(text = .x))))
+```
+```{r echo = FALSE}
+p2 <- structure(list(modified_x = c("9 - 8 * 2 * (4 - (2 - 2 * 9 - 2) - 9 - 3 - 8) * 8 - 5", 
+"8 - (9 * 5 * 5 - 6 * 8 - 3) - 5 - 7 - 4 * 9", "(9 * (2 - 6 * 7 - 5)) - (7 * 7 - 5 * (6 * 2 * 6) - (7 - 8 - 8 * 9)) * 4 - 2", 
+"((8 * 3 - 6 - 2) - 9 * 3) * 5 * 6 - 3", "6 - (9 * 6 - (7 * 4 * 2 * 5 * 6) - 7 * 3 - (5 - 8 - 6 * 6 - 7 - 8)) * (8 - 8 * 4) * (5 - (2 * 9) - 8) - 4 - 2", 
+"(8 - 6 * 8) * 6 - 8 - (9 - (6 * 8 - 3 * 8) * (7 - 9 - 6 - 3) - 3 * 8 - 4)"
+), output = c(1711530, 2904720, 70399608, 4785, 4644889728, 481485312
+)), row.names = c(NA, -6L), class = c("tbl_df", "tbl", "data.frame"
+))
+```
+```{r}
+head(p2)
+```
+```{r eval = FALSE}
+sum(p2$output)
+```
+```{r echo = FALSE}
+351175492232654
+```
+
+The same "extra credit exercise":
+
+
+```{r}
+lobstr::ast(expression(9 * 8 + 2 + (4 * (2 * 2 + 9 * 2) * 9 * 3 * 8) + 8 * 5))
+```
+
+```{r}
+lobstr::ast(9 - 8 * 2 * (4 - (2 - 2 * 9 - 2) - 9 - 3 - 8) * 8 - 5)
+```
+
