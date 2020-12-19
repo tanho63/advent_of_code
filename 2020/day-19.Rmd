@@ -1,0 +1,198 @@
+---
+title: "Adv2020 - Day Nineteen"
+author: "Tan Ho"
+date: "2020-12-19"
+output: html_document
+---
+
+Day nineteen - Monster Messages!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  # library(furrr)
+  # plan(multisession)
+
+  knitr::opts_chunk$set(echo = TRUE)
+})
+  options(scipen = 9999999)
+
+```
+
+--- Description ---
+
+> They think their satellite has collected an image of a sea monster! Unfortunately, the connection to the satellite is having problems, and many of the messages sent back from the satellite have been corrupted.
+>
+> They sent you a list of the rules valid messages should obey and a list of received messages they've collected so far (your puzzle input).
+>
+> Your goal is to determine the number of messages that completely match rule 0.
+
+--- Data ---
+
+```{r eval = FALSE}
+input_19 <- read_lines(here("2020", "day-19.txt"))
+
+input_19_e <- read_lines(here("2020", "day-19-e.txt"))
+
+input_19_e2 <- read_lines(here("2020", "day-19-e2.txt"))
+```
+
+--- Cleaning ---
+
+Seems nice to split the list of rules into its own tibble.
+
+```{r eval = FALSE}
+messages_e <- tibble(message = input_19_e) %>% 
+  mutate(type = cumsum(message == "")) %>% 
+  filter(type == 1,message !="") %>% 
+  select(-type)
+
+rules_e <- tibble(rule = input_19_e) %>% 
+  mutate(type = cumsum(rule == "")) %>% 
+  filter(type == 0) %>% 
+  select(-type) %>% 
+  separate(rule,into = c("rule_id","rule_desc"), sep = ": ")
+
+messages <- tibble(message = input_19) %>% 
+  mutate(type = cumsum(message == "")) %>% 
+  filter(type == 1,message !="") %>% 
+  select(-type)
+
+rules <- tibble(rule = input_19) %>% 
+  mutate(type = cumsum(rule == "")) %>% 
+  filter(type == 0) %>% 
+  select(-type) %>% 
+  separate(rule,into = c("rule_id","rule_desc"), sep = ": ")
+```
+
+--- Problem 1 ---
+
+> Your goal is to determine the number of messages that completely match rule 0. 
+
+Okay, so writing a function that loops over the rules, taking only complete rules (i.e. rules without numbers) and string-replacing them into their rule_id. Also need to add padding so that the rule id doesn't match individual digits, and need to add parentheses for rules that have an OR condition.
+
+```{r eval = FALSE}
+rule_recurse <- function(rules){
+  
+  rules <- rules %>% 
+    mutate(rule_desc = if_else(str_detect(rule_desc,"a|b"), 
+                               str_remove_all(rule_desc,'\\"'), 
+                               rule_desc),
+           rule_id = paste0(" ",rule_id," "),
+           rule_desc = paste0(" ",rule_desc," "),
+           rule_desc = if_else(str_detect(rule_desc,"\\|"),
+                               paste0(" ( ",rule_desc," ) "),
+                               rule_desc))
+  
+  while(any(str_detect(rules$rule_desc,"[0-9]"))){
+    
+    x <- rules %>% 
+      filter(!str_detect(rule_desc,"[0-9]"))
+    
+    for(i in seq_along(x$rule_id)){
+      rules$rule_desc <- str_replace_all(rules$rule_desc, x$rule_id[i], x$rule_desc[i])
+    }
+  }
+  
+  rules <- rules %>% 
+    mutate_all(str_remove_all," ") %>% 
+    mutate(rule_desc = paste0("^",rule_desc,"$"))
+  
+  return(rules)
+}
+ 
+rules_e1 <- rules_e %>% 
+  rule_recurse() %>% 
+  filter(rule_id == 0) %>% 
+  pull(rule_desc)
+
+messages_e1 <- messages_e %>% 
+  mutate(match = str_detect(message,rules_e1))
+
+p1_rules <- rules %>% 
+  rule_recurse() %>% 
+  filter(rule_id == 0) %>% 
+  pull(rule_desc)
+
+p1_messages <- messages %>% 
+  mutate(match = str_detect(message,p1_rules))
+
+sum(p1_messages$match)
+```
+```{r echo = FALSE}
+122
+```
+
+--- Problem 2 ---
+
+> Replace 8 and 11 with new rules that create looping - how to fix?
+
+Approach: "Pray to the regex gods and hope they find you worthy"
+
+Deconstructing the rules changes: 
+
+8 is `42 | 42 8` - so it starts as `42`, and then when replaced with itself becomes `42 42`, `42 42 42` etc - we can represent this as "one or more of" pretty easily: `42 +` handles that condition. 
+
+11 is trickier: `42 31 | 42 11 31` means plugging `42 31` recursively into the middle of another set of 42 and 31. I spent a reading through regex recursion on this one, went to bed, continued trying regex recursion on it, until I eventually decided to hardcode `42 31 | 42 42 31 31 | 42 42 42 31 31 31` etc for like ten iterations of the loop. (I tried fifty, and got a literal stack overflow error!) 
+
+![](https://i.imgur.com/eudI6NN.png)
+
+```{r eval = FALSE}
+messages_e2 <- tibble(message = input_19_e2) %>% 
+  mutate(type = cumsum(message == "")) %>% 
+  filter(type == 1,message !="") %>% 
+  select(-type)
+
+rules_e2 <- tibble(rule = input_19_e2) %>% 
+  mutate(type = cumsum(rule == "")) %>% 
+  filter(type == 0) %>% 
+  select(-type) %>% 
+  separate(rule,into = c("rule_id","rule_desc"), sep = ": ")
+
+rule_updater <- function(rules){
+  rules %>% 
+    mutate(
+      rule_desc = case_when(
+        rule_id == "8" ~ "42 +",
+        rule_id == "11" ~ 
+          paste(
+            map_chr(1:10, ~rep_len(42,.x) %>% paste(collapse = " ")),
+            map_chr(1:10, ~rep_len(31,.x) %>% paste(collapse = " ")),
+            collapse = " | "),
+        TRUE ~ rule_desc))
+}
+
+p2_rules_e <- rules_e2 %>% 
+  rule_updater() %>% 
+  rule_recurse() %>% 
+  filter(rule_id == 0) %>% 
+  pull(rule_desc)
+
+messages_p2_e <- messages_e2 %>%
+  mutate(match = str_detect(message,p2_rules_e))
+
+sum(messages_p2_e$match)
+```
+```{r echo = FALSE}
+12
+```
+```{r eval = FALSE}
+p2_rules <- rules %>% 
+  rule_updater() %>% 
+  rule_recurse() %>% 
+  filter(rule_id == 0) %>% 
+  pull(rule_desc)
+
+p2_messages <- messages %>% 
+  mutate(match = str_detect(message, p2_rules))
+
+sum(p2_messages$match)
+```
+```{r echo = FALSE}
+287
+```
+
+Working through the example only sort of helped: I got the example to be 12 but the actual problem ended up failing for hours. It was a good filter for bad solutions though, because when the example was wrong I knew not to bother with the actual problem. 
+
