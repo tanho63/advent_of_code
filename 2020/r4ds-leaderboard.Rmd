@@ -36,15 +36,17 @@ stars <- httr::GET("https://adventofcode.com/2020/leaderboard/private/view/10327
   filter(!is.na(star)) %>% 
   pivot_wider(names_from = star, values_from = timestamp, names_glue = "star{star}_ts") %>% 
   mutate_at(c("star1_ts","star2_ts"),~ as.numeric(.x) %>% lubridate::as_datetime()) %>% 
-  mutate(time_to_star2 = (star2_ts-star1_ts) %>% round(1))
+  mutate(time_to_star2 = (star2_ts-star1_ts) %>% round(1)) %>% 
+  arrange(desc(as.numeric(day))) %>% 
+  select(user_name,total_stars,aoc_score,day,star2_ts,star1_ts,everything())
 
 stars
 
 leaderboard <- stars %>% 
   group_by(user_name,user_id,aoc_score,total_stars) %>% 
   summarise(
-    median_star2 = median(time_to_star2,na.rm = TRUE) %>% round(1),
-    mean_star2 = mean(time_to_star2,na.rm = TRUE) %>% round(1)) %>% 
+    median_star2 = median(time_to_star2,na.rm = TRUE) %>% `units<-`("mins") %>%  round(1),
+    mean_star2 = mean(time_to_star2,na.rm = TRUE) %>% `units<-`("mins") %>% round(1)) %>% 
   ungroup() %>% 
   arrange(desc(total_stars),median_star2)
 

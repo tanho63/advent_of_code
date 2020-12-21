@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-20 22:17:31</h4>
+<h4 class="date">Last Updated: 2020-12-20 22:25:21</h4>
 
 </div>
 
@@ -425,49 +425,51 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   filter(!is.na(star)) %&gt;% 
   pivot_wider(names_from = star, values_from = timestamp, names_glue = &quot;star{star}_ts&quot;) %&gt;% 
   mutate_at(c(&quot;star1_ts&quot;,&quot;star2_ts&quot;),~ as.numeric(.x) %&gt;% lubridate::as_datetime()) %&gt;% 
-  mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1))
+  mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1)) %&gt;% 
+  arrange(desc(as.numeric(day))) %&gt;% 
+  select(user_name,total_stars,aoc_score,day,star2_ts,star1_ts,everything())
 
 stars</code></pre>
 <pre><code>## # A tibble: 157 x 8
-##    user_name user_id aoc_score total_stars day   star2_ts           
-##    &lt;chr&gt;     &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;             
-##  1 jsavn     1016340        40          11 3     2020-12-04 11:22:19
-##  2 jsavn     1016340        40          11 6     NA                 
-##  3 jsavn     1016340        40          11 4     2020-12-08 18:38:47
-##  4 jsavn     1016340        40          11 2     2020-12-02 10:26:56
-##  5 jsavn     1016340        40          11 5     2020-12-08 19:01:39
-##  6 jsavn     1016340        40          11 1     2020-12-01 10:38:59
-##  7 Tokhir D~ 1010046       338          31 4     2020-12-04 09:41:11
-##  8 Tokhir D~ 1010046       338          31 6     2020-12-06 06:42:27
-##  9 Tokhir D~ 1010046       338          31 15    2020-12-15 22:06:07
-## 10 Tokhir D~ 1010046       338          31 11    2020-12-11 23:52:22
-## # ... with 147 more rows, and 2 more variables: star1_ts &lt;dttm&gt;,
+##    user_name total_stars aoc_score day   star2_ts            star1_ts           
+##    &lt;chr&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;              &lt;dttm&gt;             
+##  1 @_TanHo            40       495 20    2020-12-21 02:39:22 2020-12-20 05:43:06
+##  2 Liam You~          37       419 19    NA                  2020-12-19 15:47:01
+##  3 @_TanHo            40       495 19    2020-12-19 16:42:08 2020-12-19 06:23:47
+##  4 Liam You~          37       419 18    2020-12-18 07:14:18 2020-12-18 06:58:16
+##  5 kdaily16           36       295 18    2020-12-19 00:39:51 2020-12-19 00:39:04
+##  6 Tokhir D~          31       338 18    2020-12-18 16:38:08 2020-12-18 13:03:01
+##  7 @_TanHo            40       495 18    2020-12-18 16:54:32 2020-12-18 16:24:51
+##  8 Liam You~          37       419 17    2020-12-17 09:21:26 2020-12-17 08:44:02
+##  9 kdaily16           36       295 17    2020-12-18 05:31:50 2020-12-18 05:18:39
+## 10 @_TanHo            40       495 17    2020-12-17 12:49:59 2020-12-17 06:45:32
+## # ... with 147 more rows, and 2 more variables: user_id &lt;chr&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
   summarise(
-    median_star2 = median(time_to_star2,na.rm = TRUE) %&gt;% round(1),
-    mean_star2 = mean(time_to_star2,na.rm = TRUE) %&gt;% round(1)) %&gt;% 
+    median_star2 = median(time_to_star2,na.rm = TRUE) %&gt;% `units&lt;-`(&quot;mins&quot;) %&gt;%  round(1),
+    mean_star2 = mean(time_to_star2,na.rm = TRUE) %&gt;% `units&lt;-`(&quot;mins&quot;) %&gt;% round(1)) %&gt;% 
   ungroup() %&gt;% 
   arrange(desc(total_stars),median_star2)
 
 leaderboard</code></pre>
 <pre><code>## # A tibble: 13 x 6
-##    user_name         user_id aoc_score total_stars median_star2 mean_star2  
-##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;      
-##  1 @_TanHo           1032765       495          40  3659.0 secs 13097.9 secs
-##  2 Liam Young        1011508       419          37  2594.5 secs  6268.2 secs
-##  3 kdaily16          1033297       295          36   875.5 secs  7801.7 secs
-##  4 Tokhir Dadaev     1010046       338          31 10308.0 secs 14794.6 secs
-##  5 scalgary          1048276       231          28  5791.5 secs 13468.3 secs
-##  6 Kate              1050275       289          27  1967.0 secs  3541.1 secs
-##  7 kevin-m-kent      1126163       187          24  3128.5 secs  3780.3 secs
-##  8 aleighbrown       1008588       128          17  1562.5 secs  4347.9 secs
-##  9 Anne              1020594       129          14  2928.5 secs  4877.5 secs
-## 10 Alison Lanski     1026315        92          14  6894.0 secs 11316.8 secs
-## 11 Michael Jeziorski 991228         46          12  5314.0 secs 20175.0 secs
-## 12 jsavn             1016340        40          11   293.0 secs   997.4 secs
-## 13 SamBryce-Smith    1147940        11           2  1003.0 secs  1003.0 secs</code></pre>
+##    user_name         user_id aoc_score total_stars median_star2 mean_star2
+##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
+##  1 @_TanHo           1032765       495          40  61.0 mins   218.3 mins
+##  2 Liam Young        1011508       419          37  43.2 mins   104.5 mins
+##  3 kdaily16          1033297       295          36  14.6 mins   130.0 mins
+##  4 Tokhir Dadaev     1010046       338          31 171.8 mins   246.6 mins
+##  5 scalgary          1048276       231          28  96.5 mins   224.5 mins
+##  6 Kate              1050275       289          27  32.8 mins    59.0 mins
+##  7 kevin-m-kent      1126163       187          24  52.1 mins    63.0 mins
+##  8 aleighbrown       1008588       128          17  26.0 mins    72.5 mins
+##  9 Anne              1020594       129          14  48.8 mins    81.3 mins
+## 10 Alison Lanski     1026315        92          14 114.9 mins   188.6 mins
+## 11 Michael Jeziorski 991228         46          12  88.6 mins   336.2 mins
+## 12 jsavn             1016340        40          11   4.9 mins    16.6 mins
+## 13 SamBryce-Smith    1147940        11           2  16.7 mins    16.7 mins</code></pre>
 
 
 
