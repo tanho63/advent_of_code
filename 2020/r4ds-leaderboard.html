@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-19 12:11:41</h4>
+<h4 class="date">Last Updated: 2020-12-20 22:17:31</h4>
 
 </div>
 
@@ -428,20 +428,20 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1))
 
 stars</code></pre>
-<pre><code>## # A tibble: 156 x 8
-##    user_name user_id aoc_score total_stars day   star1_ts           
+<pre><code>## # A tibble: 157 x 8
+##    user_name user_id aoc_score total_stars day   star2_ts           
 ##    &lt;chr&gt;     &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;             
-##  1 Michael ~ 991228         46          12 1     2020-12-01 18:57:06
-##  2 Michael ~ 991228         46          12 6     2020-12-07 02:51:09
-##  3 Michael ~ 991228         46          12 4     2020-12-05 02:01:50
-##  4 Michael ~ 991228         46          12 5     2020-12-05 23:14:50
-##  5 Michael ~ 991228         46          12 3     2020-12-04 01:55:31
-##  6 Michael ~ 991228         46          12 2     2020-12-02 20:07:09
-##  7 aleighbr~ 1008588       128          17 3     2020-12-03 09:33:04
-##  8 aleighbr~ 1008588       128          17 4     2020-12-04 08:25:44
-##  9 aleighbr~ 1008588       128          17 8     2020-12-09 08:31:45
-## 10 aleighbr~ 1008588       128          17 6     2020-12-08 07:22:15
-## # ... with 146 more rows, and 2 more variables: star2_ts &lt;dttm&gt;,
+##  1 jsavn     1016340        40          11 3     2020-12-04 11:22:19
+##  2 jsavn     1016340        40          11 6     NA                 
+##  3 jsavn     1016340        40          11 4     2020-12-08 18:38:47
+##  4 jsavn     1016340        40          11 2     2020-12-02 10:26:56
+##  5 jsavn     1016340        40          11 5     2020-12-08 19:01:39
+##  6 jsavn     1016340        40          11 1     2020-12-01 10:38:59
+##  7 Tokhir D~ 1010046       338          31 4     2020-12-04 09:41:11
+##  8 Tokhir D~ 1010046       338          31 6     2020-12-06 06:42:27
+##  9 Tokhir D~ 1010046       338          31 15    2020-12-15 22:06:07
+## 10 Tokhir D~ 1010046       338          31 11    2020-12-11 23:52:22
+## # ... with 147 more rows, and 2 more variables: star1_ts &lt;dttm&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
@@ -455,7 +455,7 @@ leaderboard</code></pre>
 <pre><code>## # A tibble: 13 x 6
 ##    user_name         user_id aoc_score total_stars median_star2 mean_star2  
 ##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;      
-##  1 @_TanHo           1032765       467          38  2160.0 secs  9820.1 secs
+##  1 @_TanHo           1032765       495          40  3659.0 secs 13097.9 secs
 ##  2 Liam Young        1011508       419          37  2594.5 secs  6268.2 secs
 ##  3 kdaily16          1033297       295          36   875.5 secs  7801.7 secs
 ##  4 Tokhir Dadaev     1010046       338          31 10308.0 secs 14794.6 secs

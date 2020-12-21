@@ -1,0 +1,450 @@
+---
+title: "Adv2020 - Day Twenty"
+author: "Tan Ho"
+date: "2020-12-20"
+output: html_document
+---
+
+Day twenty - Jurassic Jigsaw!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+  options(scipen = 9999999)
+  options(dplyr.summarise.inform = FALSE)
+```
+
+--- Description ---
+> The camera array consists of many cameras; rather than produce a single square image, they produce many smaller square image tiles that need to be reassembled back into a single image.
+>
+> Worse yet, the camera array appears to be malfunctioning: each image tile has been rotated and flipped to a random orientation. Your first task is to reassemble the original image by orienting the tiles so they fit together.
+
+--- Data ---
+
+```{r eval = FALSE}
+input_20 <- read_lines(here("2020", "day-20.txt"))
+```
+
+--- Cleaning ---
+
+```{r eval = FALSE}
+
+tiles <- tibble(tile = input_20) %>%
+  mutate(id = if_else(str_starts(tile,"Tile"),tile,NA_character_),
+         id = parse_number(id)) %>%  
+  fill(id) %>% 
+  filter(tile!="",str_detect(tile,"Tile ",negate = TRUE)) %>%
+  mutate(tile = str_split(tile,"")) %>% 
+  group_by(id) %>% 
+  summarise(tile = list(unlist(tile))) %>% 
+  mutate(tile = map(tile,~matrix(.x,nrow = 10, ncol = 10, byrow = TRUE)))
+  
+```
+
+--- Problem 1 --- 
+
+Find corner tiles. 
+
+```{r eval = FALSE}
+tile_edges <- tiles %>% 
+  mutate(tile_edges = map(tile, 
+                          ~list(
+                            top = .x[1,], top_rev = rev(.x[1,]),
+                            bottom = .x[10,], bottom_rev = rev(.x[10,]),
+                            left = .x[,1], left_rev = rev(.x[,1]),
+                            right = .x[,10], right_rev = rev(.x[,10])))) %>% 
+  unnest_longer(tile_edges,indices_to = "border_position") %>% 
+  transmute(id,border_position,tile_edges = map_chr(tile_edges,paste,collapse = "")) 
+
+p1 <- tile_edges %>% 
+  group_by(tile_edges) %>% 
+  mutate(matches = n()-1) %>% 
+  ungroup() %>% 
+  group_by(id) %>% 
+  summarise(sum_matches = sum(matches)/2) %>% 
+  filter(sum_matches == 2)
+
+p1
+```
+```{r echo = FALSE}
+structure(list(id = c(1109, 1693, 2909, 3371), sum_matches = c(2, 
+2, 2, 2)), row.names = c(NA, -4L), class = c("tbl_df", "tbl", 
+"data.frame"))
+```
+```{r eval = FALSE}
+prod(p1$id)
+```
+```{r echo = FALSE}
+18411576553343
+```
+
+
+--- Problem 2 ---
+
+Assemble the picture and find the sea monster. 
+
+(Internal swearing as I only found the corners first and didn't actually do the joining bit, so time to catch up)
+
+```{r eval = FALSE}
+matching_edges <- tile_edges %>% 
+  group_by(tile_edges) %>% 
+  mutate(matches = n()-1, 
+         matching_tiles = list(id)) %>% 
+  ungroup() %>% 
+  filter(matches!=0) %>% 
+  mutate(matching_tiles = map2_dbl(matching_tiles,id,~.x[.x!=.y])) %>%
+  group_by(id) %>% 
+  mutate(matches = sum(matches)/2) %>% 
+  ungroup()
+
+edges <- matching_edges %>% 
+  filter(matches <= 3) %>% 
+  distinct(id,matches,matching_tiles) %>% 
+  filter(matching_tiles %in% .$id)
+
+corners <- matching_edges %>% 
+  filter(matches == 2)
+```
+
+```{r eval = FALSE}
+id_matrix <- matrix(numeric(),nrow = 12, ncol = 12)
+
+perimeter <- c(1109,1181)
+perimeter_options <- edges %>% 
+  filter(!matching_tiles %in% perimeter)
+
+while(nrow(perimeter_options)>0){
+ 
+  i <- length(perimeter)+1
+  
+  perimeter[i] <- perimeter_options %>% 
+    filter(id == tail(perimeter,1)) %>% 
+    pull(matching_tiles)
+  
+  perimeter_options <- perimeter_options %>% 
+    filter(!matching_tiles %in% perimeter)
+}
+
+id_matrix[1,] <- perimeter[1:12]
+id_matrix[,12] <- perimeter[12:23]
+id_matrix[12,] <- rev(perimeter[23:34])
+id_matrix[,1] <- c(1109,rev(perimeter[34:44]))
+
+rm(perimeter_options,perimeter)
+
+id_matrix
+```
+
+
+```{r echo = FALSE}
+structure(c(1109, 1487, 3319, 2423, 2161, 2999, 1069, 2371, 3821, 
+1523, 3637, 3371, 1181, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 
+2543, 2719, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 2749, 1373, 
+NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 3301, 1303, NA, NA, NA, 
+NA, NA, NA, NA, NA, NA, NA, 2141, 1637, NA, NA, NA, NA, NA, NA, 
+NA, NA, NA, NA, 1061, 3023, NA, NA, NA, NA, NA, NA, NA, NA, NA, 
+NA, 1597, 1447, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 2459, 
+1361, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 1759, 1019, NA, 
+NA, NA, NA, NA, NA, NA, NA, NA, NA, 2633, 1733, NA, NA, NA, NA, 
+NA, NA, NA, NA, NA, NA, 2207, 1693, 1609, 2861, 1867, 3229, 3313, 
+3677, 3833, 3779, 2819, 2917, 2909), .Dim = c(12L, 12L))
+```
+
+YAY WE HAVE THE PERIMETER! (Still a mountain to climb, but hey.)
+
+Filling in the middles by looking at the tile above and the tile to the left. 
+
+```{r eval = FALSE}
+middles <- matching_edges %>% 
+  filter(matches == 4) %>% 
+  distinct(id,matching_tiles)
+
+for(col in 2:11){
+  for(row in 2:11){
+    
+    up <- id_matrix[row-1,col]
+    left <- id_matrix[row,col-1]
+    
+    v <- middles %>% 
+      filter(matching_tiles %in% c(up,left)) %>% 
+      group_by(id) %>% 
+      summarise(n = n()) %>% 
+      filter(n == 2) %>% 
+      pull(id)
+    
+    middles <- middles %>% filter(id!=v)
+    
+    id_matrix[row,col] <- v 
+  }
+}
+
+rm(up, left, v)
+
+id_matrix
+```
+
+
+```{r echo = FALSE}
+structure(c(1109, 1487, 3319, 2423, 2161, 2999, 1069, 2371, 3821, 
+1523, 3637, 3371, 1181, 2441, 3257, 1213, 3019, 2843, 2557, 1553, 
+3491, 3329, 1997, 2543, 2719, 3671, 3863, 1559, 3881, 2083, 2777, 
+3727, 1783, 2677, 2221, 2749, 1373, 3221, 2593, 2969, 2411, 1789, 
+1049, 1249, 3877, 2953, 2467, 3301, 1303, 1367, 3089, 2621, 1619, 
+2131, 1993, 1607, 3413, 3463, 2287, 2141, 1637, 1097, 3181, 3739, 
+2081, 2521, 1423, 1741, 3659, 1171, 2551, 1061, 3023, 3761, 2273, 
+1193, 2617, 3137, 3931, 2683, 3517, 1627, 2897, 1597, 1447, 1601, 
+2699, 1823, 2707, 3673, 1153, 2039, 1879, 2789, 1747, 2459, 1361, 
+1091, 1429, 2531, 3527, 2377, 2663, 1327, 3583, 3203, 3967, 1759, 
+1019, 3253, 1697, 1489, 3467, 1123, 1201, 3011, 3191, 3461, 1657, 
+2633, 1733, 1667, 3691, 2549, 1439, 1847, 1129, 1033, 3533, 1103, 
+3299, 2207, 1693, 1609, 2861, 1867, 3229, 3313, 3677, 3833, 3779, 
+2819, 2917, 2909), .Dim = c(12L, 12L))
+```
+
+Okay! So we now have the location of each tile and now need to orient each tile correctly. Again starting from the top corner tile, now rotating and flipping the tile until it fits into the correct orientation. 
+
+Some helpers from Stack Overflow: https://stackoverflow.com/questions/16496210/rotate-a-matrix-in-r-by-90-degrees-clockwise
+
+```{r eval = FALSE}
+rotate_matrix <- function(x) t(x[nrow(x):1,])
+
+flip_matrix <- function(x) x[nrow(x):1,]
+
+```
+
+First, fill in leftmost column of the matrix, aligning top of new tile with bottom of previous tile.
+
+```{r eval = FALSE}
+correct_tiles <- tiles %>% 
+  filter(id == 1109)
+
+for(i in 2:12){
+  
+  i_id <- id_matrix[i,1]
+  up_id <- id_matrix[i-1,1]
+  
+  up_tile <- correct_tiles %>% 
+    filter(id == up_id) %>% 
+    pluck("tile", 1)
+  
+  up_bottom <- up_tile[10,] %>% paste(collapse = "")
+  
+  i_tile <- tiles %>% 
+    filter(id == i_id) %>% 
+    pluck("tile", 1)
+
+  i_list <- tibble(tile = list(
+    i_tile,
+    i_tile %>% rotate_matrix(),
+    i_tile %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix()
+  )) %>% 
+    mutate(match = map_lgl(tile,~.x[1,] %>% paste(collapse = "") == up_bottom)) %>% 
+    filter(match)
+  
+  if(nrow(i_list)==0) stop()
+  
+  i_tile <- i_list$tile[[1]]
+  
+  correct_tiles <- tibble(id = i_id, tile = list(i_tile)) %>% 
+    bind_rows(correct_tiles,.)
+  
+}
+
+```
+
+Okay, now orient the top row by accessing the right hand side:
+
+```{r eval = FALSE}
+for(i in 2:12){
+  
+  i_id <- id_matrix[1,i]
+  left_id <- id_matrix[1,i-1]
+  
+  left_tile <- correct_tiles %>% 
+    filter(id == left_id) %>% 
+    pluck("tile", 1)
+  
+  left_right <- left_tile[,10] %>% paste(collapse = "")
+  
+  i_tile <- tiles %>% 
+    filter(id == i_id) %>% 
+    pluck("tile", 1)
+  
+  i_left <- i_tile[,1] %>% paste(collapse = "")
+  
+  i_list <- tibble(tile = list(
+    i_tile,
+    i_tile %>% rotate_matrix(),
+    i_tile %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix()
+  )) %>% 
+    mutate(match = map_lgl(tile,~.x[,1] %>% paste(collapse = "") == left_right)) %>% 
+    filter(match)
+  
+  if(nrow(i_list)==0) stop()
+  
+  i_tile <- i_list$tile[[1]]
+  
+  correct_tiles <- tibble(id = i_id, tile = list(i_tile)) %>% 
+    bind_rows(correct_tiles,.)
+  
+}
+
+correct_tiles
+
+```
+
+Now reapply the vertical orienter for each remaining column:
+
+```{r eval = FALSE}
+for(c in 2:12){ # c is column
+  for(r in 2:12){ # r is row
+    
+    i_id <- id_matrix[r,c]
+    up_id <- id_matrix[r-1,c]
+    
+    up_tile <- correct_tiles %>% 
+      filter(id == up_id) %>% 
+      pluck("tile", 1)
+    
+    up_bottom <- up_tile[10,] %>% paste(collapse = "")
+    
+  i_tile <- tiles %>% 
+    filter(id == i_id) %>% 
+    pluck("tile", 1)
+
+  i_list <- tibble(tile = list(
+    i_tile,
+    i_tile %>% rotate_matrix(),
+    i_tile %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+    i_tile %>% flip_matrix() %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix()
+  )) %>% 
+    mutate(match = map_lgl(tile,~.x[1,] %>% paste(collapse = "") == up_bottom)) %>% 
+    filter(match)
+  
+  if(nrow(i_list)==0) stop()
+  
+  i_tile <- i_list$tile[[1]]
+      
+  correct_tiles <- tibble(id = i_id, tile = list(i_tile)) %>% 
+    bind_rows(correct_tiles,.)
+  }
+}
+```
+
+Okay, so theoretically we now have a directory of correctly oriented tiles! Now to strip out the border rows from each tile:
+
+```{r eval = FALSE}
+borderless_tiles <- correct_tiles %>% 
+  mutate(tile = map(tile,~.x[2:9,2:9]))
+```
+
+And then row-bind each column together, then bind each column together into the final matrix.
+
+```{r eval = FALSE}
+tile_matrix <- matrix(character(), nrow = 96)
+
+for(c in 1:12){
+  column_matrix <- matrix(character(), ncol = 8)
+  
+  for(r in 1:12){
+    tile_id <- id_matrix[r,c]
+    
+    tile <- borderless_tiles %>% 
+      filter(id == tile_id) %>% 
+      pluck("tile",1)
+    
+    column_matrix <- rbind(column_matrix,tile)
+  }
+  
+  tile_matrix <- cbind(tile_matrix,column_matrix)
+}
+
+```
+
+Now to detect a seamonster! First, the monster:
+
+```{r eval = FALSE}
+monster <- tibble(x = c("                  # ", 
+                        "#    ##    ##    ###",
+                        " #  #  #  #  #  #   ")) %>% 
+  mutate(x = str_split(x,""),
+         row = row_number()) %>% 
+  unnest_wider(x, names_sep = "") %>% 
+  pivot_longer(cols = -row,names_to = "col") %>% 
+  mutate(col = parse_number(col)) %>% 
+  filter(value == "#")
+```
+
+Now, we need to loop over the tile matrix, looking at every 20-wide + 3-tall matrix to see if it's a monster. We'll need to do this for every iteration of the tile matrix (rotates and flips).
+
+```{r eval = FALSE}
+scan_tile_matrix_for_monsters <- function(tile_matrix,monster){
+  
+  monster_count <- 0
+  
+  for(c in 1:(ncol(tile_matrix)-19)){
+    
+    for(r in 1:(nrow(tile_matrix)-2)){
+      
+      x <- tile_matrix[r:(r+2),c:(c+19)]
+      
+      v <- map2_lgl(monster$row,monster$col, ~x[.x,.y]=="#") %>% all()
+      
+      if(v) monster_count <- monster_count + 1
+    }
+  }
+  
+  return(monster_count)
+}
+
+all_matrices <- list(
+  tile_matrix,
+  tile_matrix %>% rotate_matrix(),
+  tile_matrix %>% rotate_matrix() %>% rotate_matrix(),
+  tile_matrix %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix(),
+  flip_matrix(tile_matrix),
+  flip_matrix(tile_matrix) %>% rotate_matrix(),
+  flip_matrix(tile_matrix) %>% rotate_matrix() %>% rotate_matrix(),
+  flip_matrix(tile_matrix) %>% rotate_matrix() %>% rotate_matrix() %>% rotate_matrix()
+  )
+
+monster_count <- map_dbl(all_matrices,scan_tile_matrix_for_monsters,monster)
+
+monster_count
+```
+
+```{r echo = FALSE}
+c(0, 0, 43, 0, 0, 0, 0, 0)
+```
+
+```{r eval = FALSE}
+sum(tile_matrix == "#") - (max(monster_count) * nrow(monster))
+```
+```{r echo = FALSE}
+2002
+```
+
+
+Whew, that was a doozy!
+
+
