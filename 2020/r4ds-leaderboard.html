@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-20 22:25:21</h4>
+<h4 class="date">Last Updated: 2020-12-21 21:39:05</h4>
 
 </div>
 
@@ -427,23 +427,23 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   mutate_at(c(&quot;star1_ts&quot;,&quot;star2_ts&quot;),~ as.numeric(.x) %&gt;% lubridate::as_datetime()) %&gt;% 
   mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1)) %&gt;% 
   arrange(desc(as.numeric(day))) %&gt;% 
-  select(user_name,total_stars,aoc_score,day,star2_ts,star1_ts,everything())
+  select(user_name,total_stars,aoc_score,day,star1_ts,star2_ts,everything())
 
 stars</code></pre>
-<pre><code>## # A tibble: 157 x 8
-##    user_name total_stars aoc_score day   star2_ts            star1_ts           
+<pre><code>## # A tibble: 160 x 8
+##    user_name total_stars aoc_score day   star1_ts            star2_ts           
 ##    &lt;chr&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;              &lt;dttm&gt;             
-##  1 @_TanHo            40       495 20    2020-12-21 02:39:22 2020-12-20 05:43:06
-##  2 Liam You~          37       419 19    NA                  2020-12-19 15:47:01
-##  3 @_TanHo            40       495 19    2020-12-19 16:42:08 2020-12-19 06:23:47
-##  4 Liam You~          37       419 18    2020-12-18 07:14:18 2020-12-18 06:58:16
-##  5 kdaily16           36       295 18    2020-12-19 00:39:51 2020-12-19 00:39:04
-##  6 Tokhir D~          31       338 18    2020-12-18 16:38:08 2020-12-18 13:03:01
-##  7 @_TanHo            40       495 18    2020-12-18 16:54:32 2020-12-18 16:24:51
-##  8 Liam You~          37       419 17    2020-12-17 09:21:26 2020-12-17 08:44:02
-##  9 kdaily16           36       295 17    2020-12-18 05:31:50 2020-12-18 05:18:39
-## 10 @_TanHo            40       495 17    2020-12-17 12:49:59 2020-12-17 06:45:32
-## # ... with 147 more rows, and 2 more variables: user_id &lt;chr&gt;,
+##  1 scalgary           30       257 21    2020-12-22 00:10:56 2020-12-22 00:14:02
+##  2 Tokhir D~          33       366 21    2020-12-21 19:53:53 2020-12-21 20:04:14
+##  3 @_TanHo            42       519 21    2020-12-22 00:54:17 2020-12-22 00:55:13
+##  4 @_TanHo            42       519 20    2020-12-20 05:43:06 2020-12-21 02:39:22
+##  5 Liam You~          37       419 19    2020-12-19 15:47:01 NA                 
+##  6 @_TanHo            42       519 19    2020-12-19 06:23:47 2020-12-19 16:42:08
+##  7 Tokhir D~          33       366 18    2020-12-18 13:03:01 2020-12-18 16:38:08
+##  8 kdaily16           36       295 18    2020-12-19 00:39:04 2020-12-19 00:39:51
+##  9 Liam You~          37       419 18    2020-12-18 06:58:16 2020-12-18 07:14:18
+## 10 @_TanHo            42       519 18    2020-12-18 16:24:51 2020-12-18 16:54:32
+## # ... with 150 more rows, and 2 more variables: user_id &lt;chr&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
@@ -457,11 +457,11 @@ leaderboard</code></pre>
 <pre><code>## # A tibble: 13 x 6
 ##    user_name         user_id aoc_score total_stars median_star2 mean_star2
 ##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
-##  1 @_TanHo           1032765       495          40  61.0 mins   218.3 mins
+##  1 @_TanHo           1032765       519          42  36.0 mins   207.9 mins
 ##  2 Liam Young        1011508       419          37  43.2 mins   104.5 mins
 ##  3 kdaily16          1033297       295          36  14.6 mins   130.0 mins
-##  4 Tokhir Dadaev     1010046       338          31 171.8 mins   246.6 mins
-##  5 scalgary          1048276       231          28  96.5 mins   224.5 mins
+##  4 Tokhir Dadaev     1010046       366          33 161.3 mins   230.8 mins
+##  5 scalgary          1048276       257          30  31.6 mins   207.4 mins
 ##  6 Kate              1050275       289          27  32.8 mins    59.0 mins
 ##  7 kevin-m-kent      1126163       187          24  52.1 mins    63.0 mins
 ##  8 aleighbrown       1008588       128          17  26.0 mins    72.5 mins

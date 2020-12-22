@@ -38,7 +38,7 @@ stars <- httr::GET("https://adventofcode.com/2020/leaderboard/private/view/10327
   mutate_at(c("star1_ts","star2_ts"),~ as.numeric(.x) %>% lubridate::as_datetime()) %>% 
   mutate(time_to_star2 = (star2_ts-star1_ts) %>% round(1)) %>% 
   arrange(desc(as.numeric(day))) %>% 
-  select(user_name,total_stars,aoc_score,day,star2_ts,star1_ts,everything())
+  select(user_name,total_stars,aoc_score,day,star1_ts,star2_ts,everything())
 
 stars
 

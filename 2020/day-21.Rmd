@@ -1,0 +1,94 @@
+---
+title: "Adv2020 - Day Twenty-One"
+author: "Tan Ho"
+date: "2020-12-21"
+output: html_document
+---
+
+Day twenty-one - Allergen Assessment!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+  options(scipen = 9999999)
+  options(dplyr.summarise.inform = FALSE)
+```
+
+--- Description ---
+
+--- Data ---
+```{r}
+input_21 <- read_lines(here("2020", "day-21.txt"))
+
+input_21_e <- read_lines(here("2020","day-21-e.txt"))
+
+```
+
+--- Cleaning ---
+
+```{r}
+ingredient_list <- tibble(i = input_21) %>% 
+  mutate(id = row_number()) %>% 
+  separate(i, into = c("ingredient","allergen"), sep = " \\(contains ") %>% 
+  separate_rows(ingredient,sep = " ") %>%
+  mutate(allergen = str_remove(allergen,"\\)")) %>% 
+  separate_rows(allergen,sep = ", ")
+```
+
+--- Problem 1 ---
+
+Count non-allergens. Spent some time thinking about this one, but basically I'm grouping by allergen and getting the ingredients that occur the most for each allergen. If it's a single ingredient, that's the one (and then eliminates that ingredient from being the allergen from any of the others). Loop through this to create a table of allergens. 
+
+```{r}
+top_allergens <- ingredient_list %>% 
+  group_by(ingredient,allergen) %>% 
+  summarise(n = n())%>% 
+  group_by(allergen) %>% 
+  slice_max(n) %>% 
+  mutate(nn = n()) %>%  
+  arrange(nn,desc(n),allergen)
+
+allergen_options <- top_allergens
+
+allergen_df <- tibble()
+
+while(nrow(allergen_options)>0) {
+  
+  x <- allergen_options %>% 
+    filter(nn == 1) %>% 
+    select(ingredient, allergen)
+
+  allergen_df <- bind_rows(allergen_df, x)
+  
+  allergen_options <- allergen_options %>% 
+    filter(!ingredient %in% allergen_df$ingredient, !allergen %in% allergen_df$allergen) %>% 
+    group_by(allergen) %>% 
+    mutate(nn = n())
+}
+
+non_allergens <- ingredient_list %>% 
+  filter(!ingredient %in% allergen_df$ingredient) %>% 
+  distinct(ingredient,id)
+
+nrow(non_allergens)
+```
+
+--- Problem 2 ---
+
+...is only to arrange the allergens in order? what?
+
+```{r}
+
+allergen_df %>% 
+  arrange(allergen) %>% 
+  pull(ingredient) %>% 
+  paste(collapse = ",")
+
+```
+...that was ... easy?!

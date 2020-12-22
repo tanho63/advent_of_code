@@ -21,6 +21,7 @@ suppressPackageStartupMessages({
 ```
 
 --- Description ---
+
 > The camera array consists of many cameras; rather than produce a single square image, they produce many smaller square image tiles that need to be reassembled back into a single image.
 >
 > Worse yet, the camera array appears to be malfunctioning: each image tile has been rotated and flipped to a random orientation. Your first task is to reassemble the original image by orienting the tiles so they fit together.
