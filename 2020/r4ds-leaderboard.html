@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-21 21:39:05</h4>
+<h4 class="date">Last Updated: 2020-12-21 21:44:38</h4>
 
 </div>
 
@@ -424,7 +424,7 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   select(&quot;user_name&quot;,&quot;user_id&quot;,&quot;aoc_score&quot;,&quot;total_stars&quot;,&quot;day&quot;,&quot;star&quot;,&quot;timestamp&quot;=&quot;completed_stars&quot;) %&gt;%
   filter(!is.na(star)) %&gt;% 
   pivot_wider(names_from = star, values_from = timestamp, names_glue = &quot;star{star}_ts&quot;) %&gt;% 
-  mutate_at(c(&quot;star1_ts&quot;,&quot;star2_ts&quot;),~ as.numeric(.x) %&gt;% lubridate::as_datetime()) %&gt;% 
+  mutate_at(c(&quot;star1_ts&quot;,&quot;star2_ts&quot;),~ as.numeric(.x) %&gt;% lubridate::as_datetime(tz = &quot;America/Toronto&quot;)) %&gt;% 
   mutate(time_to_star2 = (star2_ts-star1_ts) %&gt;% round(1)) %&gt;% 
   arrange(desc(as.numeric(day))) %&gt;% 
   select(user_name,total_stars,aoc_score,day,star1_ts,star2_ts,everything())
@@ -433,16 +433,16 @@ stars</code></pre>
 <pre><code>## # A tibble: 160 x 8
 ##    user_name total_stars aoc_score day   star1_ts            star2_ts           
 ##    &lt;chr&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;              &lt;dttm&gt;             
-##  1 scalgary           30       257 21    2020-12-22 00:10:56 2020-12-22 00:14:02
-##  2 Tokhir D~          33       366 21    2020-12-21 19:53:53 2020-12-21 20:04:14
-##  3 @_TanHo            42       519 21    2020-12-22 00:54:17 2020-12-22 00:55:13
-##  4 @_TanHo            42       519 20    2020-12-20 05:43:06 2020-12-21 02:39:22
-##  5 Liam You~          37       419 19    2020-12-19 15:47:01 NA                 
-##  6 @_TanHo            42       519 19    2020-12-19 06:23:47 2020-12-19 16:42:08
-##  7 Tokhir D~          33       366 18    2020-12-18 13:03:01 2020-12-18 16:38:08
-##  8 kdaily16           36       295 18    2020-12-19 00:39:04 2020-12-19 00:39:51
-##  9 Liam You~          37       419 18    2020-12-18 06:58:16 2020-12-18 07:14:18
-## 10 @_TanHo            42       519 18    2020-12-18 16:24:51 2020-12-18 16:54:32
+##  1 Tokhir D~          33       366 21    2020-12-21 14:53:53 2020-12-21 15:04:14
+##  2 @_TanHo            42       519 21    2020-12-21 19:54:17 2020-12-21 19:55:13
+##  3 scalgary           30       257 21    2020-12-21 19:10:56 2020-12-21 19:14:02
+##  4 @_TanHo            42       519 20    2020-12-20 00:43:06 2020-12-20 21:39:22
+##  5 Liam You~          37       419 19    2020-12-19 10:47:01 NA                 
+##  6 @_TanHo            42       519 19    2020-12-19 01:23:47 2020-12-19 11:42:08
+##  7 Tokhir D~          33       366 18    2020-12-18 08:03:01 2020-12-18 11:38:08
+##  8 Liam You~          37       419 18    2020-12-18 01:58:16 2020-12-18 02:14:18
+##  9 @_TanHo            42       519 18    2020-12-18 11:24:51 2020-12-18 11:54:32
+## 10 kdaily16           36       295 18    2020-12-18 19:39:04 2020-12-18 19:39:51
 ## # ... with 150 more rows, and 2 more variables: user_id &lt;chr&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
