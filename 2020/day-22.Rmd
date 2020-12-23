@@ -1,0 +1,197 @@
+---
+title: "Adv2020 - Day Twenty-Two"
+author: "Tan Ho"
+date: "2020-12-22"
+output: html_document
+---
+
+Day twenty-two - Combat Crabs!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+  options(scipen = 9999999)
+  options(dplyr.summarise.inform = FALSE)
+```
+
+--- Description ---
+
+
+--- Data ---
+```{r eval = FALSE}
+input_22 <- read_lines(here("2020", "day-22.txt"))
+
+```
+
+--- Cleaning ---
+
+```{r eval = FALSE}
+cards <- tibble(card = input_22) %>% 
+  mutate(player = cumsum(str_detect(card,"Player"))) %>% 
+  filter(card!="",!str_detect(card,"Player")) %>% 
+  mutate(card = parse_number(card))
+
+player_1 <- cards %>% 
+  filter(player == 1) %>% 
+  pull(card)
+
+player_2 <- cards %>% 
+  filter(player == 2) %>% 
+  pull(card)
+
+```
+
+```{r eval = FALSE}
+draw_card <- function(player){ head(player,1) }
+remove_card <- function(player){ tail(player,-1) }
+```
+
+
+--- Problem 1 ---
+
+Combat == "War" in my card game lexicon. Okay, looks straightforward enough:
+
+```{r eval = FALSE}
+g1_player1 <- player_1
+g1_player2 <- player_2
+
+while(all(length(g1_player1)>0,length(g1_player2)>0)){
+  
+  card_p1 <- draw_card(g1_player1)
+  g1_player1 <- remove_card(g1_player1)
+  
+  card_p2 <- draw_card(g1_player2)
+  g1_player2 <- remove_card(g1_player2)
+  
+  if(card_p1 > card_p2) g1_player1 <- c(g1_player1,card_p1,card_p2)
+  
+  if(card_p2 > card_p1) g1_player2 <- c(g1_player2,card_p2,card_p1)
+  
+}
+
+g1_player1
+```
+```{r echo = FALSE}
+c(45, 13, 16, 8, 38, 27, 35, 24, 44, 18, 34, 17, 39, 21, 10, 
+  5, 33, 12, 31, 3, 15, 1, 50, 49, 26, 23, 48, 40, 43, 14, 42, 
+  11, 41, 30, 37, 19, 47, 32, 28, 20, 36, 29, 46, 7, 9, 6, 25, 
+  4, 22, 2)
+```
+```{r eval = FALSE}
+g1_player2
+```
+```{r echo = FALSE}
+0
+```
+```{r eval = FALSE}
+(g1_player1 * 50:1) %>% sum()
+
+```
+```{r echo = FALSE}
+33421
+```
+
+
+--- Problem 2 ---
+
+Recursive Combat? Le wot?
+
+Rules:
+
+- Game instantly ends in a win if a previous round within this game has the same cards in the same order in the same players decks, award win to player 1
+- Begin round as usual by drawing the card. 
+- If the number of cards remaining in the deck is more than the card they just drew, the winner of the round is determined by playing a new subgame of recursive combat. 
+- If the number of cards remaining in the deck is less than the card they just drew (for either), the winner of the round is the player with the higher value card. 
+
+Lmao wtf okay...(insert meme)
+
+```{r eval = FALSE}
+i <- 0
+recursive_combat <- function(player_1,player_2){
+
+  i<<-i+1
+  
+  # Hold the early exit game state
+  deck_states <- c()
+  
+  game_deck_player_1 <- player_1
+  game_deck_player_2 <- player_2
+  
+  game_winner <- NULL
+  
+  loop <- 1
+  
+  while(loop != 0){
+    
+    # check deck states
+    player_1_score <- sum(game_deck_player_1 * rev(seq_along(game_deck_player_1)))
+    player_2_score <- sum(game_deck_player_2 * rev(seq_along(game_deck_player_2)))
+    
+    this_deck <- paste(player_1_score,player_2_score,sep = "-")
+    
+    if(this_deck %in% deck_states) {
+      
+      game_winner <- "player_one" 
+      
+      break
+      
+    } else {
+      deck_states <- c(deck_states,this_deck)
+    }
+    
+    # draw cards
+    draw_player1 <- draw_card(game_deck_player_1)
+    game_deck_player_1 <- remove_card(game_deck_player_1)
+    
+    draw_player2 <- draw_card(game_deck_player_2)
+    game_deck_player_2 <- remove_card(game_deck_player_2)
+    
+    # Play recursive combat?
+    
+    if(length(game_deck_player_1)>=draw_player1 & length(game_deck_player_2)>=draw_player2) {
+      
+      round_winner <- recursive_combat(head(game_deck_player_1, draw_player1), 
+                                       head(game_deck_player_2, draw_player2))$game_winner
+      
+    } else {
+      round_winner <- ifelse(draw_player1 > draw_player2, "player_one", "player_two")
+    }
+    
+    if(round_winner == "player_one") game_deck_player_1 <- c(game_deck_player_1,draw_player1,draw_player2)
+    
+    if(round_winner == "player_two") game_deck_player_2 <- c(game_deck_player_2,draw_player2,draw_player1)
+
+    loop <- ifelse(length(game_deck_player_1) == 0 | length(game_deck_player_2) == 0,0,1)
+    
+  }
+  
+  if(is.null(game_winner)){
+    game_winner <- ifelse(length(game_deck_player_1) > length(game_deck_player_2), "player_one", "player_two")
+  }
+  
+  return(list(game_winner = game_winner,
+              player_1 = game_deck_player_1, 
+              player_2 = game_deck_player_2))
+}
+
+x <- recursive_combat(player_1,player_2)
+```
+```{r echo = FALSE}
+list(game_winner = "player_one", player_1 = c(18, 5, 47, 38, 
+49, 21, 34, 1, 45, 33, 32, 23, 39, 36, 27, 16, 2, 6, 43, 40, 
+42, 24, 10, 9, 35, 20, 11, 3, 41, 17, 29, 13, 28, 25, 50, 26, 
+37, 7, 46, 22, 15, 8, 44, 31, 14, 12, 48, 19, 30, 4), player_2 = numeric(0))
+```
+```{r eval = FALSE}
+sum(x$player_1 * rev(seq_along(x$player_1)))
+```
+```{r echo = FALSE}
+33651
+```
+
