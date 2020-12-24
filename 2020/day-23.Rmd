@@ -1,0 +1,173 @@
+---
+title: "Adv2020 - Day Twenty-Three"
+author: "Tan Ho"
+date: "2020-12-23"
+output: html_document
+---
+
+Day twenty-three - Crab Cups!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+  options(scipen = 9999999)
+  options(dplyr.summarise.inform = FALSE)
+```
+
+--- Description ---
+
+
+--- Data ---
+
+```{r eval = FALSE}
+input_23 <- "496138527"
+```
+
+--- Cleaning ---
+
+```{r eval = FALSE}
+start_order <- str_split(input_23,"") %>% unlist %>% as.numeric
+```
+
+--- Problem 1 ---
+
+```{r eval = FALSE}
+p1 <- start_order
+
+for(i in 1:100){
+  
+  current_cup <- p1[1]
+  
+  picked_up <- p1[2:4]
+  
+  other_cups <- tail(p1, -4)
+  
+  if(all(current_cup < other_cups)) {
+    
+    destination_cup <- max(other_cups)
+    
+  } else {
+    
+    destination_cup <- max(other_cups[(current_cup - other_cups) > 0])
+    
+  }
+  d_loc <- which(other_cups == destination_cup)
+
+  p1 <- c(
+    head(other_cups,d_loc),
+    picked_up,
+    tail(other_cups,-d_loc),
+    current_cup
+    )
+    
+}
+
+one_loc <- which(p1 == 1)
+
+c(tail(p1,-one_loc),head(p1,one_loc-1)) %>% paste(collapse = "")
+```
+
+```{r echo = FALSE}
+"69425837"
+```
+
+
+--- Problem 2 ---
+
+Trying the naive solution first:
+
+```{r eval = FALSE}
+
+p2 <- c(start_order,seq.int(max(start_order),1000000))
+
+for(i in 1:1000000){
+  
+  current_cup <- p2[1]
+  
+  picked_up <- p2[2:4]
+  
+  other_cups <- tail(p2, -4)
+  
+  if(all(current_cup < other_cups)) {
+    
+    destination_cup <- max(other_cups) 
+    
+  } else {
+    
+    destination_cup <- max(other_cups[(current_cup - other_cups) > 0])
+    
+  }
+  d_loc <- which(other_cups == destination_cup)
+
+  p2 <- c(
+    head(other_cups,d_loc),
+    picked_up,
+    tail(other_cups,-d_loc),
+    current_cup
+    )
+}
+
+one_loc <- which(p2 == 1)
+
+p2[one_loc + c(1,2)]
+
+```
+
+Killing it for being too slow. 
+
+Attempt 2: trying to store the location of the next variable for each variable (as suggested by other languages' linked lists)
+
+```{r eval = FALSE}
+p2 <- c(start_order,seq.int(max(start_order)+1,1000000)) %>% as.integer()
+
+next_cups <- c(p2[-1],p2[1])
+cup_directory <- next_cups[order(p2)]
+
+current_cup <- p2[1]
+
+for (i in 1:10000000) {
+  
+  pickup_1 <- cup_directory[current_cup]
+  pickup_2 <- cup_directory[pickup_1]
+  pickup_3 <- cup_directory[pickup_2]
+  
+  destination_cup <- current_cup - 1:4
+  
+  destination_cup <- ifelse(
+    destination_cup <=0, 
+    max(cup_directory) + destination_cup, 
+    destination_cup)
+  
+  destination_cup <- destination_cup[!destination_cup %in% c(pickup_1,pickup_2,pickup_3)]
+  
+  destination_cup <- head(destination_cup, 1)
+  
+  cup_directory[current_cup] <- cup_directory[pickup_3]
+  # current now points to where third cup was pointing, removing three cups from loop
+  
+  cup_directory[pickup_3] <- cup_directory[destination_cup]
+  # third now points to where destination cup was pointing
+  
+  cup_directory[destination_cup] <- pickup_1
+  # destination cup now points at the first cup in the pickup
+  
+  current_cup <- cup_directory[current_cup]
+  # move pointer to where the current cup is pointing
+}
+
+x1 <- cup_directory[1]
+x2 <- cup_directory[x1]
+
+prod(x1,x2)
+```
+```{r echo = FALSE}
+218882971435
+```
+
+About three minutes to run the loop, so not bad!

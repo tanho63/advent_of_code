@@ -395,7 +395,7 @@ summary {
 
 <h1 class="title toc-ignore">R4DS AOC Leaderboard</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">Last Updated: 2020-12-22 22:37:01</h4>
+<h4 class="date">Last Updated: 2020-12-23 23:46:06</h4>
 
 </div>
 
@@ -430,20 +430,20 @@ knitr::opts_chunk$set(echo = TRUE)</code></pre>
   select(user_name,total_stars,aoc_score,day,star1_ts,star2_ts,everything())
 
 stars</code></pre>
-<pre><code>## # A tibble: 163 x 8
+<pre><code>## # A tibble: 167 x 8
 ##    user_name total_stars aoc_score day   star1_ts            star2_ts           
 ##    &lt;chr&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;              &lt;dttm&gt;             
-##  1 scalgary           31       269 22    2020-12-22 09:33:13 NA                 
-##  2 Tokhir D~          34       380 22    2020-12-22 03:13:36 NA                 
-##  3 @_TanHo            44       546 22    2020-12-22 09:22:55 2020-12-22 22:33:08
-##  4 scalgary           31       269 21    2020-12-21 19:10:56 2020-12-21 19:14:02
-##  5 Tokhir D~          34       380 21    2020-12-21 14:53:53 2020-12-21 15:04:14
-##  6 @_TanHo            44       546 21    2020-12-21 19:54:17 2020-12-21 19:55:13
-##  7 @_TanHo            44       546 20    2020-12-20 00:43:06 2020-12-20 21:39:22
-##  8 Liam You~          37       419 19    2020-12-19 10:47:01 NA                 
-##  9 @_TanHo            44       546 19    2020-12-19 01:23:47 2020-12-19 11:42:08
-## 10 kdaily16           36       295 18    2020-12-18 19:39:04 2020-12-18 19:39:51
-## # ... with 153 more rows, and 2 more variables: user_id &lt;chr&gt;,
+##  1 scalgary           32       283 23    2020-12-23 08:17:22 NA                 
+##  2 @_TanHo            46       573 23    2020-12-23 09:54:26 2020-12-23 19:21:29
+##  3 scalgary           32       283 22    2020-12-22 09:33:13 NA                 
+##  4 Tokhir D~          34       380 22    2020-12-22 03:13:36 NA                 
+##  5 @_TanHo            46       573 22    2020-12-22 09:22:55 2020-12-22 22:33:08
+##  6 scalgary           32       283 21    2020-12-21 19:10:56 2020-12-21 19:14:02
+##  7 Tokhir D~          34       380 21    2020-12-21 14:53:53 2020-12-21 15:04:14
+##  8 @_TanHo            46       573 21    2020-12-21 19:54:17 2020-12-21 19:55:13
+##  9 @_TanHo            46       573 20    2020-12-20 00:43:06 2020-12-20 21:39:22
+## 10 @_TanHo            46       573 19    2020-12-19 01:23:47 2020-12-19 11:42:08
+## # ... with 157 more rows, and 2 more variables: user_id &lt;chr&gt;,
 ## #   time_to_star2 &lt;drtn&gt;</code></pre>
 <pre class="r"><code>leaderboard &lt;- stars %&gt;% 
   group_by(user_name,user_id,aoc_score,total_stars) %&gt;% 
@@ -457,16 +457,16 @@ leaderboard</code></pre>
 <pre><code>## # A tibble: 13 x 6
 ##    user_name         user_id aoc_score total_stars median_star2 mean_star2
 ##    &lt;chr&gt;             &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
-##  1 @_TanHo           1032765       546          44  61.0 mins   234.4 mins
+##  1 @_TanHo           1032765       573          46  86.0 mins   248.9 mins
 ##  2 Liam Young        1011508       419          37  43.2 mins   104.5 mins
 ##  3 kdaily16          1033297       295          36  14.6 mins   130.0 mins
 ##  4 Tokhir Dadaev     1010046       380          34 161.3 mins   230.8 mins
-##  5 scalgary          1048276       269          31  31.6 mins   207.4 mins
+##  5 scalgary          1048276       283          32  31.6 mins   207.4 mins
 ##  6 Kate              1050275       289          27  32.8 mins    59.0 mins
 ##  7 kevin-m-kent      1126163       187          24  52.1 mins    63.0 mins
 ##  8 aleighbrown       1008588       128          17  26.0 mins    72.5 mins
-##  9 Anne              1020594       129          14  48.8 mins    81.3 mins
-## 10 Alison Lanski     1026315        92          14 114.9 mins   188.6 mins
+##  9 Alison Lanski     1026315       114          17 152.4 mins   183.4 mins
+## 10 Anne              1020594       129          14  48.8 mins    81.3 mins
 ## 11 Michael Jeziorski 991228         46          12  88.6 mins   336.2 mins
 ## 12 jsavn             1016340        40          11   4.9 mins    16.6 mins
 ## 13 SamBryce-Smith    1147940        11           2  16.7 mins    16.7 mins</code></pre>
