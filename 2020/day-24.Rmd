@@ -1,0 +1,133 @@
+---
+title: "Adv2020 - Day Twenty-Four"
+author: "Tan Ho"
+date: "2020-12-24"
+output: html_document
+---
+
+Day twenty-four - Lobby Layout!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+
+  knitr::opts_chunk$set(echo = TRUE)
+  options(scipen = 9999999)
+  options(dplyr.summarise.inform = FALSE)
+})
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+input_24 <- read_lines(here("2020", "day-24.txt"))
+input_24_e <- read_lines(here("2020", "day-24-e.txt"))
+```
+
+
+--- Cleaning ---
+
+Hex grids coordinates c/o https://www.redblobgames.com/grids/hexagons/
+```{r eval = FALSE}
+directions_e <- tibble(i = input_24_e) %>% 
+  mutate(i = str_extract_all(i,"se|sw|nw|ne|e|w"),
+         id = row_number()) %>% 
+  unnest_longer(i)
+
+directions <- tibble(i = input_24) %>% 
+  mutate(i = str_extract_all(i,"se|sw|nw|ne|e|w"),
+         id = row_number()) %>% 
+  unnest_longer(i)
+
+hex_coordinates <- list(e = c(1,-1,0),
+                        se = c(0,-1,1),
+                        sw = c(-1,0,1),
+                        w = c(-1,1,0),
+                        nw = c(0,1,-1),
+                        ne = c(1,0,-1)) %>% 
+  enframe() %>% 
+  unnest_wider(value,names_sep = "") %>% 
+  rename(dx = value1, dy = value2, dz = value3)
+
+```
+
+--- Problem 1 ---
+
+```{r eval = FALSE}
+tile_locations <- directions %>% 
+  left_join(hex_coordinates, by = c("i" = "name")) %>% 
+  group_by(id) %>% 
+  summarise(x = sum(dx),
+            y = sum(dy),
+            z = sum(dz)) %>% 
+  group_by(x,y,z) %>% 
+  summarise(n = n()) %>% 
+  ungroup()
+
+sum(tile_locations$n == 1)
+```
+```{r echo = FALSE}
+528
+```
+
+
+--- Problem 2 ---
+Another gd game of life problem?! FFS. Assuming that prev problem is day zero.
+
+```{r eval = FALSE}
+current_state <- tile_locations %>% 
+  mutate(colour = ifelse(n == 1, "black", "white")) %>% 
+  filter(colour == "black")
+
+get_tile <- function(x,y,z,day){
+  current_state$colour[current_state$x == x & current_state$y == y & current_state$z == z]
+}
+
+get_tile <- memoise::memoise(get_tile)
+
+get_adjacent_tiles <- function(x,y,z, day){
+  
+  nx <- hex_coordinates$dx + x
+  ny <- hex_coordinates$dy + y
+  nz <- hex_coordinates$dz + z
+  
+  neighbours <- pmap(list(nx,ny,nz),get_tile,day)
+  
+  sum(unlist(neighbours) == "black", na.rm = TRUE)
+  
+}
+
+for(day in 1:100){
+  
+  grid_range <- range(current_state[c('x','y','z')])
+  
+  search_grid <- seq.int(from = grid_range[1]-1, to = grid_range[2]+1) %>% 
+    crossing(x = ., y = ., z = .) %>% 
+    filter((x + y + z) == 0) %>%
+    left_join(
+      current_state %>% select(x,y,z,colour),
+      by = c("x","y","z")
+    ) %>% 
+    mutate(colour = replace_na(colour,"white"),
+           neighbours = pmap_dbl(list(x,y,z), get_adjacent_tiles, day),
+           new_colour = case_when(colour == "black" & (neighbours == 0 | neighbours > 2) ~ "white",
+                                  colour == "white" & (neighbours == 2) ~ "black",
+                                  TRUE ~ colour))
+  
+  current_state <- search_grid %>% 
+    select(x,y,z,colour = new_colour) %>% 
+    filter(colour == "black")
+  
+  if(day %% 10 == 0) message(day)
+  
+}
+
+nrow(current_state)
+```
+```{r echo = FALSE}
+4200
+```
+
+
