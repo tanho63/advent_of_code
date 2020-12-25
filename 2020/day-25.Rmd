@@ -1,0 +1,64 @@
+---
+title: "Adv2020 - Day Twenty-Five"
+author: "Tan Ho"
+date: "2020-12-25"
+output: html_document
+---
+
+Day twenty-five - Combo Breaker!
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+
+  knitr::opts_chunk$set(echo = TRUE)
+  options(scipen = 9999999)
+  options(dplyr.summarise.inform = FALSE)
+})
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+input_25 <- c(2069194,16426071)
+```
+
+--- Problem 1 --- 
+
+```{r eval = FALSE}
+find_loops <- function(input){
+  
+  goal_keys <- numeric(2)
+  v <- 1
+  i <- 0
+  
+  while(any(goal_keys %in% 0)){
+   i <- i+1
+   v <- (v * 7) %% 20201227
+   
+   if(v == input[1]) goal_keys[1] <- i
+   if(v == input[2]) goal_keys[2] <- i
+  }
+  
+  return(goal_keys)
+}
+
+loop_sizes <- find_loops(input_25)
+
+encrypt_key <- function(public_key,loop_size){
+  
+  v <- 1
+  
+  for(i in seq_len(loop_size)) v <- (v * public_key) %% 20201227
+  
+  v
+}
+
+encrypt_key(input_25[1],loop_sizes[2])
+```
+```{r echo = FALSE}
+11576351
+```
+
