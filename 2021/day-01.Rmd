@@ -1,0 +1,65 @@
+---
+title: 'Advent Of Code: 2021-01'
+author: "Tan Ho"
+date: "2021-12-01"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+Day one! https://adventofcode.com/2021/day/1
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc.elf::aoc_get(1)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-01-input.txt"))
+```
+
+--- Problem 1 ---
+
+Sum. Don't forget to as.numeric your inputs, doofus.
+
+```{r}
+
+x <- tibble(x = as.numeric(input)) |>  
+  mutate(
+    increase = x > lag(x)
+  )
+sum(x$increase, na.rm = TRUE)
+
+```
+
+--- Problem 2 ---
+
+Rolling sums.
+
+```{r}
+
+y <- tibble(x = as.numeric(input)) |> 
+  mutate(
+    y = lead(x),
+    z = lead(x,2),
+    sum = x + y + z
+  ) |> 
+  filter(!is.na(sum)) |> 
+  mutate(increase = sum > lag(sum))
+
+sum(y$increase, na.rm = TRUE)
+
+```
+
