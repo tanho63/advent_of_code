@@ -1,0 +1,77 @@
+---
+title: 'Advent Of Code: 2021-02'
+author: "Tan Ho"
+date: "2021-12-02"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc.elf::aoc_get(2)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-02-input.txt"))
+```
+
+Basic cleanup - into a dataframe of direction/count and converting negatives for depth
+
+```{r}
+x <- tibble(x = input) |> 
+  separate(x,into = c("direction","count"), sep = " ") |> 
+  mutate(
+    count = as.numeric(count),
+    count = case_when(direction == "up" ~ -count, TRUE ~ count)) 
+```
+
+--- Part 1 ---
+
+```{r}
+p1 <- x |> 
+  group_by(ifelse(direction == "forward","horizontal","depth")) |> 
+  summarise(
+    count = sum(count)
+  )
+p1
+p1$count[1] * p1$count[2]
+
+```
+
+forward = 1823
+depth = 1018
+
+--- Part 2 ---
+
+For part two we already know the horizontal so we need to do some cleanup to get the vertical one (calculate the aim at any give point via cumulative sum) and then recalculate
+
+```{r}
+p2 <- x |> 
+  mutate(
+    aim = ifelse(direction == "forward", 0, count),
+    aim = cumsum(aim)
+  ) |> 
+  filter(direction == "forward") |> 
+  summarise(
+    depth = sum(aim * count)
+  )
+
+p2
+
+p2$depth * 1823
+
+```
+
