@@ -36,38 +36,33 @@ x <- tibble(x = input) |>
   mutate(
     count = as.numeric(count),
     count = case_when(direction == "up" ~ -count, TRUE ~ count)) 
+head(x)
 ```
 
 --- Part 1 ---
 
 ```{r}
 p1 <- x |> 
-  group_by(ifelse(direction == "forward","horizontal","depth")) |> 
-  summarise(
-    count = sum(count)
-  )
+  group_by(direction = ifelse(direction == "forward","horizontal","depth")) |> 
+  summarise(count = sum(count))
 p1
-p1$count[1] * p1$count[2]
 
+p1$count[1] * p1$count[2]
 ```
 
-forward = 1823
-depth = 1018
+- forward = 1823
+- depth = 1018
 
 --- Part 2 ---
 
-For part two we already know the horizontal so we need to do some cleanup to get the vertical one (calculate the aim at any give point via cumulative sum) and then recalculate
+For part two we already know the horizontal so we need to do some cleanup to get the vertical one (calculate the aim at any given point via cumulative sum) and then recalculate
 
 ```{r}
 p2 <- x |> 
-  mutate(
-    aim = ifelse(direction == "forward", 0, count),
-    aim = cumsum(aim)
-  ) |> 
+  mutate( aim = ifelse(direction == "forward", 0, count), 
+          aim = cumsum(aim)) |> 
   filter(direction == "forward") |> 
-  summarise(
-    depth = sum(aim * count)
-  )
+  summarise(depth = sum(aim * count))
 
 p2
 

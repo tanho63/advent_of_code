@@ -190,33 +190,40 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
   separate(x,into = c(&quot;direction&quot;,&quot;count&quot;), sep = &quot; &quot;) |&gt; 
   mutate(
     count = as.numeric(count),
-    count = case_when(direction == &quot;up&quot; ~ -count, TRUE ~ count)) </code></pre>
+    count = case_when(direction == &quot;up&quot; ~ -count, TRUE ~ count)) 
+head(x)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   direction count
+##   &lt;chr&gt;     &lt;dbl&gt;
+## 1 forward       8
+## 2 forward       3
+## 3 down          8
+## 4 down          2
+## 5 up           -1
+## 6 up           -4</code></pre>
 <p>— Part 1 —</p>
 <pre class="r"><code>p1 &lt;- x |&gt; 
-  group_by(ifelse(direction == &quot;forward&quot;,&quot;horizontal&quot;,&quot;depth&quot;)) |&gt; 
-  summarise(
-    count = sum(count)
-  )
+  group_by(direction = ifelse(direction == &quot;forward&quot;,&quot;horizontal&quot;,&quot;depth&quot;)) |&gt; 
+  summarise(count = sum(count))
 p1</code></pre>
 <pre><code>## # A tibble: 2 x 2
-##   `ifelse(direction == &quot;forward&quot;, &quot;horizontal&quot;, &quot;depth&quot;)` count
-##   &lt;chr&gt;                                                   &lt;dbl&gt;
-## 1 depth                                                    1018
-## 2 horizontal                                               1823</code></pre>
+##   direction  count
+##   &lt;chr&gt;      &lt;dbl&gt;
+## 1 depth       1018
+## 2 horizontal  1823</code></pre>
 <pre class="r"><code>p1$count[1] * p1$count[2]</code></pre>
 <pre><code>## [1] 1855814</code></pre>
-<p>forward = 1823 depth = 1018</p>
+<ul>
+<li>forward = 1823</li>
+<li>depth = 1018</li>
+</ul>
 <p>— Part 2 —</p>
-<p>For part two we already know the horizontal so we need to do some cleanup to get the vertical one (calculate the aim at any give point via cumulative sum) and then recalculate</p>
+<p>For part two we already know the horizontal so we need to do some cleanup to get the vertical one (calculate the aim at any given point via cumulative sum) and then recalculate</p>
 <pre class="r"><code>p2 &lt;- x |&gt; 
-  mutate(
-    aim = ifelse(direction == &quot;forward&quot;, 0, count),
-    aim = cumsum(aim)
-  ) |&gt; 
+  mutate( aim = ifelse(direction == &quot;forward&quot;, 0, count), 
+          aim = cumsum(aim)) |&gt; 
   filter(direction == &quot;forward&quot;) |&gt; 
-  summarise(
-    depth = sum(aim * count)
-  )
+  summarise(depth = sum(aim * count))
 
 p2</code></pre>
 <pre><code>## # A tibble: 1 x 1
