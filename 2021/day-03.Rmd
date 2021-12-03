@@ -1,0 +1,101 @@
+---
+title: 'Advent Of Code: 2021-03'
+author: "Tan Ho"
+date: "2021-12-03"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc.elf::aoc_get(3)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-03-input.txt"))
+```
+
+Cleaning the data to a tibble with columns for each digit, because I find that to be the most useful/workable input format
+
+```{r}
+i <- tibble(x = input) |> 
+  mutate(y = strsplit(x,""),
+         x = NULL) %>%
+  {suppressMessages(unnest_wider(.,y))}
+i
+```
+
+--- Part 1 ---
+
+Taking the tidyverse way out here by summarising and counting...which may bite me...
+
+```{r}
+p1 <- i |> 
+  mutate(x = row_number()) |> 
+  pivot_longer(-x,names_to = "y") |> 
+  mutate(y = str_remove(y,"...") |> as.numeric()) |> 
+  group_by(y) |> 
+  count(value)
+
+head(p1)
+
+gamma <- p1 |> 
+  slice_max(n) |> 
+  pull(value) |> 
+  paste(collapse = "") |> 
+  strtoi(base = 2L)
+
+epsilon <- p1 |> 
+  slice_min(n) |> 
+  pull(value) |> 
+  paste(collapse = "") |> 
+  strtoi(base = 2L)
+
+gamma * epsilon
+```
+
+--- Part 2 ---
+
+Tidyverse bit me a bit here, going back and adding parsing functions and reducing them over each column of the matrix.
+
+```{r}
+p2 <- as.matrix(i) |> unname()
+
+parser <- function(m, pos, most = TRUE){
+  if(is.null(dim(m))) return(m)
+  
+  keep <- .mostleast(m[,pos], most)
+  return(m[m[,pos] == keep,])
+}
+
+.mostleast <- function(v, most = TRUE){
+  one <- sum(v == "1")
+  zero <- sum(v == '0')
+  
+  if(most) return(ifelse(one >= zero, "1", "0"))
+  return(ifelse(one < zero, "1", "0"))
+}
+
+oxygen <- reduce(seq_len(ncol(p2)), parser, .init = p2, most = TRUE) |> 
+  paste(collapse = "") |> 
+  strtoi(base = 2L)
+
+co2 <- reduce(seq_len(ncol(p2)), parser, .init = p2, most = FALSE) |> 
+  paste(collapse = "") |> 
+  strtoi(base = 2L)
+
+oxygen * co2
+```
