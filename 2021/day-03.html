@@ -268,6 +268,18 @@ co2 &lt;- reduce(seq_len(ncol(p2)), parser, .init = p2, most = FALSE) |&gt;
 
 oxygen * co2</code></pre>
 <pre><code>## [1] 3832770</code></pre>
+<p>— Part 1 redux —</p>
+<p>with the function built for part 2, revisiting part 1 for extra-ish credit:</p>
+<pre class="r"><code>gamma2 &lt;- map(seq_len(ncol(p2)), ~.mostleast(p2[,.x], most = TRUE)) |&gt; 
+  paste(collapse = &quot;&quot;) |&gt; 
+  strtoi(base = 2L)
+epsilon2 &lt;- map(seq_len(ncol(p2)),~.mostleast(p2[,.x], most = FALSE)) |&gt; 
+  paste(collapse = &quot;&quot;) |&gt; 
+  strtoi(base = 2L)
+
+gamma2 * epsilon2</code></pre>
+<pre><code>## [1] 4118544</code></pre>
+<p>I can largely see why I think of the tidy/pivot way first 😂</p>
 
 
 

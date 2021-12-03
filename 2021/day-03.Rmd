@@ -26,6 +26,7 @@ aoc.elf::aoc_get(3)
 
 ```{r}
 input <- readLines(here::here("2021/day-03-input.txt"))
+
 ```
 
 Cleaning the data to a tibble with columns for each digit, because I find that to be the most useful/workable input format
@@ -99,3 +100,21 @@ co2 <- reduce(seq_len(ncol(p2)), parser, .init = p2, most = FALSE) |>
 
 oxygen * co2
 ```
+
+--- Part 1 redux ---
+
+with the function built for part 2, revisiting part 1 for extra-ish credit:
+
+```{r}
+
+gamma2 <- map(seq_len(ncol(p2)), ~.mostleast(p2[,.x], most = TRUE)) |> 
+  paste(collapse = "") |> 
+  strtoi(base = 2L)
+epsilon2 <- map(seq_len(ncol(p2)),~.mostleast(p2[,.x], most = FALSE)) |> 
+  paste(collapse = "") |> 
+  strtoi(base = 2L)
+
+gamma2 * epsilon2
+```
+
+I can largely see why I think of the tidy/pivot way first 😂
