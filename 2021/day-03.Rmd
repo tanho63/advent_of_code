@@ -26,7 +26,6 @@ aoc.elf::aoc_get(3)
 
 ```{r}
 input <- readLines(here::here("2021/day-03-input.txt"))
-
 ```
 
 Cleaning the data to a tibble with columns for each digit, because I find that to be the most useful/workable input format
@@ -36,6 +35,7 @@ i <- tibble(x = input) |>
   mutate(y = strsplit(x,""),
          x = NULL) %>%
   {suppressMessages(unnest_wider(.,y))}
+
 i
 ```
 
