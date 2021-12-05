@@ -1,0 +1,86 @@
+---
+title: 'Advent Of Code: 2021-05'
+author: "Tan Ho"
+date: "2021-12-04"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc.elf::aoc_get(5)
+```
+
+```{r}
+i <- readLines(here::here("2021/day-05-input.txt"))
+```
+
+```{r}
+input <- tibble(x = i) |> 
+  extract(x, c("x1","y1","x2","y2"),regex = "([0-9]+),([0-9]+) -> ([0-9]+),([0-9]+)",convert = TRUE) |> 
+  mutate(
+    line_id = row_number()
+  )
+```
+
+--- Part 1 ---
+
+Using map2, create a nested list for each point and then unnest and group-by+count the duplicates
+
+```{r}
+p1 <- input |> 
+  filter(x1 == x2 | y1 == y2) |> 
+  mutate(
+    x = map2(x1,x2,~.x:.y),
+    y = map2(y1,y2,~.x:.y)
+  ) |> 
+  select(line_id, x, y) |> 
+  unnest(c(x,y)) |> 
+  group_by(x,y) |> 
+  summarise(
+    dupl = n()
+  ) |> 
+  filter(
+    dupl > 1
+  )
+
+nrow(p1)
+```
+
+--- Part 2 ---
+
+Very lucky that this solution generalizes by just removing the filter!
+
+```{r}
+p2 <- input |> 
+  mutate(
+    x = map2(x1,x2,~.x:.y),
+    y = map2(y1,y2,~.x:.y)
+  ) |> 
+  select(line_id, x, y) |> 
+  unnest(c(x,y)) |> 
+  group_by(x,y) |> 
+  summarise(
+    dupl = n()
+  ) |> 
+  filter(
+    dupl > 1
+  )
+
+nrow(p2)
+```
+
+I am unbelievably excited to have placed in the top 500!
