@@ -10,6 +10,10 @@ suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
   library(glue)
+  library(tantastic)
+  
+  tantastic::fontimport_bai_jamjuree()
+  tantastic::fontimport_plex_condensed()
   
   knitr::opts_chunk$set(echo = TRUE)
 })
@@ -84,3 +88,31 @@ nrow(p2)
 ```
 
 I am unbelievably excited to have placed in the top 500!
+
+And per Joe's request, a plotses!
+
+```{r warning=FALSE, message = FALSE}
+input |> 
+  mutate(
+    x = map2(x1,x2,~.x:.y),
+    y = map2(y1,y2,~.x:.y)
+  ) |> 
+  select(line_id, x, y) |> 
+  unnest(c(x,y)) |> 
+  ggplot(aes(x = x, y = y, color = line_id, fill = line_id, group = line_id)) + 
+  geom_line() + 
+  labs(
+    title = "Advent Of Code Day 5: Hydrothermal Venture",
+    caption = "@_TanHo"
+  ) + 
+  tantastic::theme_tantastic() + 
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none",
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
