@@ -1,0 +1,104 @@
+---
+title: 'Advent Of Code: 2021-06'
+author: "Tan Ho"
+date: "2021-12-05"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc.elf::aoc_get(6)
+```
+
+```{r}
+example <- "3,4,3,1,2" |> 
+  strsplit(",") |> 
+  unlist() |> 
+  as.numeric()
+
+input <- readLines(here::here("2021/day-06-input.txt")) |> 
+  strsplit(",") |> 
+  unlist() |> 
+  as.numeric()
+```
+
+--- Part 1 ---
+
+```{r}
+v <- example
+
+fish_day <- function(v,...){
+  
+  new_v <- v - 1
+  
+  if(!any(new_v < 0)) return(new_v)
+  
+  new_index <- new_v < 0
+  
+  new_v[new_index] <- 6
+  
+  new_v <- c(new_v, rep(8,sum(new_index)))
+  
+  return(new_v)
+}
+
+v <- input
+for (i in 1:80) {
+  v <- fish_day(v)
+}
+
+```
+
+--- Part 2 ---
+
+Naive solution very slow. Count the number at each position instead. Much fast. Such wow.
+
+```{r}
+fish_day_two <- function(p){
+  
+  new <- p |> 
+    select(-n) |> 
+    full_join(
+      p |> mutate(x = x - 1),
+      by = "x"
+    ) |> 
+    mutate(
+      n = replace_na(n,0)
+    )
+  
+  new$n[new$x == 6] <- new$n[new$x == -1] + new$n[new$x == 6]
+  new$n[new$x == 8] <- new$n[new$x == -1]
+  
+  p <- new |> filter(x>=0)
+}
+
+p <- tibble(x = input) |> 
+  group_by(x) |> 
+  count() |> 
+  ungroup() |> 
+  right_join(
+    tibble(x = 0:8), by = "x"
+  ) |> 
+  mutate(
+    n = replace_na(n,0)
+  )
+
+for (i in 1:256) {
+  p <- fish_day_two(p)
+}
+```
+

@@ -100,7 +100,7 @@ input |>
   select(line_id, x, y) |> 
   unnest(c(x,y)) |> 
   ggplot(aes(x = x, y = y, color = line_id, fill = line_id, group = line_id)) + 
-  geom_line() + 
+  geom_line(alpha = 0.75) + 
   labs(
     title = "Advent Of Code Day 5: Hydrothermal Venture",
     caption = "@_TanHo"
