@@ -1,0 +1,59 @@
+---
+title: 'Advent Of Code: 2015-02'
+author: "Tan Ho"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 2, year = 2015)
+```
+
+```{r}
+input <- readLines(here::here("2015/day-02-input.txt"))
+```
+
+--- Part 1 ---
+
+```{r}
+tibble(x = input) |> 
+  separate(x, into = c("l","w","h"), sep = "x",convert = TRUE) |> 
+  mutate(lw = l * w,
+         wh = w * h,
+         lh = l * h,
+         sf = 2*lw + 2*wh + 2*lh + pmap_dbl(list(lw,wh,lh), ~min(c(...)))
+  ) |> 
+  pull(sf) |> 
+  sum()
+```
+
+--- Part 2 ---
+
+```{r}
+tibble(x = input) |> 
+  separate(x, into = c("l","w","h"), sep = "x",convert = TRUE) |> 
+  mutate(lw = l + w,
+         wh = w + h,
+         lh = l + h,
+         r = pmap_dbl(list(lw,wh,lh), ~ 2*min(c(...))) + l * w * h
+  ) |> 
+  pull(r) |> 
+  sum()
+```
+
