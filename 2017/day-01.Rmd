@@ -21,22 +21,41 @@ options(dplyr.summarise.inform = FALSE)
 --- Data ---
 
 ```{r eval = FALSE}
-aoc.elf::aoc_get(1)
+aoc.elf::aoc_get(1, 2017)
 ```
 
 ```{r}
-input <- readLines(here::here("2017/day-01-input.txt"))
+input <- readLines(here::here("2017/day-01-input.txt")) |> 
+  strsplit("") |> 
+  unlist() |> 
+  as.numeric()
 ```
 
 --- Part 1 ---
 
 ```{r}
 
+p1 <- tibble(
+  x = input, 
+  y = c(head(lead(input),-1),input[1])
+) |> 
+  filter(x == y) |> 
+  pull(x) |> 
+  sum()
+p1
 ```
 
 --- Part 2 ---
 
 ```{r}
+
+p2 <- tibble(
+  x = input,
+  y = c(tail(input,length(input)/2),head(input,length(input)/2))
+) |> 
+  filter(x==y) |> 
+  pull(x) |> 
+  sum()
 
 ```
 
