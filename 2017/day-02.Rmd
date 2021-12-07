@@ -1,0 +1,61 @@
+---
+title: 'Advent Of Code: 2017-02'
+author: "Tan Ho"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 2, year = 2017)
+```
+
+```{r}
+input <- read_tsv(here::here("2017/day-02-input.txt"),col_names = FALSE)
+```
+
+--- Part 1 ---
+
+```{r}
+
+input |> 
+  pmap(range) |>
+  map_dbl(~abs(.x[1]-.x[2])) |> 
+  sum()
+
+```
+
+--- Part 2 ---
+
+```{r}
+
+e <- "5 9 2 8" |> strsplit(" ") |> unlist() |> as.numeric()
+
+get_whole_remainder <- function(x){
+  crossing(a = x, b = x) |> 
+    filter(a!=b, a %%b == 0) |> 
+    summarise(x = a/b) |> 
+    pull(x)
+}
+
+input |> 
+  pmap_dbl(~get_whole_remainder(c(...))) |> 
+  sum()
+
+```
+
