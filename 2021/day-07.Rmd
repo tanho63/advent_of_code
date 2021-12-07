@@ -1,0 +1,62 @@
+---
+title: 'Advent Of Code: 2021-07'
+author: "Tan Ho"
+date: "2021-12-06"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc.elf::aoc_get(7)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-07-input.txt")) |> 
+  strsplit(",") |> 
+  unlist() |> 
+  as.numeric()
+
+input <- "16,1,2,0,4,2,7,1,2,14" |> 
+  strsplit(",") |> 
+  unlist() |> 
+  as.numeric()
+```
+
+--- Part 1 ---
+
+Cost is difference in inputs, loop over range of inputs to find total cost for all options.
+
+```{r}
+r <- range(input)
+s <- seq(r[1],r[2])
+sums <- map_dbl(s, ~sum(abs(input-.x)))
+sums[which.min(sums)]
+
+
+```
+
+--- Part 2 ---
+
+Cost is triangular number (that took a googling lol), loop over range to find total cost
+
+```{r}
+r <- range(input)
+s <- seq(r[1],r[2])
+sums <- map_dbl(s, ~sum(abs(input-.x)*(abs(input-.x)+1)/2))
+sums[which.min(sums)]
+```
+
