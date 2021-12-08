@@ -1,0 +1,157 @@
+---
+title: 'Advent Of Code: 2021-08'
+author: "Tan Ho"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 8, year = 2021)
+```
+
+```{r}
+input <- tibble(x = readLines(here::here("2021/day-08-input.txt"))) |> 
+  separate(x,into = c("pattern","output"),sep = "\\|") |>
+  mutate_all(~str_squish(.x) |> strsplit(" "))
+  
+
+example <- 
+  "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf" %>%
+  tibble(x = .) |> 
+  separate(x,into = c("pattern","output"),sep = "\\|") |>
+  mutate_all(~str_squish(.x) |> strsplit(" "))
+
+example_two <- tibble(x = c(
+  "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
+  "edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
+  "fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
+  "fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
+  "aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
+  "fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
+  "dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
+  "bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
+  "egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
+  "gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce")) |> 
+  separate(x,into = c("pattern","output"),sep = "\\|") |>
+  mutate_all(~str_squish(.x) |> strsplit(" "))
+```
+
+--- Part 1 ---
+
+```{r eval = FALSE}
+
+p1 <- input$output
+# p1 <- example_two$output
+
+all_outs <- tibble(o = unlist(p1)) |> 
+  mutate(
+    n = str_length(o)
+  ) |> 
+  filter(
+    n %in% c(2,3,4,7)
+  )
+all_outs
+```
+
+--- Part 2 ---
+
+Took the long and naive approach of identifying each segment because #completionist (ugh).
+This probably made my life a lot harder.
+
+```{r}
+v <- unlist(example$pattern)
+o <- unlist(example$output)
+
+vsplit <- function(v){unlist(strsplit(v,""))}
+
+vfind <- function(v, n, negate = FALSE) {
+  if(negate) v[!str_length(v) %in% n]
+  v[str_length(v) %in% n]
+  }
+
+decode_display <- function(v,o){
+  
+  top <- vsplit(vfind(v,3))[!vsplit(vfind(v,3)) %in% vsplit(vfind(v,2))]
+  # bottom_right <- vsplit(vfind(v,2))[
+  .six <- vfind(v,6)[
+      ! (str_detect(vfind(v,6),vsplit(vfind(v,2))[1]) &
+           str_detect(vfind(v,6),vsplit(vfind(v,2))[2]))
+    ]
+  
+  
+  bottom_right <- vsplit(vfind(v,2))[stringr::str_detect(.six, vsplit(vfind(v,2)))]
+  
+  top_right <- vsplit(vfind(v,2))[!str_detect(.six,vsplit(vfind(v,2)))]
+
+  .three <- vfind(v,5)[
+    str_detect(vfind(v,5),top) &
+    str_detect(vfind(v,5),bottom_right) &
+    str_detect(vfind(v,5),top_right)
+  ]
+  .four <- vfind(v,4)
+  
+  .middle_left <- vsplit(vfind(v,4))[
+    !vsplit(vfind(v,4)) %in% c(top_right, bottom_right)
+    ]
+  
+  middle <- .middle_left[str_detect(.three, .middle_left)]
+  
+  top_left <- .middle_left[!str_detect(.three, .middle_left)]
+  
+  .nine <- vfind(v,6)[
+    str_detect(vfind(v,6), middle) &
+    str_detect(vfind(v,6), top_right)
+  ]
+  
+  bottom <- vsplit(.nine)[!vsplit(.nine) %in% c(top, top_right, top_left, middle, bottom_right)]
+  
+  bottom_left <- vsplit(vfind(v,7))[
+    !vsplit(vfind(v,7)) %in% c(top, top_left, top_right, bottom, bottom_right, middle)
+  ]
+  
+  mapping <- list(
+    "0" = c(top,top_right, top_left,bottom_left,bottom_right,bottom),
+    "1" = c(top_right, bottom_right),
+    "2" = c(top, top_right, middle, bottom_left, bottom),
+    "3" = c(top, top_right, middle, bottom_right, bottom),
+    "4" = c(top_left, top_right, middle, bottom_right),
+    "5" = c(top, top_left, middle, bottom_right, bottom),
+    "6" = c(top, top_left, middle, bottom_left, bottom_right, bottom),
+    "7" = c(top, top_right, bottom_right),
+    "8" = c(top, top_left, top_right, middle, bottom_left,bottom_right,bottom),
+    "9" = c(top, top_left, top_right, middle, bottom_right,bottom)
+  ) |> 
+    map_chr(~sort(.x) |> paste(collapse = "")) |> 
+    enframe() |> 
+    mutate(name = as.numeric(name))
+  
+  display <- 
+    tibble(value = o |> map_chr(~vsplit(.x) |> sort() |> paste(collapse = ""))) |> 
+    left_join(mapping, by = "value") |> 
+    pull(name) |> 
+    paste(collapse = "") |> 
+    as.numeric()
+  
+  return(display)
+}
+
+map2(input$pattern,input$output,decode_display) |> unlist() |> sum()
+
+```
+
