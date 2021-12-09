@@ -1,0 +1,115 @@
+---
+title: 'Advent Of Code: 2021-09'
+author: "Tan Ho"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 9, year = 2021)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-09-input.txt")) |> 
+  strsplit("") |> 
+  map(as.numeric)
+
+input <- do.call(rbind, input)
+
+example <- c(2199943210,
+             3987894921,
+             9856789892,
+             8767896789,
+             9899965678) |> 
+  as.character() |> 
+  strsplit("") |> 
+  map(as.numeric)
+
+example <- do.call(rbind,example)
+
+```
+
+--- Part 1 ---
+
+```{r}
+
+m <- input
+
+check_lowpoint <- function(x,y, m){
+      
+      r <- NULL
+      l <- NULL
+      d <- NULL
+      u <- NULL
+  
+      max_x <- nrow(m)
+      max_y <- ncol(m)
+      
+      if(x > 1) l <- m[x,y] < m[x-1,y]
+      if(y > 1) u <- m[x,y] < m[x,y-1]
+      
+      if(x < max_x) r <- m[x,y] < m[x+1,y]
+      if(y < max_y) d <- m[x,y] < m[x,y+1]
+      
+      if(all(c(r,l,u,d))) return(list(x = x, y = y))
+      return(NULL)
+}
+
+indices <- crossing(x = seq_len(nrow(m)), y = seq_len(ncol(m)))
+
+result <- map2_dfr(indices$x, indices$y, check_lowpoint, m)
+
+sum(m[cbind(result$x,result$y)] + 1)
+
+```
+
+--- Part 2 ---
+
+Set up a recursive function to check all the nearest neighbours, except the ones that have already been checked. 
+
+```{r}
+lowpoints <- result |> 
+  mutate(
+    i = row_number()
+  )
+
+check_matrix <- m==9
+
+recurse_lowpoint <- function(x, y){
+    
+  if(check_matrix[x,y]) return(NULL)
+  check_matrix[x,y]<<-TRUE
+  
+  value <- m[x,y]
+  if(value == 9) return(NULL)
+  
+  flowpoints <- tibble(x = x, y = y, v = value)
+  if(x < nrow(m)) flowpoints <- bind_rows(flowpoints, recurse_lowpoint(x+1, y))
+  if(y < ncol(m)) flowpoints <- bind_rows(flowpoints, recurse_lowpoint(x, y+1))
+  if(x > 1) flowpoints <- bind_rows(flowpoints, recurse_lowpoint(x-1, y))
+  if(y > 1) flowpoints <- bind_rows(flowpoints, recurse_lowpoint(x, y-1))
+  
+  return(flowpoints)
+}
+
+flowpoints <- map2(result$x, result$y, recurse_lowpoint)
+
+flowpoints |> map_dbl(nrow) |> sort(decreasing = TRUE) |> head(3) |> prod()
+```
+
