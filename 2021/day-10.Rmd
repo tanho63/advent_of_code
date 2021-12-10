@@ -36,9 +36,6 @@ input <- readLines(here::here("2021/day-10-input.txt")) |>
 In a loop, collected a queue of open-brackets and then check each closing bracket against the last item in the opening queue. If check fails, exit early with the failure. 
 
 ```{r}
-
-v <- input[1]
-
 checker <- function(v){
   
   v <- unlist(v)
@@ -66,7 +63,6 @@ checker <- function(v){
 
 x <- map(input,checker) |> unlist()
 
-
 value_map <- tibble(
   close_char = c("}", "]", ")", ">"),
   value = c(1197,57, 3, 25137)
@@ -83,8 +79,6 @@ Did myself a massive favour here with my part one algo - already had a queue of 
 ```{r}
 
 p2 <- input[unlist(x)== "OK"]
-
-v <- p2[1]
 
 completer <- function(v){
   

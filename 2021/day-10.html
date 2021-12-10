@@ -189,9 +189,7 @@ aoc.elf::aoc_get(day = 10, year = 2021)</code></pre>
   strsplit(&quot;&quot;)</code></pre>
 <p>— Part 1 —</p>
 <p>In a loop, collected a queue of open-brackets and then check each closing bracket against the last item in the opening queue. If check fails, exit early with the failure.</p>
-<pre class="r"><code>v &lt;- input[1]
-
-checker &lt;- function(v){
+<pre class="r"><code>checker &lt;- function(v){
   
   v &lt;- unlist(v)
   
@@ -218,7 +216,6 @@ checker &lt;- function(v){
 
 x &lt;- map(input,checker) |&gt; unlist()
 
-
 value_map &lt;- tibble(
   close_char = c(&quot;}&quot;, &quot;]&quot;, &quot;)&quot;, &quot;&gt;&quot;),
   value = c(1197,57, 3, 25137)
@@ -230,8 +227,6 @@ sum(value_map[x[x != &quot;OK&quot;]])</code></pre>
 <p>— Part 2 —</p>
 <p>Did myself a massive favour here with my part one algo - already had a queue of opening brackets and the code to fetch the closing brackets, so just had to return the closing brackets for the queue.</p>
 <pre class="r"><code>p2 &lt;- input[unlist(x)== &quot;OK&quot;]
-
-v &lt;- p2[1]
 
 completer &lt;- function(v){
   
