@@ -84,11 +84,6 @@ sum(m[cbind(result$x,result$y)] + 1)
 Set up a recursive function to check all the nearest neighbours, except the ones that have already been checked. 
 
 ```{r}
-lowpoints <- result |> 
-  mutate(
-    i = row_number()
-  )
-
 check_matrix <- m==9
 
 recurse_lowpoint <- function(x, y){
