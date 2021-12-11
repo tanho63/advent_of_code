@@ -1,0 +1,130 @@
+---
+title: 'Advent Of Code: 2021-11'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 11, year = 2021)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-11-input.txt")) |> 
+  strsplit("") |> 
+  map(as.numeric) |> 
+  reduce(rbind)
+
+example <- c("5483143223",
+             "2745854711",
+             "5264556173",
+             "6141336146",
+             "6357385478",
+             "4167524645",
+             "2176841721",
+             "6882881134",
+             "4846848554",
+             "5283751526") |> 
+  strsplit("") |> 
+  map(as.numeric) |> 
+  reduce(rbind)
+
+```
+
+--- Part 1 ---
+
+```{r}
+m <- input
+
+get_neighbours <- function(x_value,y_value){
+  i <- crossing(x = c(-1,0,1) + x_value, 
+                y = c(-1,0,1) + y_value) |> 
+    filter(between(x,1,10), 
+           between(y,1,10),
+           !(x == x_value & y == y_value)
+           )
+  
+  return(i)
+}
+
+flash_counter <- numeric(100)
+
+for(step in 1:100){
+  
+  m <- m + 1
+  completed_flashes <- tibble()
+  
+  while(any(m > 9)){
+    
+    flash_queue <- which(m > 9, arr.ind = TRUE) |> as_tibble()
+    colnames(flash_queue) <- c("y","x")
+    
+    completed_flashes <- bind_rows(completed_flashes, flash_queue)
+    
+    flash_effect <- map2_dfr(flash_queue$x,flash_queue$y, get_neighbours) |> 
+      anti_join(completed_flashes, by = c("x","y")) |> 
+      count(x,y)
+
+    m[cbind(flash_effect$y,flash_effect$x)] <- m[cbind(flash_effect$y,flash_effect$x)] + flash_effect$n    
+    
+    m[cbind(completed_flashes$y,completed_flashes$x)] <- 0
+  }
+  
+  flash_counter[step] <- nrow(completed_flashes)
+}
+
+sum(flash_counter)
+
+```
+
+--- Part 2 ---
+
+```{r}
+m <- input
+flash_counter <- 1
+
+repeat{
+  
+  m <- m + 1
+  completed_flashes <- tibble()
+  
+  while(any(m > 9)){
+    
+    flash_queue <- which(m > 9, arr.ind = TRUE) |> as_tibble()
+    colnames(flash_queue) <- c("y","x")
+    
+    completed_flashes <- bind_rows(completed_flashes, flash_queue)
+    
+    flash_effect <- map2_dfr(flash_queue$x,flash_queue$y, get_neighbours) |> 
+      anti_join(completed_flashes, by = c("x","y")) |> 
+      count(x,y)
+
+    m[cbind(flash_effect$y,flash_effect$x)] <- m[cbind(flash_effect$y,flash_effect$x)] + flash_effect$n    
+    
+    m[cbind(completed_flashes$y,completed_flashes$x)] <- 0
+  }
+  
+  if(all(m == 0)) break
+  
+  flash_counter <- flash_counter + 1
+}
+
+flash_counter
+```
+
