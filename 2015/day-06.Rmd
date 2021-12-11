@@ -1,0 +1,89 @@
+---
+title: 'Advent Of Code: 2015-06'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 6, year = 2015)
+```
+
+```{r}
+input <- tibble(x = readLines(here::here("2015/day-06-input.txt"))) |> 
+  extract(x, into = c("action","x1","y1","x2","y2"),
+          regex = "([a-z, ]+) ([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)",
+          convert = TRUE) |> 
+  mutate(
+    id = row_number(),
+    .before = 1
+  )
+```
+
+--- Part 1 ---
+
+```{r}
+lights <- matrix(-1,nrow = 1000, ncol = 1000)
+
+instructions <- input |> 
+  mutate(
+    references = pmap(list(x1,y1,x2,y2),
+                      ~crossing(y = ..2:..4,
+                                x = ..1:..3) |> 
+                        as.matrix())
+  )
+
+for(i in instructions$id){
+  switch(instructions$action[i],
+         "turn on" = lights[instructions$references[[i]]] <- 1,
+         "turn off" = lights[instructions$references[[i]]] <- -1,
+         "toggle" = lights[instructions$references[[i]]] <- lights[instructions$references[[i]]] * -1
+         )
+}
+
+sum(lights == 1)
+
+```
+
+--- Part 2 ---
+
+```{r}
+lights <- matrix(0,nrow = 1000, ncol = 1000)
+
+instructions <- input |> 
+  mutate(
+    references = pmap(list(x1,y1,x2,y2),
+                      ~crossing(y = ..2:..4,
+                                x = ..1:..3) |> 
+                        as.matrix())
+  )
+
+for(i in instructions$id){
+  switch(instructions$action[i],
+         "turn on" = lights[instructions$references[[i]]] <- lights[instructions$references[[i]]] + 1,
+         "turn off" = lights[instructions$references[[i]]] <- lights[instructions$references[[i]]] -1,
+         "toggle" = lights[instructions$references[[i]]] <- lights[instructions$references[[i]]] + 2
+         )
+  
+  lights[lights < 0] <- 0
+}
+
+sum(lights)
+```
+
