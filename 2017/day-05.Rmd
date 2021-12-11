@@ -1,0 +1,82 @@
+---
+title: 'Advent Of Code: 2017-05'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 5, year = 2017)
+```
+
+```{r}
+input <- readLines(here::here("2017/day-05-input.txt")) |> as.numeric()
+
+example <- c(0,3,0,1,-3)
+```
+
+--- Part 1 ---
+
+```{r}
+v <- input
+step <- 0
+i <- 1
+
+check_bounds <- function(i){
+  if(i > length(v)) return(TRUE)
+  if(i < 1) return(TRUE)
+  return(FALSE)
+}
+
+repeat{
+  step <- step + 1
+  j <- i + v[i]
+  v[i] <- v[i] + 1
+  i <- j
+  if(check_bounds(i)) break
+}
+```
+
+--- Part 2 ---
+
+```{r eval = FALSE}
+v <- input
+step <- 0
+i <- 1
+
+check_bounds <- function(i){
+  if(i > length(v)) return(TRUE)
+  if(i < 1) return(TRUE)
+  return(FALSE)
+}
+
+repeat{
+  step <- step + 1
+  j <- i + v[i]
+  if(v[i] < 3) v[i] <- v[i] + 1 else v[i] <- v[i] -1
+  i <- j
+  if(check_bounds(i)) break
+}
+
+step
+```
+```{r echo = FALSE}
+26889114
+```
+
