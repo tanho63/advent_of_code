@@ -1,0 +1,81 @@
+---
+title: 'Advent Of Code: 2018-05'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 5, year = 2018)
+```
+
+```{r}
+input <- readLines(here::here("2018/day-05-input.txt"))
+example <- "dabAcCaCBAcCcaDA"
+```
+
+--- Part 1 ---
+
+```{r eval = FALSE}
+keys <- c(paste0(LETTERS,letters),paste0(letters,LETTERS))
+
+v <- input
+l <- str_length(input)
+
+repeat {
+  v <- reduce(keys,str_remove_all,.init = v)
+  if(str_length(v)==l) break
+  l <- str_length(v)
+}
+
+str_length(v)
+```
+```{r echo = FALSE}
+11264
+```
+
+--- Part 2 ---
+
+```{r eval = FALSE}
+react_polymer <- function(v){
+  keys <- c(paste0(LETTERS,letters),paste0(letters,LETTERS))
+  
+  l <- str_length(v)
+  
+  repeat {
+    v <- reduce(keys,str_remove_all,.init = v)
+    if(str_length(v)==l) break
+    l <- str_length(v)
+  }
+  
+  str_length(v)
+}
+
+remove_keys <- paste(letters,LETTERS,sep = "|")
+
+polymer_lengths <- map_dbl(remove_keys,
+                       ~str_remove_all(input,.x) |> 
+                         react_polymer())
+
+min(polymer_lengths)
+```
+```{r echo = FALSE}
+4552
+```
+
