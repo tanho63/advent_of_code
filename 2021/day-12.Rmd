@@ -1,0 +1,207 @@
+---
+title: 'Advent Of Code: 2021-12'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 12, year = 2021)
+```
+
+```{r}
+input <- tibble(x = readLines(here::here("2021/day-12-input.txt"))) |> 
+  separate(x,into = c("left","right"), sep = "\\-")
+
+example <- c(
+  "start-A",
+  "start-b",
+  "A-c",
+  "A-b",
+  "b-d",
+  "A-end",
+  "b-end") %>%
+  tibble(x = .) |> 
+  separate(x,into = c("left","right"), sep = "\\-")
+
+example_two <- c(
+  "dc-end",
+"HN-start",
+"start-kj",
+"dc-start",
+"dc-HN",
+"LN-dc",
+"HN-end",
+"kj-sa",
+"kj-HN",
+"kj-dc"
+)%>%
+  tibble(x = .) |> 
+  separate(x,into = c("left","right"), sep = "\\-")
+
+example_three <- c(
+  "fs-end",
+"he-DX",
+"fs-he",
+"start-DX",
+"pj-DX",
+"end-zg",
+"zg-sl",
+"zg-pj",
+"pj-he",
+"RW-he",
+"fs-DX",
+"pj-RW",
+"zg-RW",
+"start-pj",
+"he-WI",
+"zg-he",
+"pj-fs",
+"start-RW"
+)%>%
+  tibble(x = .) |> 
+  separate(x,into = c("left","right"), sep = "\\-")
+
+```
+
+--- Part 1 ---
+
+Count all possible paths. Constraints: cannot visit small cave more than once. Must start at start and end and end. 
+
+This should be a function that takes in a node. 
+Finds the child nodes
+For each child node, check to see if the child nodes are valid against:
+ - have we been here before? 
+ - Are we allowed to go back?
+ - Is this the end?
+
+For the valid child nodes, call the function again (recursively)
+
+and return path on exit.
+
+
+```{r eval = FALSE}
+
+connections <- input
+
+paths <- connections |> 
+  bind_rows(connections |> 
+              select(left = right, right = left))
+
+n <- "start"
+p <- ""
+
+valid_child <- function(n,p){
+  
+  # if haven't been there, is ok
+  if(!n %in% p) return(TRUE) 
+  # if is uppercase, ok to go back
+  if(toupper(n) == n) return(TRUE)
+  # if not uppercase and have been there, bad
+  return(FALSE)
+}
+
+pathfinder <- function(n, current_path){
+  current_path <- c(current_path,n)
+  
+  if(n == "end") return(tibble(path = list(current_path)))
+  
+  child_nodes <- paths$right[paths$left == n]
+  
+  valid_child_nodes <- child_nodes[map_lgl(child_nodes,
+                                           valid_child, 
+                                           current_path)]
+  
+  if(length(valid_child_nodes) == 0) return(NULL)
+  
+  # all_paths <- map(valid_child_nodes, pathfinder, current_path)
+  
+  all_paths <- tibble(path = list())
+  
+  for(cn in valid_child_nodes) {
+    all_paths <- bind_rows(all_paths,pathfinder(cn,current_path))
+  }
+  
+  return(all_paths)
+}
+
+p1 <- pathfinder(n = "start", current_path = character())
+p1
+```
+```{r echo = FALSE}
+5457
+```
+
+--- Part 2 ---
+
+```{r eval = FALSE}
+connections <- input
+
+paths <- connections |> 
+  bind_rows(connections |> 
+              select(left = right, right = left))
+
+n <- "start"
+p <- ""
+
+valid_child <- function(n,p){
+  # no start!
+  if(n == "start") return(FALSE)
+  # if haven't been there, is ok
+  if(!n %in% p) return(TRUE)
+  # if is uppercase, ok to go back
+  if(identical(toupper(n),n)) return(TRUE)
+  # if not uppercase and have been there only once, ok 
+  lower_p <- p[tolower(p)==p]
+  if(identical(lower_p,unique(lower_p))) return(TRUE)
+  # otherwise bad.
+  return(FALSE)
+}
+
+pathfinder <- function(n, current_path){
+  current_path <- c(current_path,n)
+  
+  if(n == "end") return(tibble(path = list(current_path)))
+  
+  child_nodes <- paths$right[paths$left == n]
+  
+  valid_child_nodes <- child_nodes[map_lgl(child_nodes,
+                                           valid_child, 
+                                           current_path)]
+  
+  if(length(valid_child_nodes) == 0) return(NULL)
+  
+  # all_paths <- map(valid_child_nodes, pathfinder, current_path)
+  
+  all_paths <- tibble(path = list())
+  
+  for(cn in valid_child_nodes) {
+    all_paths <- bind_rows(all_paths,pathfinder(cn,current_path))
+  }
+  
+  return(all_paths)
+}
+
+p2 <- pathfinder(n = "start", current_path = character())
+nrow(p2)
+```
+```{r echo = FALSE}
+128506
+```
+
