@@ -1,0 +1,117 @@
+---
+title: 'Advent Of Code: 2021-13'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+  
+
+  ragg_png = function(..., res = 150) {
+    ragg::agg_png(..., res = res, units = "in")
+  }
+  knitr::opts_chunk$set(dev = "ragg_png")
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 13, year = 2021)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-13-input.txt"))
+
+dots <- tibble(x = str_subset(input,"fold",negate = TRUE)) |> 
+  filter(x != "") |> 
+  separate(x, into = c("x","y"), sep = ",", convert = TRUE)
+
+folds <- tibble(x = str_subset(input,"fold")) |> 
+  extract(x,into = c("axis","index"), regex = "(x|y)\\=([0-9]+)", convert = TRUE)
+
+
+```
+
+--- Part 1 ---
+
+```{r}
+
+d <- dots
+
+fold_x <- function(d,index){
+  d <- d |> 
+    mutate(x2 = index-x,
+           x = ifelse(x2 < 0, x2+index, x),
+           x2 = NULL
+           ) |> 
+    distinct()
+  
+  return(d)
+}
+
+fold_y <- function(d,index){
+  
+  d <- d |> 
+    mutate(y2 = index-y,
+           y = ifelse(y2 < 0, y2+index, y),
+           y2 = NULL) |> 
+    distinct()
+  
+  return(d)
+}
+
+fold <- function(d,axis,index){
+  
+  switch(axis,
+         "x"=d <- fold_x(d,index),
+         "y"=d <- fold_y(d,index),
+         stop()
+         )
+  
+  return(d)
+}
+
+p1 <- fold(dots,folds$axis[1],folds$index[1])
+
+nrow(p1)
+
+```
+
+--- Part 2 ---
+
+For lack of a better solution, may as well just plot the silly thing?
+
+```{r}
+fold_all <- reduce2(folds$axis,folds$index,fold, .init = dots)
+
+ggplot(fold_all, aes(x = x, y = y)) + 
+  geom_point() + 
+  scale_y_reverse() + 
+  coord_fixed() + 
+  tantastic::theme_tantastic() + 
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank()
+  ) + 
+  labs(
+    title = "Transparent Origami",
+    subtitle = "Advent of Code, 2021 Day 13",
+    caption = "@_TanHo"
+  )
+
+```
+

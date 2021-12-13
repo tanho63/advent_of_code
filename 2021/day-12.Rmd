@@ -187,8 +187,6 @@ pathfinder <- function(n, current_path){
   
   if(length(valid_child_nodes) == 0) return(NULL)
   
-  # all_paths <- map(valid_child_nodes, pathfinder, current_path)
-  
   all_paths <- tibble(path = list())
   
   for(cn in valid_child_nodes) {

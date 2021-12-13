@@ -100,3 +100,34 @@ attempts |>
 
 ```
 
+--- Intcode Program to Date ---
+
+```{r}
+add <- function(in1,in2,out,vec){
+  vec[out+1] <- vec[in1+1] + vec[in2+1]
+  vec
+}
+
+mult <- function(in1,in2,out,vec){
+  vec[out+1] <- vec[in1+1] * vec[in2+1]
+  vec
+}
+
+intcode_program <- function(noun,verb, input){
+  p <- input
+  p[2] <- noun
+  p[3] <- verb
+  i <- 1
+  while (p[i]!=99){
+    switch(p[i],
+           "1" = p <- add(p[i+1], p[i+2], p[i+3], p),
+           "2" = p <- mult(p[i+1], p[i+2], p[i+3], p)
+    )
+    i <- i+4
+  }
+  
+  return(p[1])
+}
+
+```
+
