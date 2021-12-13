@@ -40,16 +40,13 @@ dots <- tibble(x = str_subset(input,"fold",negate = TRUE)) |>
 
 folds <- tibble(x = str_subset(input,"fold")) |> 
   extract(x,into = c("axis","index"), regex = "(x|y)\\=([0-9]+)", convert = TRUE)
-
-
 ```
 
 --- Part 1 ---
 
+Original solution:
+
 ```{r}
-
-d <- dots
-
 fold_x <- function(d,index){
   d <- d |> 
     mutate(x2 = index-x,
@@ -86,7 +83,19 @@ fold <- function(d,axis,index){
 p1 <- fold(dots,folds$axis[1],folds$index[1])
 
 nrow(p1)
+```
 
+Some conciseness cleanups:
+
+```{r}
+fold <- function(d,axis,index){
+  d$tmp <- index - d[[axis]]
+  d[[axis]] <- ifelse(d$tmp <0,d$tmp + index, d[[axis]])
+  d$tmp <- NULL
+  return(distinct(d))
+}
+
+fold(dots,folds$axis[1],folds$index[1]) |> nrow()
 ```
 
 --- Part 2 ---
@@ -114,4 +123,3 @@ ggplot(fold_all, aes(x = x, y = y)) +
   )
 
 ```
-

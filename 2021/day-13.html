@@ -200,9 +200,8 @@ dots &lt;- tibble(x = str_subset(input,&quot;fold&quot;,negate = TRUE)) |&gt;
 folds &lt;- tibble(x = str_subset(input,&quot;fold&quot;)) |&gt; 
   extract(x,into = c(&quot;axis&quot;,&quot;index&quot;), regex = &quot;(x|y)\\=([0-9]+)&quot;, convert = TRUE)</code></pre>
 <p>— Part 1 —</p>
-<pre class="r"><code>d &lt;- dots
-
-fold_x &lt;- function(d,index){
+<p>Original solution:</p>
+<pre class="r"><code>fold_x &lt;- function(d,index){
   d &lt;- d |&gt; 
     mutate(x2 = index-x,
            x = ifelse(x2 &lt; 0, x2+index, x),
@@ -238,6 +237,16 @@ fold &lt;- function(d,axis,index){
 p1 &lt;- fold(dots,folds$axis[1],folds$index[1])
 
 nrow(p1)</code></pre>
+<pre><code>## [1] 785</code></pre>
+<p>Some conciseness cleanups:</p>
+<pre class="r"><code>fold &lt;- function(d,axis,index){
+  d$tmp &lt;- index - d[[axis]]
+  d[[axis]] &lt;- ifelse(d$tmp &lt;0,d$tmp + index, d[[axis]])
+  d$tmp &lt;- NULL
+  return(distinct(d))
+}
+
+fold(dots,folds$axis[1],folds$index[1]) |&gt; nrow()</code></pre>
 <pre><code>## [1] 785</code></pre>
 <p>— Part 2 —</p>
 <p>For lack of a better solution, may as well just plot the silly thing?</p>
