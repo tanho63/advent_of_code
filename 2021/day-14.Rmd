@@ -110,7 +110,7 @@ do_polymer <- function(counts, step){
   return(x)
 }
 
-pairs <- reduce(1:10,do_polymer,.init = dictionary_count)
+pairs <- reduce(1:40,do_polymer,.init = dictionary_count)
 
 pairs |> 
   mutate(letters = strsplit(match,"")) |> 

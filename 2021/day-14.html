@@ -258,7 +258,7 @@ do_polymer &lt;- function(counts, step){
   return(x)
 }
 
-pairs &lt;- reduce(1:10,do_polymer,.init = dictionary_count)
+pairs &lt;- reduce(1:40,do_polymer,.init = dictionary_count)
 
 pairs |&gt; 
   mutate(letters = strsplit(match,&quot;&quot;)) |&gt; 
