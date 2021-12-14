@@ -186,27 +186,6 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 <pre class="r"><code># tanho63/aoc.elf
 aoc.elf::aoc_get(day = 14, year = 2021)</code></pre>
 <pre class="r"><code>input &lt;- readLines(here::here(&quot;2021/day-14-input.txt&quot;))
-# 
-# input &lt;- c(
-#   &quot;NNCB&quot;,
-#   &quot;&quot;,
-#   &quot;CH -&gt; B&quot;,
-#   &quot;HH -&gt; N&quot;,
-#   &quot;CB -&gt; H&quot;,
-#   &quot;NH -&gt; C&quot;,
-#   &quot;HB -&gt; C&quot;,
-#   &quot;HC -&gt; B&quot;,
-#   &quot;HN -&gt; C&quot;,
-#   &quot;NN -&gt; C&quot;,
-#   &quot;BH -&gt; H&quot;,
-#   &quot;NC -&gt; B&quot;,
-#   &quot;NB -&gt; B&quot;,
-#   &quot;BN -&gt; B&quot;,
-#   &quot;BB -&gt; N&quot;,
-#   &quot;BC -&gt; B&quot;,
-#   &quot;CC -&gt; N&quot;,
-#   &quot;CN -&gt; C&quot;
-# )
 
 polymer &lt;- input[1]
 
@@ -296,7 +275,7 @@ pairs |&gt;
   pull(n) |&gt; 
   range() |&gt; 
   diff()</code></pre>
-<pre><code>## [1] 3906</code></pre>
+<pre><code>## [1] 4441317262452</code></pre>
 
 
 

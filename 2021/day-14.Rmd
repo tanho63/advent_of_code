@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -27,39 +27,16 @@ aoc.elf::aoc_get(day = 14, year = 2021)
 
 ```{r}
 input <- readLines(here::here("2021/day-14-input.txt"))
-# 
-# input <- c(
-#   "NNCB",
-#   "",
-#   "CH -> B",
-#   "HH -> N",
-#   "CB -> H",
-#   "NH -> C",
-#   "HB -> C",
-#   "HC -> B",
-#   "HN -> C",
-#   "NN -> C",
-#   "BH -> H",
-#   "NC -> B",
-#   "NB -> B",
-#   "BN -> B",
-#   "BB -> N",
-#   "BC -> B",
-#   "CC -> N",
-#   "CN -> C"
-# )
 
 polymer <- input[1]
 
 subs <- tibble(x = input[-c(1:2)]) |> 
   separate(x, into = c("match","insert")," -> ")
-
 ```
 
 --- Part 1 ---
 
 ```{r eval = FALSE}
-
 check_substitution <- \(search,polymer){
   
   p1 <- polymer |> strsplit("") |> unlist()
@@ -107,8 +84,7 @@ y <- tibble(char = x |> strsplit("") |> unlist()) |>
 
 Mind blanked today on the not-naive solution to growing a vector - took me until the 90 minute mark to start looking for better algorithms and I ended up needing reddit's assistance to think of storing a count of each pair. This was not one of my more brilliant nights.
 
-```{r}
-
+```{r eval = FALSE}
 dictionary_count <- subs |> 
   mutate(
     n = str_count(polymer,match)
@@ -151,6 +127,8 @@ pairs |>
   pull(n) |> 
   range() |> 
   diff()
-
+```
+```{r echo = FALSE}
+4441317262452 
 ```
 
