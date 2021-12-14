@@ -2,9 +2,29 @@
 title: "Solutions for AOC 2021"
 description: |
   My second Advent of Code!
+output:
+  distill::distill_article:
+    toc: true
+    toc_depth: 2
+    toc_float: true
 ---
+```{r results = 'asis', echo = FALSE}
+available_rmds <- list.files(here::here("2021"),full.names = TRUE,pattern = "Rmd$")
 
-```{r include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+day <- seq_along(available_rmds)
+
+headings <- paste("## Day", day)
+url_links <- paste0("<https://adventofcode.com/2021/day/",day,">")
+
+pages <- available_rmds |> 
+  purrr::map(knitr::knit_child, envir = environment(), quiet = TRUE)
+
+for(i in seq_along(available_rmds)){
+  cat(headings[[i]])
+  cat("\n")
+  cat(url_links[[i]])
+  cat("\n")
+  cat(pages[[i]])
+  cat("\n")
+}
 ```
-
