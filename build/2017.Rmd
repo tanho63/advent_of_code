@@ -1,0 +1,10 @@
+---
+title: "Solutions for AOC 2017"
+description: |
+  Advent of Code, episode three!
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
