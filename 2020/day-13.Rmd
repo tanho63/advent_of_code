@@ -7,7 +7,7 @@ output: html_document
 
 Day thirteen - shuttle search!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

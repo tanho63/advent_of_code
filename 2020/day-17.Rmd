@@ -7,7 +7,7 @@ output: html_document
 
 Day seventeen - Conway Cubes!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

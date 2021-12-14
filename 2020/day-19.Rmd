@@ -7,7 +7,7 @@ output: html_document
 
 Day nineteen - Monster Messages!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

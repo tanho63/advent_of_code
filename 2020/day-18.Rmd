@@ -7,7 +7,7 @@ output: html_document
 
 Day eighteen - Operation Order!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

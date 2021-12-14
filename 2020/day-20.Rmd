@@ -7,7 +7,7 @@ output: html_document
 
 Day twenty - Jurassic Jigsaw!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

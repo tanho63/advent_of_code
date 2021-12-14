@@ -7,7 +7,7 @@ output: html_document
 
 Day twenty-two - Combat Crabs!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

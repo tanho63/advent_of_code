@@ -7,7 +7,7 @@ output: html_document
 
 Day three!
 
-```{r setup, message = FALSE}
+```{r message = FALSE}
 library(tidyverse)
 library(here)
 

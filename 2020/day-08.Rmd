@@ -7,7 +7,7 @@ output: html_document
 
 Day eight! "Handheld Halting"
 
-```{r setup, message = FALSE}
+```{r message = FALSE}
 library(tidyverse)
 library(here)
 

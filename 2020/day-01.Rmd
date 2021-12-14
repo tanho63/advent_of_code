@@ -5,7 +5,7 @@ date: "01/12/2020"
 output: html_document
 ---
 
-```{r setup}
+```{r}
 knitr::opts_chunk$set(echo = TRUE)
 
 suppressPackageStartupMessages(library(tidyverse))

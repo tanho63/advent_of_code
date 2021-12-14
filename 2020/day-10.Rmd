@@ -7,7 +7,7 @@ output: html_document
 
 Day ten - Adapter Array!
 
-```{r setup, message = FALSE}
+```{r message = FALSE}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

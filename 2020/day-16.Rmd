@@ -7,7 +7,7 @@ output: html_document
 
 Day sixteen - Ticket Translation!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)

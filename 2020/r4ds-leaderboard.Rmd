@@ -7,7 +7,7 @@ output:
     theme: darkly
 ---
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(httr)

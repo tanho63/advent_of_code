@@ -7,7 +7,7 @@ output: html_document
 
 Day twenty-four - Lobby Layout!
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
