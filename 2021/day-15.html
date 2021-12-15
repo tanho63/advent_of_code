@@ -270,6 +270,8 @@ get_neighbours &lt;- function(row_loc, col_loc, queue){
   distances[nrow(m),ncol(m)]</code></pre>
 <pre><code>## [1] 523</code></pre>
 <p>— Part 2 —</p>
+<p>Ran into a bunch of problems and ended up leaving on overnight after attempting some optimizations.</p>
+<p>Build out incremented matrix.</p>
 <pre class="r"><code>m &lt;- input
 
 col_1 &lt;- map(0:4,~ifelse(m + .x &gt; 9,m + .x - 9, m + .x)) |&gt; reduce(rbind)
@@ -278,25 +280,9 @@ col_3 &lt;- map(2:6,~ifelse(m + .x &gt; 9,m + .x - 9, m + .x)) |&gt; reduce(rbin
 col_4 &lt;- map(3:7,~ifelse(m + .x &gt; 9,m + .x - 9, m + .x)) |&gt; reduce(rbind)
 col_5 &lt;- map(4:8,~ifelse(m + .x &gt; 9,m + .x - 9, m + .x)) |&gt; reduce(rbind)
 
-m &lt;- cbind(col_1,col_2,col_3,col_4,col_5)
-
-get_neighbours &lt;- function(row_loc, col_loc, queue){
-  
-  n &lt;- tibble(row = c(-1,1,0,0), col = c(0,0,1,-1)) |&gt; 
-    mutate(
-      row = row + row_loc,
-      col = col + col_loc
-    ) |&gt; 
-    filter(row &lt;= nrow(m), 
-           col &lt;= nrow(m), 
-           row &gt;= 1, 
-           col &gt;= 1) |&gt; 
-    inner_join(queue, by = c(&quot;row&quot;,&quot;col&quot;))
-  
-  return(n)
-}
-
-neighbours_matrix &lt;- crossing(row = seq_len(nrow(m)),
+m &lt;- cbind(col_1,col_2,col_3,col_4,col_5)</code></pre>
+<p>build out a list structure of neighbours rather than calculating at each step</p>
+<pre class="r"><code>neighbours_matrix &lt;- crossing(row = seq_len(nrow(m)),
                               col = seq_len(ncol(m))) |&gt; 
   arrange(col,row) |&gt; 
   mutate(index = row_number(),
@@ -317,8 +303,26 @@ neighbours_matrix &lt;- crossing(row = seq_len(nrow(m)),
   summarise(neighbour = list(neighbour)) |&gt; 
   deframe()
 
-  # populate distance matrix of equal size to m
-  distances &lt;- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
+head(neighbours_matrix)</code></pre>
+<pre><code>## $`1`
+## [1]   2 501
+## 
+## $`2`
+## [1]   1   3 502
+## 
+## $`3`
+## [1]   2   4 503
+## 
+## $`4`
+## [1]   3   5 504
+## 
+## $`5`
+## [1]   4   6 505
+## 
+## $`6`
+## [1]   5   7 506</code></pre>
+<p>run dijkstra’s algo (?) oddly slow.</p>
+<pre class="r"><code>  distances &lt;- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
   
   # set origin as top left hand corner
   distances[1] &lt;- 0
@@ -334,23 +338,64 @@ neighbours_matrix &lt;- crossing(row = seq_len(nrow(m)),
     
     if(counter %% 1000 == 0) cat(counter, format(Sys.time()), &quot;\n&quot;)
     
-    i &lt;- queue[which.min(distances[queue])] # is this slow?
+    i &lt;- queue[which.min(distances[queue])] # slow?
     
-    queue &lt;- queue[queue!=i] #this probably isn&#39;t slow?
+    queue &lt;- queue[queue!=i] #slow?
     
     neighbours &lt;- neighbours_matrix[[as.character(i)]]
-    neighbours &lt;- neighbours[neighbours %in% queue] # is this slow?
+    neighbours &lt;- neighbours[neighbours %in% queue] # slow?
     
     for(n in neighbours){
       
-      possible_dist &lt;- distances[i] + m[n] # this probably isn&#39;t slow?
+      possible_dist &lt;- distances[i] + m[n] 
       
-      if(possible_dist &lt; distances[n]) distances[n] &lt;- possible_dist # this probably isn&#39;t slow?
+      if(possible_dist &lt; distances[n]) distances[n] &lt;- possible_dist
     }
   }
 
   distances[nrow(m),ncol(m)]</code></pre>
 <pre><code>## [1] 2876</code></pre>
+<p>— Optimizing —</p>
+<p>Optimizing. Biggest culprits so far:</p>
+<ul>
+<li><code>neighbours %in% queue</code> scans 250K vector for ~1-4 objects, much better is a visited matrix to lookup by position. net gain: 45 minutes -&gt; 6 minutes (screaming internally.)</li>
+<li><code>queue &lt;- queue != i</code> should be next?</li>
+</ul>
+<pre class="r"><code># populate distance matrix of equal size to m
+  distances &lt;- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
+  
+  # set origin as top left hand corner
+  distances[1] &lt;- 0
+  
+  # create queue of indices to check
+  queue &lt;- seq_along(m)
+  visited &lt;- matrix(F,nrow = nrow(m), ncol = ncol(m))
+  
+  counter &lt;- 0
+  
+  while(!visited[nrow(m),ncol(m)]){
+    
+    counter &lt;- counter + 1
+    
+    if(counter %% 1000 == 0) cat(counter, format(Sys.time()), &quot;\n&quot;)
+    
+    i &lt;- queue[which.min(distances[queue])] 
+    
+    queue &lt;- queue[queue!=i]
+    visited[i] &lt;- TRUE
+    
+    neighbours &lt;- neighbours_matrix[i] |&gt; unlist()
+    neighbours &lt;- neighbours[!visited[neighbours]]
+    
+    for(n in neighbours){
+      
+      possible_dist &lt;- distances[i] + m[n]
+      
+      if(possible_dist &lt; distances[n]) distances[n] &lt;- possible_dist
+    }
+  }
+
+  distances[nrow(m),ncol(m)]</code></pre>
 
 
 

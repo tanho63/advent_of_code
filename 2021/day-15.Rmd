@@ -122,6 +122,10 @@ get_neighbours <- function(row_loc, col_loc, queue){
 
 --- Part 2 ---
 
+Ran into a bunch of problems and ended up leaving on overnight after attempting some optimizations.
+
+Build out incremented matrix.
+
 ```{r eval = FALSE}
 m <- input
 
@@ -132,23 +136,11 @@ col_4 <- map(3:7,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
 col_5 <- map(4:8,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
 
 m <- cbind(col_1,col_2,col_3,col_4,col_5)
+```
 
-get_neighbours <- function(row_loc, col_loc, queue){
-  
-  n <- tibble(row = c(-1,1,0,0), col = c(0,0,1,-1)) |> 
-    mutate(
-      row = row + row_loc,
-      col = col + col_loc
-    ) |> 
-    filter(row <= nrow(m), 
-           col <= nrow(m), 
-           row >= 1, 
-           col >= 1) |> 
-    inner_join(queue, by = c("row","col"))
-  
-  return(n)
-}
+build out a list structure of neighbours rather than calculating at each step
 
+```{r eval = FALSE}
 neighbours_matrix <- crossing(row = seq_len(nrow(m)),
                               col = seq_len(ncol(m))) |> 
   arrange(col,row) |> 
@@ -170,7 +162,17 @@ neighbours_matrix <- crossing(row = seq_len(nrow(m)),
   summarise(neighbour = list(neighbour)) |> 
   deframe()
 
-  # populate distance matrix of equal size to m
+head(neighbours_matrix)
+```
+```{r echo = FALSE}
+list(`1` = c(2L, 501L), `2` = c(1L, 3L, 502L), `3` = c(2L, 4L, 
+503L), `4` = c(3L, 5L, 504L), `5` = c(4L, 6L, 505L), `6` = c(5L, 
+7L, 506L))
+```
+
+run dijkstra's algo (?) oddly slow.
+
+```{r eval = FALSE}
   distances <- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
   
   # set origin as top left hand corner
@@ -187,18 +189,18 @@ neighbours_matrix <- crossing(row = seq_len(nrow(m)),
     
     if(counter %% 1000 == 0) cat(counter, format(Sys.time()), "\n")
     
-    i <- queue[which.min(distances[queue])] # is this slow?
+    i <- queue[which.min(distances[queue])] # slow?
     
-    queue <- queue[queue!=i] #this probably isn't slow?
+    queue <- queue[queue!=i] #slow?
     
     neighbours <- neighbours_matrix[[as.character(i)]]
-    neighbours <- neighbours[neighbours %in% queue] # is this slow?
+    neighbours <- neighbours[neighbours %in% queue] # slow?
     
     for(n in neighbours){
       
-      possible_dist <- distances[i] + m[n] # this probably isn't slow?
+      possible_dist <- distances[i] + m[n] 
       
-      if(possible_dist < distances[n]) distances[n] <- possible_dist # this probably isn't slow?
+      if(possible_dist < distances[n]) distances[n] <- possible_dist
     }
   }
 
@@ -206,5 +208,50 @@ neighbours_matrix <- crossing(row = seq_len(nrow(m)),
 ```
 ```{r echo = FALSE}
 2876
+```
+
+--- Optimizing ---
+
+Optimizing. Biggest culprits so far: 
+
+- `neighbours %in% queue` scans 250K vector for ~1-4 objects, much better is a visited matrix to lookup by position. net gain: 45 minutes -> 6 minutes (screaming internally.)
+- `queue <- queue != i` should be next? 
+
+```{r eval = FALSE}
+# populate distance matrix of equal size to m
+  distances <- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
+  
+  # set origin as top left hand corner
+  distances[1] <- 0
+  
+  # create queue of indices to check
+  queue <- seq_along(m)
+  visited <- matrix(F,nrow = nrow(m), ncol = ncol(m))
+  
+  counter <- 0
+  
+  while(!visited[nrow(m),ncol(m)]){
+    
+    counter <- counter + 1
+    
+    if(counter %% 1000 == 0) cat(counter, format(Sys.time()), "\n")
+    
+    i <- queue[which.min(distances[queue])] 
+    
+    queue <- queue[queue!=i]
+    visited[i] <- TRUE
+    
+    neighbours <- neighbours_matrix[i] |> unlist()
+    neighbours <- neighbours[!visited[neighbours]]
+    
+    for(n in neighbours){
+      
+      possible_dist <- distances[i] + m[n]
+      
+      if(possible_dist < distances[n]) distances[n] <- possible_dist
+    }
+  }
+
+  distances[nrow(m),ncol(m)]
 ```
 
