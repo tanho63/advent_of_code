@@ -1,0 +1,210 @@
+---
+title: 'Advent Of Code: 2021-15'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 15, year = 2021)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-15-input.txt")) |> 
+  strsplit("") |> 
+  map(as.numeric) |> 
+  reduce(rbind)
+
+example <- c("1163751742",
+           "1381373672",
+           "2136511328",
+           "3694931569",
+           "7463417111",
+           "1319128137",
+           "1359912421",
+           "3125421639",
+           "1293138521",
+           "2311944581") |> 
+  strsplit("") |> 
+  map(as.numeric) |> 
+  reduce(rbind)
+
+```
+
+--- Part 1 ---
+
+```{r eval = FALSE}
+# give me all available up/down/left/right steps that are on the grid
+
+m <- input
+
+get_neighbours <- function(row_loc, col_loc, queue){
+  
+  n <- tibble(row = c(-1,1,0,0), col = c(0,0,1,-1)) |> 
+    mutate(
+      row = row + row_loc,
+      col = col + col_loc
+    ) |> 
+    filter(row <= nrow(m), 
+           col <= nrow(m), 
+           row >= 1, 
+           col >= 1) |> 
+    inner_join(queue, by = c("row","col"))
+  
+  return(n)
+}
+  
+  # populate distance matrix of equal size to m
+  distances <- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
+  
+  # set origin as top left hand corner
+  distances[1] <- 0
+  
+  # create queue of indices to check
+  queue <- crossing(row = 1:nrow(m), col = 1:ncol(m))
+  
+  # create copy of queue that will list the shortest path from source.
+  prev <- queue |> 
+    mutate(prev = 0)
+  
+  counter <- 0
+  
+  while(nrow(queue) > 0){
+    
+    counter <- counter + 1
+    
+    queue <- queue |> 
+      mutate(dist = distances[cbind(row,col)])
+    
+    i <- queue |> slice_min(dist,with_ties = FALSE,n = 1)
+    
+    queue <- queue |> anti_join(i, by = c("row","col"))
+    
+    neighbours <- get_neighbours(i$row, i$col, queue)
+    
+    if(nrow(neighbours) == 0) next
+    
+    for(n in seq_len(nrow(neighbours))){
+      
+      possible_dist <- i$dist + m[neighbours$row[n],neighbours$col[n]]
+      
+      if(possible_dist < distances[neighbours$row[n],neighbours$col[n]]){
+        distances[neighbours$row[n],neighbours$col[n]] <- possible_dist
+        prev$prev[prev$row == neighbours$row[n] & prev$col == neighbours$col[n]] <- counter
+      }
+      
+    }
+    
+  }
+
+  distances[nrow(m),ncol(m)]
+  
+```
+```{r echo = FALSE}
+523
+```
+
+--- Part 2 ---
+
+```{r eval = FALSE}
+m <- input
+
+col_1 <- map(0:4,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
+col_2 <- map(1:5,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
+col_3 <- map(2:6,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
+col_4 <- map(3:7,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
+col_5 <- map(4:8,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
+
+m <- cbind(col_1,col_2,col_3,col_4,col_5)
+
+get_neighbours <- function(row_loc, col_loc, queue){
+  
+  n <- tibble(row = c(-1,1,0,0), col = c(0,0,1,-1)) |> 
+    mutate(
+      row = row + row_loc,
+      col = col + col_loc
+    ) |> 
+    filter(row <= nrow(m), 
+           col <= nrow(m), 
+           row >= 1, 
+           col >= 1) |> 
+    inner_join(queue, by = c("row","col"))
+  
+  return(n)
+}
+
+neighbours_matrix <- crossing(row = seq_len(nrow(m)),
+                              col = seq_len(ncol(m))) |> 
+  arrange(col,row) |> 
+  mutate(index = row_number(),
+         add = list(tibble(rp = c(-1,1,0,0), cp = c(0,0,1,-1)))
+  ) |> 
+  unnest(add) |> 
+  mutate(row2 = row + rp,
+         col2 = col + cp) |> 
+  filter(row2 <= nrow(m),
+         col2 <= ncol(m),
+         row2 >=1,
+         col2 >=1) |> 
+  select(-rp,-cp) %>%
+  left_join(.,.,by = c("row2"="row","col2"="col")) |> 
+  select(index = index.x, neighbour = index.y) |> 
+  distinct() |> 
+  group_by(index) |> 
+  summarise(neighbour = list(neighbour)) |> 
+  deframe()
+
+  # populate distance matrix of equal size to m
+  distances <- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
+  
+  # set origin as top left hand corner
+  distances[1] <- 0
+  
+  # create queue of indices to check
+  queue <- seq_along(m)
+  
+  counter <- 0
+  
+  while(length(queue) > 0){
+    
+    counter <- counter + 1
+    
+    if(counter %% 1000 == 0) cat(counter, format(Sys.time()), "\n")
+    
+    i <- queue[which.min(distances[queue])] # is this slow?
+    
+    queue <- queue[queue!=i] #this probably isn't slow?
+    
+    neighbours <- neighbours_matrix[[as.character(i)]]
+    neighbours <- neighbours[neighbours %in% queue] # is this slow?
+    
+    for(n in neighbours){
+      
+      possible_dist <- distances[i] + m[n] # this probably isn't slow?
+      
+      if(possible_dist < distances[n]) distances[n] <- possible_dist # this probably isn't slow?
+    }
+  }
+
+  distances[nrow(m),ncol(m)]
+```
+```{r echo = FALSE}
+2876
+```
+
