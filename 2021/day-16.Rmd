@@ -231,7 +231,6 @@ testthat::expect_equal(.e6$version |> sum(),31)
 
 ```{r}
 p1 <- decode_packet(input)
-p1
 sum(p1$version)
 ```
 
