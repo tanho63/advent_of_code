@@ -32,7 +32,7 @@ input <- readLines(here::here("2021/day-16-input.txt"))
 
 --- Part 1 ---
 
-Helper functions for converting
+Helper functions for converting:
 
 ```{r}
 .hexbin <- tibble::tribble(
@@ -69,6 +69,8 @@ bin2int <- function(bin){
 
 ```
 
+_furious notes as I try to understand stuff_
+
 Identify packets. 
 
 Function to parse:
@@ -85,6 +87,8 @@ functions
 - read packet version
 - read packet type
 - do operation for packet type
+
+Some helpers.
 
 ```{r}
 read_packet_version <- function(packet){
@@ -144,7 +148,6 @@ read_literal_packet <- function(packet){
 
 ```{r}
 read_packet <- function(packet){
-  original_packet <- packet
   packet_version <- read_packet_version(packet)
   packet <- str_sub(packet,4)
   packet_type <- read_packet_type(packet)
@@ -198,7 +201,6 @@ read_packet <- function(packet){
   }
   
   return(list(version = packet_versions,
-              original = original_packet,
               type = packet_types,
               value = packet_values,
               unprocessed = packet))
@@ -208,12 +210,6 @@ decode_packet <- function(hex){
   hex2bin(hex) |> read_packet()
 }
 
-```
-
-```{r}
-example <- "8A004A801A8002F478"
-packet <- hex2bin(example)
-packet |> read_packet()
 ```
 
 Tests:
@@ -235,14 +231,16 @@ testthat::expect_equal(.e6$version |> sum(),31)
 
 ```{r}
 p1 <- decode_packet(input)
+p1
 sum(p1$version)
 ```
 
 --- Part 2 ---
 
+Editing so that I return a tree instead of a collapsed vector:
+
 ```{r}
 read_packet <- function(packet){
-  original_packet <- packet
   packet_version <- read_packet_version(packet)
   packet <- str_sub(packet,4)
   packet_type <- read_packet_type(packet)
@@ -294,6 +292,8 @@ read_packet <- function(packet){
 }
 ```
 
+Recursing over my tree:
+
 ```{r}
 evaluate_packet <- function(packet){
   packet_type <- packet |> pluck("type")
@@ -322,6 +322,8 @@ decode_packet <- function(hex){
   hex2bin(hex) |> read_packet()
 }
 ```
+
+Discovered a few NAs and needed to go back and rewrite the bin2int function after it overflowed silently
 
 ```{r}
 decode_packet(input) |> evaluate_packet()
