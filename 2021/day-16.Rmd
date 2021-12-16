@@ -28,8 +28,6 @@ aoc.elf::aoc_get(day = 16, year = 2021)
 
 ```{r}
 input <- readLines(here::here("2021/day-16-input.txt"))
-# example <- "38006F45291200"
-example <- "D2FE28"
 ```
 
 --- Part 1 ---
@@ -64,9 +62,10 @@ hex2bin <- function(hex){
 }
 
 bin2int <- function(bin){
-  strtoi(bin,base = 2)
+  # strtoi(bin,base = 2) # no good, overflows after 2^31
+  x <- as.numeric(strsplit(bin, "")[[1]])
+  sum(x * 2^rev((seq_along(x)-1)))
 }
-
 
 ```
 
@@ -77,8 +76,10 @@ Function to parse:
 - first three characters of the binary string are the version number
 - next three characters of binary identify type ID which controls how the rest of the string is parsed
 
-type id = 4 => literal binary value
-type id != 4 => operator, also passes in the subpackets. 
+if:
+
+- type id = 4 => literal binary value
+- type id != 4 => operator, also passes in the subpackets. 
 
 functions 
 - read packet version
@@ -86,63 +87,31 @@ functions
 - do operation for packet type
 
 ```{r}
+read_packet_version <- function(packet){
+  substr(packet,1,3) |> bin2int()
+}
 
-packet <- hex2bin(example)
+read_packet_type <- function(packet){
+  substr(packet,1,3) |> bin2int()
+}
 
-read_packet <- function(packet){
-  
-  packet_type <- read_packet_type(packet)
-  packet_version <- read_packet_version(packet)
-  
-  ## LITERAL PACKETS (Type 4)
-  if(packet_type == 4){
-    # return(packet_version)
-    literal <- read_literal_packet(packet)
-    # For Part One
-    return(
-      list(version = packet_version,
-           type = packet_type,
-           unprocessed = literal$unprocessed)
-    )
-  }
-  
-  packet_versions <- c(packet_version)
-  
-  # SUBPACKETS 
-  ## SUBPACKETS WITH A LENGTH CONSTRAINT
-  length_type <- read_packet_length_type(packet)
-  if(length_type == 0) {
-    subpacket_bits <- read_subpacket_bits(packet)
-    unprocessed <- substr(packet,23,23+subpacket_bits)
-    while(str_length(unprocessed) > 0){
-      returned_subpacket <- read_packet(unprocessed)
-      packet_versions <- c(packet_versions, returned_subpacket$version) # TODO
-      unprocessed <- returned_subpacket$unprocessed
-    }
-  }
-  
-  ## SUBPACKETS WITH A COUNT CONSTRAINT
-  if(length_type == 1){
-    subpacket_length <- read_subpacket_length(packet)
-    unprocessed <- str_sub(packet,19,-1L)
-    
-    for(i in seq_len(subpacket_length)){
-      returned_subpacket <- read_packet(unprocessed)
-      packet_versions <- c(packet_versions, returned_subpacket$version) # TODO
-      unprocessed <- returned_subpacket$unprocessed
-    }
-  }
-  
-  return(list(version = packet_versions,
-              type = packet_type,
-              unprocessed = ""))
+read_packet_length_type <- function(packet){
+  substr(packet,1,1) |> bin2int()
+}
+
+read_subpacket_bits <- function(packet){
+  substr(packet,1,15) |> bin2int()
+}
+
+read_subpacket_length <- function(packet){
+  substr(packet,1,11) |> bin2int()
 }
 
 read_literal_packet <- function(packet){
-  packet_contents <- substr(packet,7,str_length(packet))
-  x <- tibble(x = strsplit(packet_contents,"") |> unlist()) |> 
+  
+  x <- tibble(x = strsplit(packet,"") |> unlist()) |> 
     mutate(
-      n = row_number() %/% 5.0001 + 1
+      n = row_number() %/% 5.00001 + 1
     ) |> 
     group_by(n) |> 
     mutate(
@@ -158,46 +127,203 @@ read_literal_packet <- function(packet){
     ) |> 
     filter(keep)
     
-  unprocessed <- str_sub(packet_contents,max(x$n)*5+1)
+  unprocessed <- str_sub(packet,max(x$n)*5+1)
   
-  if(bin2int(unprocessed) == 0) unprocessed <- character()
+  if(str_length(unprocessed) < 11) unprocessed <- ""
   
   literal_value <- x |> 
     pull(x) |> 
     paste(collapse = "") |> 
     bin2int()
   
+  if(is.na(literal_value)) browser()
+  
   return(list(value = literal_value, unprocessed = unprocessed))
 }
+```
 
-read_packet_version <- function(packet){
-  substr(packet,1,3) |> bin2int()
+```{r}
+read_packet <- function(packet){
+  original_packet <- packet
+  packet_version <- read_packet_version(packet)
+  packet <- str_sub(packet,4)
+  packet_type <- read_packet_type(packet)
+  packet <- str_sub(packet,4)
+  
+  ## LITERAL PACKETS (Type 4)
+  if(packet_type == 4){
+    # return(packet_version)
+    literal <- read_literal_packet(packet)
+    # For Part One
+    return(
+      list(version = packet_version,
+           type = packet_type,
+           value = literal$value,
+           unprocessed = literal$unprocessed)
+    )
+  }
+  
+  packet_versions <- c(packet_version)
+  packet_types <- c(packet_type)
+  packet_values <- c()
+  # SUBPACKETS 
+  ## SUBPACKETS WITH A LENGTH CONSTRAINT
+  length_type <- read_packet_length_type(packet)
+  packet <- str_sub(packet,2)
+  if(length_type == 0) {
+    subpacket_bits <- read_subpacket_bits(packet)
+    packet <- str_sub(packet,16)
+    subpacket <- str_sub(packet,1,subpacket_bits)
+    packet <- str_sub(packet,subpacket_bits+1)
+    while(str_length(subpacket) > 10){
+      returned_subpacket <- read_packet(subpacket)
+      packet_versions <- c(packet_versions, returned_subpacket$version)
+      packet_types <- c(packet_types, returned_subpacket$type)
+      packet_values <- c(packet_values, returned_subpacket$value)
+      subpacket <- returned_subpacket$unprocessed
+    }
+  }
+  
+  ## SUBPACKETS WITH A COUNT CONSTRAINT
+  if(length_type == 1){
+    subpacket_length <- read_subpacket_length(packet)
+    packet <- str_sub(packet,12)
+    for(i in seq_len(subpacket_length)){
+      returned_subpacket <- read_packet(packet)
+      packet_versions <- c(packet_versions, returned_subpacket$version)
+      packet_types <- c(packet_types, returned_subpacket$type)
+      packet_values <- c(packet_values,returned_subpacket$value)
+      packet <- returned_subpacket$unprocessed
+    }
+  }
+  
+  return(list(version = packet_versions,
+              original = original_packet,
+              type = packet_types,
+              value = packet_values,
+              unprocessed = packet))
 }
 
-read_packet_type <- function(packet){
-  substr(packet,4,6) |> bin2int()
+decode_packet <- function(hex){
+  hex2bin(hex) |> read_packet()
 }
-
-read_packet_length_type <- function(packet){
-  substr(packet,7,7) |> bin2int()
-}
-
-read_subpacket_bits <- function(packet){
-  substr(packet,8,22) |> bin2int()
-}
-
-read_subpacket_length <- function(packet){
-  substr(packet,8,18) |> bin2int()
-}
-
-packet |> read_packet()
 
 ```
 
+```{r}
+example <- "8A004A801A8002F478"
+packet <- hex2bin(example)
+packet |> read_packet()
+```
+
+Tests:
+```{r}
+.e1 <- decode_packet("D2FE28")
+testthat::expect_equal(.e1$version |> sum(), 6)
+.e2 <- decode_packet("8A004A801A8002F478")
+testthat::expect_equal(.e2$version |> sum(), 16)
+.e3 <- decode_packet("38006F45291200")
+testthat::expect_equal(.e3$version |> sum(),9)
+.e4 <- decode_packet("620080001611562C8802118E34")
+testthat::expect_equal(.e4$version |> sum(),12)
+.e5 <- decode_packet("C0015000016115A2E0802F182340")
+testthat::expect_equal(.e5$version |> sum(),23)
+.e6 <- decode_packet("A0016C880162017C3686B18A3D4780")
+testthat::expect_equal(.e6$version |> sum(),31)
+
+```
+
+```{r}
+p1 <- decode_packet(input)
+sum(p1$version)
+```
 
 --- Part 2 ---
 
 ```{r}
+read_packet <- function(packet){
+  original_packet <- packet
+  packet_version <- read_packet_version(packet)
+  packet <- str_sub(packet,4)
+  packet_type <- read_packet_type(packet)
+  packet <- str_sub(packet,4)
+  
+  ## LITERAL PACKETS (Type 4)
+  if(packet_type == 4){
+    literal <- read_literal_packet(packet)
+    return(
+      list(version = packet_version,
+           type = packet_type,
+           value = literal$value,
+           unprocessed = literal$unprocessed)
+    )
+  }
+  subpackets <- list()
+  # SUBPACKETS 
+  ## SUBPACKETS WITH A LENGTH CONSTRAINT
+  length_type <- read_packet_length_type(packet)
+  packet <- str_sub(packet,2)
+  if(length_type == 0) {
+    subpacket_bits <- read_subpacket_bits(packet)
+    packet <- str_sub(packet,16)
+    subpacket <- str_sub(packet,1,subpacket_bits)
+    packet <- str_sub(packet,subpacket_bits+1)
+    while(str_length(subpacket) > 10){
+      returned_subpacket <- read_packet(subpacket)
+      subpackets <- c(subpackets, list(returned_subpacket))
+      subpacket <- returned_subpacket$unprocessed
+    }
+  }
+  
+  ## SUBPACKETS WITH A COUNT CONSTRAINT
+  if(length_type == 1){
+    subpacket_length <- read_subpacket_length(packet)
+    packet <- str_sub(packet,12)
+    for(i in seq_len(subpacket_length)){
+      returned_subpacket <- read_packet(packet)
+      subpackets <- c(subpackets, list(returned_subpacket))
+      packet <- returned_subpacket$unprocessed
+    }
+  }
+  
+  return(list(
+    version = packet_version, 
+    type = packet_type,
+    packets = subpackets,
+    unprocessed = packet))
+}
+```
 
+```{r}
+evaluate_packet <- function(packet){
+  packet_type <- packet |> pluck("type")
+  if(packet_type == 4) return(packet$value)
+  
+  subpacket_values <- c()
+  
+  for(i in seq_along(packet$packets)){
+    subpacket_values <- c(subpacket_values, evaluate_packet(packet$packets[[i]]))
+  }
+  
+  packet_value <- switch(
+    as.character(packet_type),
+    "0" = sum(subpacket_values, na.rm = TRUE),
+    "1" = prod(subpacket_values, na.rm = TRUE),
+    "2" = min(subpacket_values, na.rm = TRUE),
+    "3" = max(subpacket_values, na.rm = TRUE),
+    "5" = as.numeric(subpacket_values[1] > subpacket_values[2]),
+    "6" = as.numeric(subpacket_values[1] < subpacket_values[2]),
+    "7" = as.numeric(subpacket_values[1] == subpacket_values[2])
+  )
+  
+  return(packet_value)
+}
+decode_packet <- function(hex){
+  hex2bin(hex) |> read_packet()
+}
+```
+
+```{r}
+decode_packet(input) |> evaluate_packet()
 ```
 
