@@ -126,7 +126,7 @@ Ran into a bunch of problems and ended up leaving on overnight after attempting 
 
 Build out incremented matrix.
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 m <- input
 
 col_1 <- map(0:4,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
@@ -140,7 +140,7 @@ m <- cbind(col_1,col_2,col_3,col_4,col_5)
 
 build out a list structure of neighbours rather than calculating at each step
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 neighbours_matrix <- crossing(row = seq_len(nrow(m)),
                               col = seq_len(ncol(m))) |> 
   arrange(col,row) |> 
@@ -179,7 +179,7 @@ run dijkstra's algo (?) oddly slow.
   distances[1] <- 0
   
   # create queue of indices to check
-  queue <- seq_along(m)
+  queue <- seq_along(m) |> as.list()
   
   counter <- 0
   
@@ -217,7 +217,7 @@ Optimizing. Biggest culprits so far:
 - `neighbours %in% queue` scans 250K vector for ~1-4 objects, much better is a visited matrix to lookup by position. net gain: 45 minutes -> 6 minutes (screaming internally.)
 - `queue <- queue != i` should be next? 
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 # populate distance matrix of equal size to m
   distances <- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
   
@@ -227,7 +227,6 @@ Optimizing. Biggest culprits so far:
   # create queue of indices to check
   queue <- seq_along(m)
   visited <- matrix(F,nrow = nrow(m), ncol = ncol(m))
-  
   counter <- 0
   
   while(!visited[nrow(m),ncol(m)]){
@@ -236,9 +235,8 @@ Optimizing. Biggest culprits so far:
     
     if(counter %% 1000 == 0) cat(counter, format(Sys.time()), "\n")
     
-    i <- queue[which.min(distances[queue])] 
-    
-    queue <- queue[queue!=i]
+    i <- queue[which.min(distances[queue])] # slow?
+    queue <- queue[queue!=i] #slow?
     visited[i] <- TRUE
     
     neighbours <- neighbours_matrix[i] |> unlist()
@@ -247,7 +245,6 @@ Optimizing. Biggest culprits so far:
     for(n in neighbours){
       
       possible_dist <- distances[i] + m[n]
-      
       if(possible_dist < distances[n]) distances[n] <- possible_dist
     }
   }
