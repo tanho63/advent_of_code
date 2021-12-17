@@ -1,0 +1,138 @@
+---
+title: 'Advent Of Code: 2021-17'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 17, year = 2021)
+```
+
+```{r}
+input <- tibble(x = readLines(here::here("2021/day-17-input.txt"))) |> 
+  extract(
+    x, 
+    into = c("xmin","xmax","ymin","ymax"), 
+    regex = "x=([0-9,\\-]+)..([0-9,\\-]+), y=([0-9,\\-]+)..([0-9,\\-]+)",
+    convert = TRUE
+  )
+
+```
+
+--- Part 1 ---
+
+~~solve for some kind of system of equations?~~
+~~solve for inequalities?~~
+~~optim?~~
+guess and check lul
+
+Highest point of Y will involve X being the first point at which X reaches zero velocity within the range.
+
+```{r}
+launch <- function(xv,yv){
+  x <- 0
+  y <- 0
+  success <- FALSE
+  max_y <- 0
+  
+  while(x < 227 & y > -134){
+    x <- x + xv
+    y <- y + yv
+    xv <- (sign(xv) * -1) + xv
+    yv <- yv - 1
+    
+    if(y > max_y) max_y <- y
+    
+    if(x >= 175 && x <= 227 && y >= -134 && y <= -79){
+      success <- TRUE
+      break
+    } 
+  }
+  return(list(success = success, y = max_y))
+}
+
+x <- 0
+
+repeat {
+  r <- sum(seq_len(x))
+  if(r >= 175 && r <= 227) break
+  x <- x + 1
+}
+
+y <- 1000 # arbitrary number that I know will fail
+
+repeat {
+  y <- y-1
+  res <- launch(x,y)
+  if(res$success) break
+  if(y < 0) break
+}
+
+res$y
+```
+
+--- Part 2 ---
+
+Clean up launch function to return only the success, hardcode the input bounds lol
+
+```{r}
+launch <- function(xv,yv){
+  x <- 0
+  y <- 0
+  
+  success <- FALSE
+  
+  while(x < 227 & y > -134){
+    
+    x <- x + xv
+    y <- y + yv
+    xv <- (sign(xv) * -1) + xv
+    yv <- yv - 1
+    
+    if(
+      x >= 175 &&
+      x <= 227 &&
+      y >= -134 &&
+      y <= -79
+    ){
+      success <- TRUE
+      break
+    } 
+  }
+  
+  return(success)
+}
+```
+
+I know: 
+
+- x min velocity is 19 from prev step
+- x max velocity is 227 (xmax)
+- y min velocity is -134 (ymin) 
+- y max velocity is 133 from prev step
+
+Make a search grid and launch em all!
+
+```{r}
+g <- crossing(x = 19:227, y = -134:133)
+map2_lgl(g$x,g$y,launch) |> sum()
+```
+
+
