@@ -26,14 +26,7 @@ aoc.elf::aoc_get(day = 17, year = 2021)
 ```
 
 ```{r}
-input <- tibble(x = readLines(here::here("2021/day-17-input.txt"))) |> 
-  extract(
-    x, 
-    into = c("xmin","xmax","ymin","ymax"), 
-    regex = "x=([0-9,\\-]+)..([0-9,\\-]+), y=([0-9,\\-]+)..([0-9,\\-]+)",
-    convert = TRUE
-  )
-
+readLines(here::here("2021/day-17-input.txt"))
 ```
 
 --- Part 1 ---
@@ -43,14 +36,12 @@ input <- tibble(x = readLines(here::here("2021/day-17-input.txt"))) |>
 ~~optim?~~
 guess and check lul
 
-Highest point of Y will involve X being the first point at which X reaches zero velocity within the range.
+Highest point of Y will involve X being the first point at which X reaches zero velocity within the range
 
 ```{r}
 launch <- function(xv,yv){
-  x <- 0
-  y <- 0
+  x <- y <- max_y <- 0
   success <- FALSE
-  max_y <- 0
   
   while(x < 227 & y > -134){
     x <- x + xv
@@ -61,13 +52,15 @@ launch <- function(xv,yv){
     if(y > max_y) max_y <- y
     
     if(x >= 175 && x <= 227 && y >= -134 && y <= -79){
-      success <- TRUE
+      success <- TRUE 
       break
-    } 
+    }
   }
   return(list(success = success, y = max_y))
 }
+```
 
+```{r}
 x <- 0
 
 repeat {
@@ -76,7 +69,7 @@ repeat {
   x <- x + 1
 }
 
-y <- 1000 # arbitrary number that I know will fail
+y <- 1000
 
 repeat {
   y <- y-1
@@ -90,37 +83,6 @@ res$y
 
 --- Part 2 ---
 
-Clean up launch function to return only the success, hardcode the input bounds lol
-
-```{r}
-launch <- function(xv,yv){
-  x <- 0
-  y <- 0
-  
-  success <- FALSE
-  
-  while(x < 227 & y > -134){
-    
-    x <- x + xv
-    y <- y + yv
-    xv <- (sign(xv) * -1) + xv
-    yv <- yv - 1
-    
-    if(
-      x >= 175 &&
-      x <= 227 &&
-      y >= -134 &&
-      y <= -79
-    ){
-      success <- TRUE
-      break
-    } 
-  }
-  
-  return(success)
-}
-```
-
 I know: 
 
 - x min velocity is 19 from prev step
@@ -132,7 +94,7 @@ Make a search grid and launch em all!
 
 ```{r}
 g <- crossing(x = 19:227, y = -134:133)
-map2_lgl(g$x,g$y,launch) |> sum()
+map2_lgl(g$x,g$y,~launch(.x,.y)$success) |> sum()
 ```
 
 

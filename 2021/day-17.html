@@ -185,21 +185,14 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 <p>— Data —</p>
 <pre class="r"><code># tanho63/aoc.elf
 aoc.elf::aoc_get(day = 17, year = 2021)</code></pre>
-<pre class="r"><code>input &lt;- tibble(x = readLines(here::here(&quot;2021/day-17-input.txt&quot;))) |&gt; 
-  extract(
-    x, 
-    into = c(&quot;xmin&quot;,&quot;xmax&quot;,&quot;ymin&quot;,&quot;ymax&quot;), 
-    regex = &quot;x=([0-9,\\-]+)..([0-9,\\-]+), y=([0-9,\\-]+)..([0-9,\\-]+)&quot;,
-    convert = TRUE
-  )</code></pre>
+<pre class="r"><code>readLines(here::here(&quot;2021/day-17-input.txt&quot;))</code></pre>
+<pre><code>## [1] &quot;target area: x=175..227, y=-134..-79&quot;</code></pre>
 <p>— Part 1 —</p>
 <p><del>solve for some kind of system of equations?</del> <del>solve for inequalities?</del> <del>optim?</del> guess and check lul</p>
-<p>Highest point of Y will involve X being the first point at which X reaches zero velocity within the range.</p>
+<p>Highest point of Y will involve X being the first point at which X reaches zero velocity within the range</p>
 <pre class="r"><code>launch &lt;- function(xv,yv){
-  x &lt;- 0
-  y &lt;- 0
+  x &lt;- y &lt;- max_y &lt;- 0
   success &lt;- FALSE
-  max_y &lt;- 0
   
   while(x &lt; 227 &amp; y &gt; -134){
     x &lt;- x + xv
@@ -210,14 +203,13 @@ aoc.elf::aoc_get(day = 17, year = 2021)</code></pre>
     if(y &gt; max_y) max_y &lt;- y
     
     if(x &gt;= 175 &amp;&amp; x &lt;= 227 &amp;&amp; y &gt;= -134 &amp;&amp; y &lt;= -79){
-      success &lt;- TRUE
+      success &lt;- TRUE 
       break
-    } 
+    }
   }
   return(list(success = success, y = max_y))
-}
-
-x &lt;- 0
+}</code></pre>
+<pre class="r"><code>x &lt;- 0
 
 repeat {
   r &lt;- sum(seq_len(x))
@@ -225,7 +217,7 @@ repeat {
   x &lt;- x + 1
 }
 
-y &lt;- 1000 # arbitrary number that I know will fail
+y &lt;- 1000
 
 repeat {
   y &lt;- y-1
@@ -237,33 +229,6 @@ repeat {
 res$y</code></pre>
 <pre><code>## [1] 8911</code></pre>
 <p>— Part 2 —</p>
-<p>Clean up launch function to return only the success, hardcode the input bounds lol</p>
-<pre class="r"><code>launch &lt;- function(xv,yv){
-  x &lt;- 0
-  y &lt;- 0
-  
-  success &lt;- FALSE
-  
-  while(x &lt; 227 &amp; y &gt; -134){
-    
-    x &lt;- x + xv
-    y &lt;- y + yv
-    xv &lt;- (sign(xv) * -1) + xv
-    yv &lt;- yv - 1
-    
-    if(
-      x &gt;= 175 &amp;&amp;
-      x &lt;= 227 &amp;&amp;
-      y &gt;= -134 &amp;&amp;
-      y &lt;= -79
-    ){
-      success &lt;- TRUE
-      break
-    } 
-  }
-  
-  return(success)
-}</code></pre>
 <p>I know:</p>
 <ul>
 <li>x min velocity is 19 from prev step</li>
@@ -273,7 +238,7 @@ res$y</code></pre>
 </ul>
 <p>Make a search grid and launch em all!</p>
 <pre class="r"><code>g &lt;- crossing(x = 19:227, y = -134:133)
-map2_lgl(g$x,g$y,launch) |&gt; sum()</code></pre>
+map2_lgl(g$x,g$y,~launch(.x,.y)$success) |&gt; sum()</code></pre>
 <pre><code>## [1] 4748</code></pre>
 
 
