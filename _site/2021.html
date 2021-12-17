@@ -2414,6 +2414,15 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
 <div class="d-article">
+<div class="d-contents d-contents-float">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#solutions">Solutions</a></li>
+</ul>
+</nav>
+</div>
+<h1 id="solutions">Solutions</h1>
 <div class="layout-chunk" data-layout="l-body">
 <h2 id="day-1">Day 1</h2>
 <p><a href="https://adventofcode.com/2021/day/1" class="uri">https://adventofcode.com/2021/day/1</a></p>
@@ -2858,9 +2867,10 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
   <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tanho63/tantastic'>tantastic</a></span><span class='op'>)</span>
   
-  <span class='fu'>tantastic</span><span class='fu'>::</span><span class='fu'>fontimport_bai_jamjuree</span><span class='op'>(</span><span class='op'>)</span>
-  <span class='fu'>tantastic</span><span class='fu'>::</span><span class='fu'>fontimport_plex_condensed</span><span class='op'>(</span><span class='op'>)</span>
-  
+  <span class='va'>ragg_png</span> <span class='op'>=</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>...</span>, <span class='va'>res</span> <span class='op'>=</span> <span class='fl'>150</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='fu'>ragg</span><span class='fu'>::</span><span class='fu'><a href='https://ragg.r-lib.org/reference/agg_png.html'>agg_png</a></span><span class='op'>(</span><span class='va'>...</span>, res <span class='op'>=</span> <span class='va'>res</span>, units <span class='op'>=</span> <span class='st'>"in"</span><span class='op'>)</span>
+  <span class='op'>}</span>
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>dev <span class='op'>=</span> <span class='st'>"ragg_png"</span><span class='op'>)</span>
   <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='op'>}</span><span class='op'>)</span>
 
@@ -2885,7 +2895,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>i</span><span class='op'>)</span> |&gt; 
-  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x1"</span>,<span class='st'>"y1"</span>,<span class='st'>"x2"</span>,<span class='st'>"y2"</span><span class='op'>)</span>,regex <span class='op'>=</span> <span class='st'>"([0-9]+),([0-9]+) -&gt; ([0-9]+),([0-9]+)"</span>,convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> |&gt; 
+  <span class='fu'>tidyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x1"</span>,<span class='st'>"y1"</span>,<span class='st'>"x2"</span>,<span class='st'>"y2"</span><span class='op'>)</span>,regex <span class='op'>=</span> <span class='st'>"([0-9]+),([0-9]+) -&gt; ([0-9]+),([0-9]+)"</span>,convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> |&gt; 
   <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
     line_id <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span><span class='op'>(</span><span class='op'>)</span>
   <span class='op'>)</span>
@@ -3909,7 +3919,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <span class='fu'><a href='https://tidyr.tidyverse.org/reference/separate.html'>separate</a></span><span class='op'>(</span><span class='va'>x</span>, into <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>,<span class='st'>"y"</span><span class='op'>)</span>, sep <span class='op'>=</span> <span class='st'>","</span>, convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='va'>folds</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_subset.html'>str_subset</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='st'>"fold"</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
-  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>,into <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"axis"</span>,<span class='st'>"index"</span><span class='op'>)</span>, regex <span class='op'>=</span> <span class='st'>"(x|y)\\=([0-9]+)"</span>, convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+  <span class='fu'>tidyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>,into <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"axis"</span>,<span class='st'>"index"</span><span class='op'>)</span>, regex <span class='op'>=</span> <span class='st'>"(x|y)\\=([0-9]+)"</span>, convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 </code></pre>
 </div>
 </div>
@@ -4300,23 +4310,6 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>neighbours_matrix</span><span class='op'>)</span>
 </code></pre>
 </div>
-<pre><code>$`1`
-[1]   2 501
-
-$`2`
-[1]   1   3 502
-
-$`3`
-[1]   2   4 503
-
-$`4`
-[1]   3   5 504
-
-$`5`
-[1]   4   6 505
-
-$`6`
-[1]   5   7 506</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <pre><code>$`1`
@@ -4416,264 +4409,15 @@ $`6`
       <span class='kw'>if</span><span class='op'>(</span><span class='va'>possible_dist</span> <span class='op'>&lt;</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>)</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>possible_dist</span>
     <span class='op'>}</span>
   <span class='op'>}</span>
+
+  <span class='va'>distances</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>]</span>
 </code></pre>
 </div>
-<pre><code>1000 2021-12-17 13:07:24 
-2000 2021-12-17 13:07:29 
-3000 2021-12-17 13:07:35 
-4000 2021-12-17 13:07:40 
-5000 2021-12-17 13:07:45 
-6000 2021-12-17 13:07:51 
-7000 2021-12-17 13:07:57 
-8000 2021-12-17 13:08:02 
-9000 2021-12-17 13:08:08 
-10000 2021-12-17 13:08:10 
-11000 2021-12-17 13:08:12 
-12000 2021-12-17 13:08:14 
-13000 2021-12-17 13:08:16 
-14000 2021-12-17 13:08:18 
-15000 2021-12-17 13:08:20 
-16000 2021-12-17 13:08:22 
-17000 2021-12-17 13:08:24 
-18000 2021-12-17 13:08:27 
-19000 2021-12-17 13:08:29 
-20000 2021-12-17 13:08:31 
-21000 2021-12-17 13:08:33 
-22000 2021-12-17 13:08:35 
-23000 2021-12-17 13:08:37 
-24000 2021-12-17 13:08:39 
-25000 2021-12-17 13:08:41 
-26000 2021-12-17 13:08:43 
-27000 2021-12-17 13:08:45 
-28000 2021-12-17 13:08:47 
-29000 2021-12-17 13:08:49 
-30000 2021-12-17 13:08:51 
-31000 2021-12-17 13:08:53 
-32000 2021-12-17 13:08:55 
-33000 2021-12-17 13:08:57 
-34000 2021-12-17 13:08:59 
-35000 2021-12-17 13:09:01 
-36000 2021-12-17 13:09:03 
-37000 2021-12-17 13:09:05 
-38000 2021-12-17 13:09:07 
-39000 2021-12-17 13:09:09 
-40000 2021-12-17 13:09:11 
-41000 2021-12-17 13:09:13 
-42000 2021-12-17 13:09:15 
-43000 2021-12-17 13:09:16 
-44000 2021-12-17 13:09:18 
-45000 2021-12-17 13:09:20 
-46000 2021-12-17 13:09:22 
-47000 2021-12-17 13:09:24 
-48000 2021-12-17 13:09:25 
-49000 2021-12-17 13:09:27 
-50000 2021-12-17 13:09:29 
-51000 2021-12-17 13:09:31 
-52000 2021-12-17 13:09:32 
-53000 2021-12-17 13:09:34 
-54000 2021-12-17 13:09:36 
-55000 2021-12-17 13:09:38 
-56000 2021-12-17 13:09:39 
-57000 2021-12-17 13:09:41 
-58000 2021-12-17 13:09:43 
-59000 2021-12-17 13:09:45 
-60000 2021-12-17 13:09:46 
-61000 2021-12-17 13:09:48 
-62000 2021-12-17 13:09:50 
-63000 2021-12-17 13:09:51 
-64000 2021-12-17 13:09:53 
-65000 2021-12-17 13:09:55 
-66000 2021-12-17 13:09:56 
-67000 2021-12-17 13:09:58 
-68000 2021-12-17 13:10:00 
-69000 2021-12-17 13:10:01 
-70000 2021-12-17 13:10:03 
-71000 2021-12-17 13:10:04 
-72000 2021-12-17 13:10:06 
-73000 2021-12-17 13:10:08 
-74000 2021-12-17 13:10:09 
-75000 2021-12-17 13:10:11 
-76000 2021-12-17 13:10:13 
-77000 2021-12-17 13:10:14 
-78000 2021-12-17 13:10:16 
-79000 2021-12-17 13:10:17 
-80000 2021-12-17 13:10:19 
-81000 2021-12-17 13:10:20 
-82000 2021-12-17 13:10:22 
-83000 2021-12-17 13:10:23 
-84000 2021-12-17 13:10:25 
-85000 2021-12-17 13:10:26 
-86000 2021-12-17 13:10:28 
-87000 2021-12-17 13:10:29 
-88000 2021-12-17 13:10:30 
-89000 2021-12-17 13:10:32 
-90000 2021-12-17 13:10:33 
-91000 2021-12-17 13:10:35 
-92000 2021-12-17 13:10:36 
-93000 2021-12-17 13:10:38 
-94000 2021-12-17 13:10:39 
-95000 2021-12-17 13:10:40 
-96000 2021-12-17 13:10:42 
-97000 2021-12-17 13:10:43 
-98000 2021-12-17 13:10:45 
-99000 2021-12-17 13:10:46 
-100000 2021-12-17 13:10:48 
-101000 2021-12-17 13:10:49 
-102000 2021-12-17 13:10:50 
-103000 2021-12-17 13:10:52 
-104000 2021-12-17 13:10:53 
-105000 2021-12-17 13:10:54 
-106000 2021-12-17 13:10:55 
-107000 2021-12-17 13:10:57 
-108000 2021-12-17 13:10:58 
-109000 2021-12-17 13:10:59 
-110000 2021-12-17 13:11:00 
-111000 2021-12-17 13:11:02 
-112000 2021-12-17 13:11:03 
-113000 2021-12-17 13:11:04 
-114000 2021-12-17 13:11:05 
-115000 2021-12-17 13:11:07 
-116000 2021-12-17 13:11:08 
-117000 2021-12-17 13:11:09 
-118000 2021-12-17 13:11:10 
-119000 2021-12-17 13:11:11 
-120000 2021-12-17 13:11:13 
-121000 2021-12-17 13:11:14 
-122000 2021-12-17 13:11:15 
-123000 2021-12-17 13:11:16 
-124000 2021-12-17 13:11:17 
-125000 2021-12-17 13:11:18 
-126000 2021-12-17 13:11:19 
-127000 2021-12-17 13:11:21 
-128000 2021-12-17 13:11:22 
-129000 2021-12-17 13:11:23 
-130000 2021-12-17 13:11:24 
-131000 2021-12-17 13:11:25 
-132000 2021-12-17 13:11:26 
-133000 2021-12-17 13:11:27 
-134000 2021-12-17 13:11:28 
-135000 2021-12-17 13:11:29 
-136000 2021-12-17 13:11:30 
-137000 2021-12-17 13:11:31 
-138000 2021-12-17 13:11:32 
-139000 2021-12-17 13:11:33 
-140000 2021-12-17 13:11:34 
-141000 2021-12-17 13:11:35 
-142000 2021-12-17 13:11:36 
-143000 2021-12-17 13:11:37 
-144000 2021-12-17 13:11:38 
-145000 2021-12-17 13:11:39 
-146000 2021-12-17 13:11:40 
-147000 2021-12-17 13:11:41 
-148000 2021-12-17 13:11:42 
-149000 2021-12-17 13:11:43 
-150000 2021-12-17 13:11:44 
-151000 2021-12-17 13:11:44 
-152000 2021-12-17 13:11:45 
-153000 2021-12-17 13:11:46 
-154000 2021-12-17 13:11:47 
-155000 2021-12-17 13:11:48 
-156000 2021-12-17 13:11:49 
-157000 2021-12-17 13:11:50 
-158000 2021-12-17 13:11:51 
-159000 2021-12-17 13:11:51 
-160000 2021-12-17 13:11:52 
-161000 2021-12-17 13:11:53 
-162000 2021-12-17 13:11:54 
-163000 2021-12-17 13:11:55 
-164000 2021-12-17 13:11:55 
-165000 2021-12-17 13:11:56 
-166000 2021-12-17 13:11:57 
-167000 2021-12-17 13:11:57 
-168000 2021-12-17 13:11:58 
-169000 2021-12-17 13:11:59 
-170000 2021-12-17 13:12:00 
-171000 2021-12-17 13:12:00 
-172000 2021-12-17 13:12:01 
-173000 2021-12-17 13:12:02 
-174000 2021-12-17 13:12:02 
-175000 2021-12-17 13:12:03 
-176000 2021-12-17 13:12:04 
-177000 2021-12-17 13:12:04 
-178000 2021-12-17 13:12:05 
-179000 2021-12-17 13:12:05 
-180000 2021-12-17 13:12:06 
-181000 2021-12-17 13:12:07 
-182000 2021-12-17 13:12:07 
-183000 2021-12-17 13:12:08 
-184000 2021-12-17 13:12:08 
-185000 2021-12-17 13:12:09 
-186000 2021-12-17 13:12:09 
-187000 2021-12-17 13:12:10 
-188000 2021-12-17 13:12:11 
-189000 2021-12-17 13:12:11 
-190000 2021-12-17 13:12:12 
-191000 2021-12-17 13:12:12 
-192000 2021-12-17 13:12:13 
-193000 2021-12-17 13:12:13 
-194000 2021-12-17 13:12:14 
-195000 2021-12-17 13:12:14 
-196000 2021-12-17 13:12:15 
-197000 2021-12-17 13:12:15 
-198000 2021-12-17 13:12:15 
-199000 2021-12-17 13:12:16 
-200000 2021-12-17 13:12:16 
-201000 2021-12-17 13:12:17 
-202000 2021-12-17 13:12:17 
-203000 2021-12-17 13:12:18 
-204000 2021-12-17 13:12:18 
-205000 2021-12-17 13:12:19 
-206000 2021-12-17 13:12:19 
-207000 2021-12-17 13:12:19 
-208000 2021-12-17 13:12:20 
-209000 2021-12-17 13:12:20 
-210000 2021-12-17 13:12:20 
-211000 2021-12-17 13:12:21 
-212000 2021-12-17 13:12:21 
-213000 2021-12-17 13:12:21 
-214000 2021-12-17 13:12:22 
-215000 2021-12-17 13:12:22 
-216000 2021-12-17 13:12:22 
-217000 2021-12-17 13:12:22 
-218000 2021-12-17 13:12:23 
-219000 2021-12-17 13:12:23 
-220000 2021-12-17 13:12:23 
-221000 2021-12-17 13:12:24 
-222000 2021-12-17 13:12:24 
-223000 2021-12-17 13:12:24 
-224000 2021-12-17 13:12:24 
-225000 2021-12-17 13:12:25 
-226000 2021-12-17 13:12:25 
-227000 2021-12-17 13:12:25 
-228000 2021-12-17 13:12:25 
-229000 2021-12-17 13:12:25 
-230000 2021-12-17 13:12:26 
-231000 2021-12-17 13:12:26 
-232000 2021-12-17 13:12:26 
-233000 2021-12-17 13:12:26 
-234000 2021-12-17 13:12:26 
-235000 2021-12-17 13:12:26 
-236000 2021-12-17 13:12:26 
-237000 2021-12-17 13:12:27 
-238000 2021-12-17 13:12:27 
-239000 2021-12-17 13:12:27 
-240000 2021-12-17 13:12:27 
-241000 2021-12-17 13:12:27 
-242000 2021-12-17 13:12:27 
-243000 2021-12-17 13:12:27 
-244000 2021-12-17 13:12:27 
-245000 2021-12-17 13:12:27 
-246000 2021-12-17 13:12:27 
-247000 2021-12-17 13:12:27 
-248000 2021-12-17 13:12:27 
-249000 2021-12-17 13:12:27 </code></pre>
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r">  <span class='va'>distances</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>]</span>
-</code></pre>
 </div>
+<div class="layout-chunk" data-layout="l-body">
 <pre><code>[1] 2876</code></pre>
 </div>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <h2 id="day-16">Day 16</h2>
 <p><a href="https://adventofcode.com/2021/day/16" class="uri">https://adventofcode.com/2021/day/16</a></p>
 <div class="layout-chunk" data-layout="l-body">
@@ -5006,7 +4750,7 @@ Tests:
 </div>
 <pre><code>[1] 1510977819698</code></pre>
 </div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <h2 id="day-17">Day 17</h2>
 <p><a href="https://adventofcode.com/2021/day/17" class="uri">https://adventofcode.com/2021/day/17</a></p>
 <div class="layout-chunk" data-layout="l-body">
@@ -5108,9 +4852,9 @@ Make a search grid and launch em all!
 </div>
 <pre><code>[1] 4748</code></pre>
 </div>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 </div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

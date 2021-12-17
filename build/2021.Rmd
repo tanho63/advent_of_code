@@ -7,7 +7,6 @@ output:
     toc: true
     toc_float: true
 ---
-
 ```{r include = FALSE}
 available_rmds <- list.files(here::here("2021"),full.names = TRUE,pattern = "Rmd$")
 
@@ -20,7 +19,7 @@ url_links <- paste0("<https://adventofcode.com/2021/day/",day,"> \n")
 pages <- available_rmds |> 
   purrr::map(knitr::knit_child, envir = environment(), quiet = TRUE)
 ```
-
+# Solutions
 ```{r results = 'asis', echo = FALSE}
 for(i in seq_along(available_rmds)){
   cat(headings[[i]])

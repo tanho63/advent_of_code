@@ -2414,7 +2414,509 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
 <div class="d-article">
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="d-contents d-contents-float">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#solutions">Solutions</a></li>
+</ul>
+</nav>
+</div>
+<h1 id="solutions">Solutions</h1>
+<div class="layout-chunk" data-layout="l-body">
+<p>E <a href="https://adventofcode.com/2016/day/1" class="uri">https://adventofcode.com/2016/day/1</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>2016</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2016/day-01-input.txt"</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='st'>", "</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_trim.html'>str_squish</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>dir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_remove.html'>str_remove</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='st'>"[0-9]+"</span><span class='op'>)</span>
+<span class='va'>spaces</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_remove.html'>str_remove</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='st'>"[L|R]"</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>turn</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>heading</span>, <span class='va'>direction</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>direction</span> <span class='op'>==</span> <span class='st'>"R"</span><span class='op'>)</span> <span class='va'>heading</span> <span class='op'>&lt;-</span> <span class='kw'><a href='https://rdrr.io/r/base/switch.html'>switch</a></span><span class='op'>(</span><span class='va'>heading</span>,
+                                        <span class='st'>"N"</span> <span class='op'>=</span> <span class='st'>"E"</span>, 
+                                        <span class='st'>"E"</span> <span class='op'>=</span> <span class='st'>"S"</span>,
+                                        <span class='st'>"S"</span> <span class='op'>=</span> <span class='st'>"W"</span>,
+                                        <span class='st'>"W"</span> <span class='op'>=</span> <span class='st'>"N"</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>direction</span> <span class='op'>==</span> <span class='st'>"L"</span><span class='op'>)</span> <span class='va'>heading</span> <span class='op'>&lt;-</span> <span class='kw'><a href='https://rdrr.io/r/base/switch.html'>switch</a></span><span class='op'>(</span><span class='va'>heading</span>,
+                                        <span class='st'>"N"</span> <span class='op'>=</span> <span class='st'>"W"</span>, 
+                                        <span class='st'>"E"</span> <span class='op'>=</span> <span class='st'>"N"</span>,
+                                        <span class='st'>"S"</span> <span class='op'>=</span> <span class='st'>"E"</span>,
+                                        <span class='st'>"W"</span> <span class='op'>=</span> <span class='st'>"S"</span><span class='op'>)</span>
+  <span class='va'>heading</span>
+<span class='op'>}</span>
+
+<span class='va'>move</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>position</span>, <span class='va'>heading</span>, <span class='va'>spaces</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"N"</span><span class='op'>)</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>+</span> <span class='va'>spaces</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"S"</span><span class='op'>)</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>-</span> <span class='va'>spaces</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"E"</span><span class='op'>)</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>+</span> <span class='va'>spaces</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"W"</span><span class='op'>)</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>position</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>-</span> <span class='va'>spaces</span>
+  <span class='va'>position</span>
+<span class='op'>}</span>
+
+<span class='va'>headings</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/accumulate.html'>accumulate</a></span><span class='op'>(</span><span class='va'>dir</span>, <span class='va'>turn</span>, .init <span class='op'>=</span> <span class='st'>"N"</span><span class='op'>)</span><span class='op'>[</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>]</span>
+<span class='va'>positions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/accumulate.html'>accumulate2</a></span><span class='op'>(</span><span class='va'>headings</span>, <span class='va'>spaces</span>, <span class='va'>move</span>, .init <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>positions</span>,<span class='fl'>1</span><span class='op'>)</span> |&gt;<span class='fu'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> |&gt;  <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 250</code></pre>
+</div>
+<p>— Part 2 —</p>
+<p>First intersection? This is ugly.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>move_detail</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>position</span>, <span class='va'>heading</span>, <span class='va'>spaces</span><span class='op'>)</span><span class='op'>{</span>
+  
+  <span class='kw'>for</span><span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='va'>spaces</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>pos</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>position</span>,<span class='fl'>1</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"N"</span><span class='op'>)</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>+</span> <span class='fl'>1</span>
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"S"</span><span class='op'>)</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span> <span class='op'>-</span> <span class='fl'>1</span>
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"E"</span><span class='op'>)</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>+</span> <span class='fl'>1</span>
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>heading</span> <span class='op'>==</span> <span class='st'>"W"</span><span class='op'>)</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>pos</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>-</span> <span class='fl'>1</span>
+    <span class='va'>position</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>position</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>pos</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+  
+ <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>position</span><span class='op'>)</span>  
+<span class='op'>}</span>
+
+<span class='va'>p2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/accumulate.html'>accumulate2</a></span><span class='op'>(</span><span class='va'>headings</span>, <span class='va'>spaces</span>, <span class='va'>move_detail</span>, .init <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span>recursive <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='op'>{</span><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressMessages</a></span><span class='op'>(</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/hoist.html'>unnest_wider</a></span><span class='op'>(</span><span class='va'>.</span>,<span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>}</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/rename.html'>rename</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fl'>1</span>, y <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/count.html'>add_count</a></span><span class='op'>(</span><span class='va'>x</span>,<span class='va'>y</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>&gt;</span><span class='fl'>1</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>a <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>+</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='va'>y</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='op'>(</span><span class='va'>a</span><span class='op'>)</span>
+
+<span class='va'>p2</span>
+</code></pre>
+</div>
+<pre><code>[1] 151</code></pre>
+</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>S <a href="https://adventofcode.com/2016/day/2" class="uri">https://adventofcode.com/2016/day/2</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>2</span>, year <span class='op'>=</span> <span class='fl'>2016</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2016/day-02-input.txt"</span><span class='op'>)</span><span class='op'>)</span> |&gt;
+  <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='st'>""</span><span class='op'>)</span>
+
+<span class='co'># input &lt;- c("ULL","RRDDD","LURDL","UUUUD") |&gt;</span>
+<span class='co'>#   strsplit("")</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>keycode</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>key</span>, <span class='va'>passcode</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='kw'>for</span><span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='va'>passcode</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/switch.html'>switch</a></span><span class='op'>(</span><span class='va'>i</span>,
+           <span class='st'>"U"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>-</span> <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>,
+           <span class='st'>"D"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>+</span> <span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>)</span>,
+           <span class='st'>"L"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>-</span> <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>,
+           <span class='st'>"R"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>+</span> <span class='fl'>1</span>, <span class='fl'>3</span><span class='op'>)</span>
+    <span class='op'>)</span>
+  <span class='op'>}</span>
+  <span class='va'>key</span>
+<span class='op'>}</span>
+
+<span class='va'>keys</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/accumulate.html'>accumulate</a></span><span class='op'>(</span><span class='va'>input</span>, <span class='va'>keycode</span>, .init <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='fl'>2</span>,x <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_rows</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>4</span>,<span class='fl'>5</span>,<span class='fl'>6</span>,<span class='fl'>7</span>,<span class='fl'>8</span>,<span class='fl'>9</span><span class='op'>)</span>,nrow <span class='op'>=</span> <span class='fl'>3</span>,byrow <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span><span class='va'>keys</span><span class='op'>$</span><span class='va'>y</span>,<span class='va'>keys</span><span class='op'>$</span><span class='va'>x</span><span class='op'>)</span><span class='op'>]</span><span class='op'>[</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>]</span>
+</code></pre>
+</div>
+<pre><code>[1] 9 8 5 7 5</code></pre>
+</div>
+<p>— Part 2 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>key_matrix</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>,<span class='cn'>NA</span>,<span class='st'>"1"</span>,<span class='cn'>NA</span>,<span class='cn'>NA</span><span class='op'>)</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>,<span class='st'>"2"</span>,<span class='st'>"3"</span>,<span class='st'>"4"</span>,<span class='cn'>NA</span><span class='op'>)</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"5"</span>,<span class='st'>"6"</span>,<span class='st'>"7"</span>,<span class='st'>"8"</span>,<span class='st'>"9"</span><span class='op'>)</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>,<span class='st'>"A"</span>,<span class='st'>"B"</span>,<span class='st'>"C"</span>,<span class='cn'>NA</span><span class='op'>)</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>,<span class='cn'>NA</span>,<span class='st'>"D"</span>,<span class='cn'>NA</span>,<span class='cn'>NA</span><span class='op'>)</span>
+  <span class='op'>)</span>,
+  nrow <span class='op'>=</span> <span class='fl'>5</span>,byrow <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span>
+
+<span class='va'>key_exists</span> <span class='op'>&lt;-</span> <span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='op'>(</span><span class='va'>key_matrix</span><span class='op'>)</span>
+
+<span class='va'>keycode</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>key</span>, <span class='va'>passcode</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='kw'>for</span><span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='va'>passcode</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/switch.html'>switch</a></span><span class='op'>(</span><span class='va'>i</span>,
+           <span class='st'>"U"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='fu'>check_key</span><span class='op'>(</span>y <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>-</span> <span class='fl'>1</span>, x <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span>, type <span class='op'>=</span> <span class='st'>"y"</span>, otherwise <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span><span class='op'>)</span>, <span class='fl'>1</span><span class='op'>)</span>,
+           <span class='st'>"D"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='fu'>check_key</span><span class='op'>(</span>y <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span> <span class='op'>+</span> <span class='fl'>1</span>, x <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span>, type <span class='op'>=</span> <span class='st'>"y"</span>, otherwise <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span><span class='op'>)</span>, <span class='fl'>5</span><span class='op'>)</span>,
+           <span class='st'>"L"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='fu'>check_key</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>-</span> <span class='fl'>1</span>, y <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span>, type <span class='op'>=</span> <span class='st'>"x"</span>, otherwise <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span><span class='op'>)</span>, <span class='fl'>1</span><span class='op'>)</span>,
+           <span class='st'>"R"</span> <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='fu'>check_key</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span> <span class='op'>+</span> <span class='fl'>1</span>, y <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>y</span>, type <span class='op'>=</span> <span class='st'>"x"</span>, otherwise <span class='op'>=</span> <span class='va'>key</span><span class='op'>$</span><span class='va'>x</span><span class='op'>)</span>, <span class='fl'>5</span><span class='op'>)</span>
+    <span class='op'>)</span>
+  <span class='op'>}</span>
+  <span class='va'>key</span>
+<span class='op'>}</span>
+
+<span class='va'>check_key</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, <span class='va'>type</span>, <span class='va'>otherwise</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/any.html'>any</a></span><span class='op'>(</span><span class='va'>x</span> <span class='op'>&lt;</span> <span class='fl'>1</span>, <span class='va'>y</span> <span class='op'>&lt;</span> <span class='fl'>1</span>, <span class='va'>x</span> <span class='op'>&gt;</span> <span class='fl'>5</span>, <span class='va'>y</span> <span class='op'>&gt;</span> <span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span> <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>otherwise</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='op'>!</span><span class='va'>key_exists</span><span class='op'>[</span><span class='va'>y</span>,<span class='va'>x</span><span class='op'>]</span><span class='op'>)</span> <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>otherwise</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>type</span> <span class='op'>==</span> <span class='st'>"x"</span><span class='op'>)</span> <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>type</span> <span class='op'>==</span> <span class='st'>"y"</span><span class='op'>)</span> <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>y</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>keys</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/accumulate.html'>accumulate</a></span><span class='op'>(</span><span class='va'>input</span>, <span class='va'>keycode</span>, .init <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>y <span class='op'>=</span> <span class='fl'>3</span>, x <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_rows</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>key_matrix</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span><span class='va'>keys</span><span class='op'>$</span><span class='va'>y</span>,<span class='va'>keys</span><span class='op'>$</span><span class='va'>x</span><span class='op'>)</span><span class='op'>]</span><span class='op'>[</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>]</span>
+</code></pre>
+</div>
+<pre><code>[1] &quot;C&quot; &quot;D&quot; &quot;8&quot; &quot;D&quot; &quot;4&quot;</code></pre>
+</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>E <a href="https://adventofcode.com/2016/day/3" class="uri">https://adventofcode.com/2016/day/3</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>3</span>, year <span class='op'>=</span> <span class='fl'>2016</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2016/day-03-input.txt"</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>p1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>input</span><span class='op'>)</span> |&gt; 
+  <span class='fu'>tidyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>, into <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>,<span class='st'>"y"</span>,<span class='st'>"z"</span><span class='op'>)</span>, regex <span class='op'>=</span> <span class='st'>"([0-9]+) +([0-9]+) +([0-9]+)"</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate_all.html'>mutate_all</a></span><span class='op'>(</span><span class='va'>as.numeric</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+    xy <span class='op'>=</span> <span class='va'>x</span><span class='op'>+</span><span class='va'>y</span> <span class='op'>&gt;</span> <span class='va'>z</span>,
+    xz <span class='op'>=</span> <span class='va'>x</span><span class='op'>+</span><span class='va'>z</span> <span class='op'>&gt;</span> <span class='va'>y</span>,
+    yz <span class='op'>=</span> <span class='va'>y</span><span class='op'>+</span><span class='va'>z</span> <span class='op'>&gt;</span> <span class='va'>x</span>,
+    test <span class='op'>=</span> <span class='va'>xy</span> <span class='op'>&amp;</span> <span class='va'>xz</span> <span class='op'>&amp;</span> <span class='va'>yz</span>
+  <span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>test</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>p1</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 982</code></pre>
+</div>
+<p>— Part 2 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>p2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>input</span><span class='op'>)</span> |&gt; 
+  <span class='fu'>tidyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>, into <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>,<span class='st'>"y"</span>,<span class='st'>"z"</span><span class='op'>)</span>, regex <span class='op'>=</span> <span class='st'>"([0-9]+) +([0-9]+) +([0-9]+)"</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate_all.html'>mutate_all</a></span><span class='op'>(</span><span class='va'>as.numeric</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+    group <span class='op'>=</span> <span class='op'>(</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>+</span><span class='fl'>2</span><span class='op'>)</span> <span class='op'><a href='https://rdrr.io/r/base/Arithmetic.html'>%/%</a></span> <span class='fl'>2.99999</span>
+  <span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_longer.html'>pivot_longer</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>x</span>,<span class='va'>y</span>,<span class='va'>z</span><span class='op'>)</span>,names_to <span class='op'>=</span> <span class='st'>"id"</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>group</span>,<span class='va'>id</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+    name <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"x"</span>,<span class='st'>"y"</span>,<span class='st'>"z"</span><span class='op'>)</span>
+  <span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></span><span class='op'>(</span>names_from <span class='op'>=</span> <span class='va'>name</span>, values_from <span class='op'>=</span> <span class='va'>value</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+    xy <span class='op'>=</span> <span class='va'>x</span><span class='op'>+</span><span class='va'>y</span> <span class='op'>&gt;</span> <span class='va'>z</span>,
+    xz <span class='op'>=</span> <span class='va'>x</span><span class='op'>+</span><span class='va'>z</span> <span class='op'>&gt;</span> <span class='va'>y</span>,
+    yz <span class='op'>=</span> <span class='va'>y</span><span class='op'>+</span><span class='va'>z</span> <span class='op'>&gt;</span> <span class='va'>x</span>,
+    test <span class='op'>=</span> <span class='va'>xy</span> <span class='op'>&amp;</span> <span class='va'>xz</span> <span class='op'>&amp;</span> <span class='va'>yz</span>
+  <span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>test</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>p2</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 1826</code></pre>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>N <a href="https://adventofcode.com/2016/day/4" class="uri">https://adventofcode.com/2016/day/4</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>4</span>, year <span class='op'>=</span> <span class='fl'>2016</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2016/day-04-input.txt"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'>tidyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyr.tidyverse.org/reference/extract.html'>extract</a></span><span class='op'>(</span><span class='va'>x</span>, into <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"name"</span>,<span class='st'>"sector_id"</span>,<span class='st'>"checksum"</span><span class='op'>)</span>,
+          regex <span class='op'>=</span> <span class='st'>"([a-z,\\-]+)\\-([0-9]+)\\[([a-z]+)\\]"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>p1</span> <span class='op'>&lt;-</span> <span class='va'>input</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>name <span class='op'>=</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_remove.html'>str_remove_all</a></span><span class='op'>(</span><span class='va'>name</span>,<span class='st'>"\\-"</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='st'>""</span><span class='op'>)</span>,
+         check <span class='op'>=</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map_chr</a></span><span class='op'>(</span><span class='va'>name</span>,
+                      <span class='op'>~</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>.x</span><span class='op'>)</span> |&gt; 
+                        <span class='fu'><a href='https://dplyr.tidyverse.org/reference/count.html'>count</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> |&gt; 
+                        <span class='fu'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>n</span>,<span class='va'>x</span><span class='op'>)</span> |&gt; 
+                        <span class='fu'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> |&gt; 
+                        <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span> |&gt; 
+                        <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+                      <span class='op'>)</span><span class='op'>)</span> |&gt;
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>check</span> <span class='op'>==</span> <span class='va'>checksum</span><span class='op'>)</span>
+
+<span class='va'>p1</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='op'>(</span><span class='va'>sector_id</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 245102</code></pre>
+</div>
+<p>— Part 2 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>l2n</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>letter <span class='op'>=</span> <span class='va'>letters</span>, num <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>26</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://tibble.tidyverse.org/reference/enframe.html'>deframe</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='va'>p2</span> <span class='op'>&lt;-</span> <span class='va'>p1</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+    shift <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>sector_id</span><span class='op'>)</span> |&gt; <span class='fu'>magrittr</span><span class='fu'>::</span><span class='fu'><a href='https://magrittr.tidyverse.org/reference/aliases.html'>mod</a></span><span class='op'>(</span><span class='fl'>26</span><span class='op'>)</span>,
+    decoded <span class='op'>=</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map2.html'>map2</a></span><span class='op'>(</span>
+      <span class='va'>name</span>,<span class='va'>shift</span>,
+      <span class='op'>~</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='va'>letters</span><span class='op'>[</span><span class='op'>(</span><span class='va'>l2n</span><span class='op'>[</span><span class='va'>.x</span><span class='op'>]</span><span class='op'>+</span><span class='va'>.y</span><span class='op'>)</span><span class='op'><a href='https://rdrr.io/r/base/Arithmetic.html'>%%</a></span><span class='fl'>26</span><span class='op'>]</span>,collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+                  <span class='op'>)</span>
+  <span class='op'>)</span>
+
+<span class='va'>p2</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='fu'><a href='https://stringr.tidyverse.org/reference/str_detect.html'>str_detect</a></span><span class='op'>(</span><span class='va'>decoded</span>,<span class='st'>"northpoleobjectstorage"</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='op'>(</span><span class='va'>sector_id</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] &quot;324&quot;</code></pre>
+</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>W <a href="https://adventofcode.com/2016/day/5" class="uri">https://adventofcode.com/2016/day/5</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>5</span>, year <span class='op'>=</span> <span class='fl'>2016</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2016/day-05-input.txt"</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://dirk.eddelbuettel.com/code/digest.html'>digest</a></span><span class='op'>)</span>
+
+<span class='va'>hash</span> <span class='op'>&lt;-</span> <span class='fu'>digest</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/digest/man/vdigest.html'>getVDigest</a></span><span class='op'>(</span><span class='st'>"md5"</span>,<span class='st'>"silent"</span><span class='op'>)</span>
+
+<span class='va'>hashes</span> <span class='op'>&lt;-</span> <span class='fu'>hash</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='fl'>0</span><span class='op'>:</span><span class='fl'>8000000</span><span class='op'>)</span>,serialize <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+
+<span class='va'>five_zeroes</span> <span class='op'>&lt;-</span> <span class='va'>hashes</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>hashes</span>,<span class='fl'>1</span>,<span class='fl'>5</span><span class='op'>)</span><span class='op'>==</span><span class='st'>"00000"</span><span class='op'>]</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>five_zeroes</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>8</span><span class='op'>]</span>,<span class='fl'>6</span>,<span class='fl'>6</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse<span class='op'>=</span><span class='st'>""</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>[1] &quot;801b56a7&quot;</code></pre>
+</div>
+<p>— Part 2 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://dirk.eddelbuettel.com/code/digest.html'>digest</a></span><span class='op'>)</span>
+
+<span class='va'>hash</span> <span class='op'>&lt;-</span> <span class='fu'>digest</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/digest/man/vdigest.html'>getVDigest</a></span><span class='op'>(</span><span class='st'>"md5"</span>,<span class='st'>"silent"</span><span class='op'>)</span>
+
+<span class='va'>hashes</span> <span class='op'>&lt;-</span> <span class='fu'>hash</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='fl'>0</span><span class='op'>:</span><span class='fl'>50000000</span><span class='op'>)</span>,serialize <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+
+<span class='va'>five_zeroes</span> <span class='op'>&lt;-</span> <span class='va'>hashes</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>hashes</span>,<span class='fl'>1</span>,<span class='fl'>5</span><span class='op'>)</span><span class='op'>==</span><span class='st'>"00000"</span><span class='op'>]</span>
+
+<span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>
+  positions <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>five_zeroes</span>,<span class='fl'>6</span>,<span class='fl'>6</span><span class='op'>)</span>,
+  values <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>five_zeroes</span>,<span class='fl'>7</span>,<span class='fl'>7</span><span class='op'>)</span>
+<span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>positions</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>ungroup</a></span><span class='op'>(</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>positions</span> <span class='op'>&lt;=</span> <span class='fl'>7</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='op'>(</span><span class='va'>values</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>[1] &quot;424a0197&quot;</code></pre>
+</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>N <a href="https://adventofcode.com/2016/day/6" class="uri">https://adventofcode.com/2016/day/6</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>6</span>, year <span class='op'>=</span> <span class='fl'>2016</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2016/day-06-input.txt"</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='st'>""</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/apply.html'>apply</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='fl'>2</span>,<span class='fu'>nflfastR</span><span class='fu'>:::</span><span class='va'>custom_mode</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] &quot;usccerug&quot;</code></pre>
+</div>
+<p>— Part 2 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># nflfastR's custom mode, thanks Seb</span>
+<span class='va'>mode_min</span> <span class='op'>&lt;-</span> <span class='kw'>function</span> <span class='op'>(</span><span class='va'>x</span>, <span class='va'>na.rm</span> <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='kw'>if</span> <span class='op'>(</span><span class='va'>na.rm</span><span class='op'>)</span> <span class='op'>{</span>
+        <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='va'>x</span><span class='op'>[</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>]</span>
+    <span class='op'>}</span>
+    <span class='va'>ux</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>ux</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/which.min.html'>which.min</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tabulate.html'>tabulate</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/match.html'>match</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>ux</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/apply.html'>apply</a></span><span class='op'>(</span><span class='va'>input</span>,<span class='fl'>2</span>,<span class='va'>mode_min</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] &quot;cnvvtafc&quot;</code></pre>
+</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+</div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
