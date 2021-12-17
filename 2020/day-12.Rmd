@@ -43,7 +43,7 @@ input_12 <- read_lines(here("2020","day-12.txt"))
 
 ```{r eval = FALSE}
 instructions <- tibble(instruction = input_12) %>%
-  extract(instruction,into = c("instruction","num"),regex = "^([A-z])([0-9]+)",convert = TRUE)
+  tidyr::extract(instruction,into = c("instruction","num"),regex = "^([A-z])([0-9]+)",convert = TRUE)
 
 ```
 

@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r}
+```{r eval = FALSE}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -25,7 +25,7 @@ options(dplyr.summarise.inform = FALSE)
 aoc.elf::aoc_get(day = 15, year = 2021)
 ```
 
-```{r}
+```{r eval = FALSE}
 input <- readLines(here::here("2021/day-15-input.txt")) |> 
   strsplit("") |> 
   map(as.numeric) |> 
@@ -126,7 +126,7 @@ Ran into a bunch of problems and ended up leaving on overnight after attempting 
 
 Build out incremented matrix.
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 m <- input
 
 col_1 <- map(0:4,~ifelse(m + .x > 9,m + .x - 9, m + .x)) |> reduce(rbind)
@@ -140,7 +140,7 @@ m <- cbind(col_1,col_2,col_3,col_4,col_5)
 
 build out a list structure of neighbours rather than calculating at each step
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 neighbours_matrix <- crossing(row = seq_len(nrow(m)),
                               col = seq_len(ncol(m))) |> 
   arrange(col,row) |> 
@@ -217,7 +217,7 @@ Optimizing. Biggest culprits so far:
 - `neighbours %in% queue` scans 250K vector for ~1-4 objects, much better is a visited matrix to lookup by position. net gain: 45 minutes -> 6 minutes (screaming internally.)
 - `queue <- queue != i` should be next? 
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 # populate distance matrix of equal size to m
   distances <- matrix(Inf,nrow = nrow(m),ncol = ncol(m))
   
@@ -251,4 +251,6 @@ Optimizing. Biggest culprits so far:
 
   distances[nrow(m),ncol(m)]
 ```
-
+```{r echo = FALSE}
+2876
+```

@@ -39,7 +39,7 @@ dots <- tibble(x = str_subset(input,"fold",negate = TRUE)) |>
   separate(x, into = c("x","y"), sep = ",", convert = TRUE)
 
 folds <- tibble(x = str_subset(input,"fold")) |> 
-  extract(x,into = c("axis","index"), regex = "(x|y)\\=([0-9]+)", convert = TRUE)
+  tidyr::extract(x,into = c("axis","index"), regex = "(x|y)\\=([0-9]+)", convert = TRUE)
 ```
 
 --- Part 1 ---

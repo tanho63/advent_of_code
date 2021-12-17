@@ -27,7 +27,7 @@ aoc.elf::aoc_get(day = 6, year = 2015)
 
 ```{r}
 input <- tibble(x = readLines(here::here("2015/day-06-input.txt"))) |> 
-  extract(x, into = c("action","x1","y1","x2","y2"),
+  tidyr::extract(x, into = c("action","x1","y1","x2","y2"),
           regex = "([a-z, ]+) ([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)",
           convert = TRUE) |> 
   mutate(

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Tan Ho" />
 
-<meta name="date" content="2021-12-11" />
+<meta name="date" content="2021-12-17" />
 
 <title>Advent Of Code: 2015-06</title>
 
@@ -167,7 +167,7 @@ pre code {
 
 <h1 class="title toc-ignore">Advent Of Code: 2015-06</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">2021-12-11</h4>
+<h4 class="date">2021-12-17</h4>
 
 </div>
 
@@ -186,7 +186,7 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 <pre class="r"><code># tanho63/aoc.elf
 aoc.elf::aoc_get(day = 6, year = 2015)</code></pre>
 <pre class="r"><code>input &lt;- tibble(x = readLines(here::here(&quot;2015/day-06-input.txt&quot;))) |&gt; 
-  extract(x, into = c(&quot;action&quot;,&quot;x1&quot;,&quot;y1&quot;,&quot;x2&quot;,&quot;y2&quot;),
+  tidyr::extract(x, into = c(&quot;action&quot;,&quot;x1&quot;,&quot;y1&quot;,&quot;x2&quot;,&quot;y2&quot;),
           regex = &quot;([a-z, ]+) ([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)&quot;,
           convert = TRUE) |&gt; 
   mutate(

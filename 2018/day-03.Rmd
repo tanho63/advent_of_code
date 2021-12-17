@@ -26,8 +26,9 @@ aoc.elf::aoc_get(day = 3, year = 2018)
 ```
 
 ```{r}
-input <- tibble(x = readLines(here::here("2018/day-03-input.txt")) |> stringr::str_squish()) |> 
-  extract(x, 
+input <- tibble(x = readLines(here::here("2018/day-03-input.txt")) |> 
+                  stringr::str_squish()) |> 
+  tidyr::extract(x, 
           into = c("elf_id", "x_coord", "y_coord", "x_size", "y_size"),
           ".([0-9]+)\\s*.\\s+([0-9]+).([0-9]+)\\s*.\\s*([0-9]+).([0-9]+)",
           convert = TRUE

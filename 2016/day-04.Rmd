@@ -27,7 +27,7 @@ aoc.elf::aoc_get(day = 4, year = 2016)
 
 ```{r}
 input <- tibble(x = readLines(here::here("2016/day-04-input.txt"))) |> 
-  extract(x, into = c("name","sector_id","checksum"),
+  tidyr::extract(x, into = c("name","sector_id","checksum"),
           regex = "([a-z,\\-]+)\\-([0-9]+)\\[([a-z]+)\\]")
 ```
 

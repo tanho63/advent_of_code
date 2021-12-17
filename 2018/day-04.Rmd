@@ -27,7 +27,7 @@ aoc.elf::aoc_get(day = 4, year = 2018)
 
 ```{r}
 input <- tibble(x= readLines(here::here("2018/day-04-input.txt"))) |> 
-  extract(x,
+  tidyr::extract(x,
           into = c("date","timestamp", "action"),
           regex = "\\[([0-9,\\-]+) ([0-9,\\:]+)\\](.+)") |> 
   mutate_all(str_squish) |> 
