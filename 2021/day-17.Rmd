@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup}
+```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -31,13 +31,6 @@ readLines(here::here("2021/day-17-input.txt"))
 
 --- Part 1 ---
 
-~~solve for some kind of system of equations?~~
-~~solve for inequalities?~~
-~~optim?~~
-guess and check lul
-
-Highest point of Y will involve X being the first point at which X reaches zero velocity within the range
-
 ```{r}
 launch <- function(xv,yv){
   x <- y <- max_y <- 0
@@ -59,17 +52,27 @@ launch <- function(xv,yv){
   return(list(success = success, y = max_y))
 }
 ```
+~~solve for some kind of system of equations?~~
+~~solve for inequalities?~~
+~~optim?~~
+guess and check lul
+
+Highest point of Y will involve X being the first point at which X reaches zero velocity within the range.
+
+Since x decreases by one and converges towards zero, x is equal to the sum of sequence that falls within the x range.
+
+Then Y is just "the highest y velocity that still falls within the success range" so search backwards til you find it.
+
 
 ```{r}
 x <- 0
+y <- 1000
 
 repeat {
   r <- sum(seq_len(x))
   if(r >= 175 && r <= 227) break
   x <- x + 1
 }
-
-y <- 1000
 
 repeat {
   y <- y-1
@@ -80,7 +83,6 @@ repeat {
 
 res$y
 ```
-
 --- Part 2 ---
 
 I know: 
@@ -91,10 +93,7 @@ I know:
 - y max velocity is 133 from prev step
 
 Make a search grid and launch em all!
-
 ```{r}
 g <- crossing(x = 19:227, y = -134:133)
 map2_lgl(g$x,g$y,~launch(.x,.y)$success) |> sum()
 ```
-
-

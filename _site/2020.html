@@ -7024,20 +7024,20 @@ Hex grids coordinates c/o <a href="https://www.redblobgames.com/grids/hexagons/"
 <span class='va'>stars</span>
 </code></pre>
 </div>
-<pre><code># A tibble: 722 x 8
+<pre><code># A tibble: 735 x 8
    user_name       total_stars aoc_score day   star1_ts           
    &lt;chr&gt;                 &lt;int&gt;     &lt;int&gt; &lt;chr&gt; &lt;dttm&gt;             
- 1 Darrin Speegle           50      5791 25    2020-12-25 00:24:22
- 2 Nerwosolek               50      5609 25    2020-12-25 09:07:16
- 3 Riinu Pius               37      4094 25    2020-12-25 01:31:55
- 4 @_mnar99                 44      4734 25    2020-12-25 15:55:09
- 5 trang1618                50      5394 25    2020-12-25 01:00:32
- 6 Emil Hvitfeldt           50      5874 25    2020-12-26 00:37:05
- 7 David Robinson           47      5503 25    2020-12-27 13:37:13
- 8 pritikadasgupta          50      5770 25    2020-12-25 00:28:22
- 9 @ClareHorscroft          50      6082 25    2020-12-25 04:14:47
-10 @_TanHo                  50      5992 25    2020-12-25 08:29:27
-# ... with 712 more rows, and 3 more variables: star2_ts &lt;dttm&gt;,
+ 1 Farhan Reynaldo          50      5466 25    2020-12-25 04:48:36
+ 2 Nathan Moore             50      5691 25    2020-12-26 06:13:33
+ 3 Darrin Speegle           50      5839 25    2020-12-25 00:24:22
+ 4 Jaroslaw Nirski          50      6057 25    2020-12-31 06:54:14
+ 5 Colin Rundel             50      5953 25    2020-12-25 04:45:26
+ 6 Riinu Pius               37      4129 25    2020-12-25 01:31:55
+ 7 @ClareHorscroft          50      6130 25    2020-12-25 04:14:47
+ 8 TJ Mahr                  47      5299 25    2020-12-28 10:04:16
+ 9 @_TanHo                  50      6040 25    2020-12-25 08:29:27
+10 @_mnar99                 44      4767 25    2020-12-25 15:55:09
+# ... with 725 more rows, and 3 more variables: star2_ts &lt;dttm&gt;,
 #   user_id &lt;chr&gt;, time_to_star2 &lt;drtn&gt;</code></pre>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>leaderboard</span> <span class='op'>&lt;-</span> <span class='va'>stars</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
@@ -7051,20 +7051,20 @@ Hex grids coordinates c/o <a href="https://www.redblobgames.com/grids/hexagons/"
 <span class='va'>leaderboard</span>
 </code></pre>
 </div>
-<pre><code># A tibble: 53 x 6
+<pre><code># A tibble: 54 x 6
    user_name     user_id aoc_score total_stars median_star2 mean_star2
    &lt;chr&gt;         &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;drtn&gt;       &lt;drtn&gt;    
- 1 Colin Rundel  433087       5905          50  17.6 mins    89.0 mins
- 2 Tom Jemmett   190599       5722          50  20.7 mins   219.8 mins
- 3 Darrin Speeg~ 387786       5791          50  25.8 mins   320.7 mins
- 4 Ildikó Czell~ 267475       5878          50  28.7 mins   412.5 mins
- 5 pritikadasgu~ 1020187      5770          50  31.0 mins    96.1 mins
- 6 Jaroslaw Nir~ 443063       6009          50  33.1 mins   447.1 mins
- 7 Emil Hvitfel~ 433239       5874          50  34.5 mins   913.2 mins
- 8 @ClareHorscr~ 1037870      6082          50  35.2 mins   594.9 mins
- 9 @_TanHo       1032765      5992          50  86.0 mins   233.8 mins
-10 Nerwosolek    1047933      5609          50 151.9 mins   653.2 mins
-# ... with 43 more rows</code></pre>
+ 1 Colin Rundel  433087       5953          50  17.6 mins    89.0 mins
+ 2 Tom Jemmett   190599       5770          50  20.7 mins   219.8 mins
+ 3 Darrin Speeg~ 387786       5839          50  25.8 mins   320.7 mins
+ 4 Ildikó Czell~ 267475       5926          50  28.7 mins   412.5 mins
+ 5 pritikadasgu~ 1020187      5818          50  31.0 mins    96.1 mins
+ 6 Jaroslaw Nir~ 443063       6057          50  33.1 mins   447.1 mins
+ 7 Emil Hvitfel~ 433239       5922          50  34.5 mins   913.2 mins
+ 8 @ClareHorscr~ 1037870      6130          50  35.2 mins   594.9 mins
+ 9 @_TanHo       1032765      6040          50  86.0 mins   233.8 mins
+10 Nerwosolek    1047933      5657          50 151.9 mins   653.2 mins
+# ... with 44 more rows</code></pre>
 </div>
 <div class="sourceCode" id="cb123"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 </div>

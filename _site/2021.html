@@ -108,7 +108,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","output"]}},"value":[{"type":"character","attributes":{},"value":["Solutions for AOC 2021"]},{"type":"character","attributes":{},"value":["My second Advent of Code!\n"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc","toc_depth","toc_float"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[true]}]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","output"]}},"value":[{"type":"character","attributes":{},"value":["Solutions for AOC 2021"]},{"type":"character","attributes":{},"value":["My second Advent of Code!\n"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc","toc_float"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]}]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2969,7 +2969,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <span class='op'>)</span>
 </code></pre>
 </div>
-<p><img src="2021_files/figure-html5/unnamed-chunk-33-1.png" width="624" /></p>
+<p><img src="2021_files/figure-html5/unnamed-chunk-34-1.png" width="624" /></p>
 </div>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <h2 id="day-6">Day 6</h2>
@@ -3996,7 +3996,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <span class='op'>)</span>
 </code></pre>
 </div>
-<p><img src="2021_files/figure-html5/unnamed-chunk-76-1.png" width="624" /></p>
+<p><img src="2021_files/figure-html5/unnamed-chunk-77-1.png" width="624" /></p>
 </div>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <h2 id="day-14">Day 14</h2>
@@ -4135,8 +4135,982 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <pre><code>[1] 4441317262452</code></pre>
 </div>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="day-15">Day 15</h2>
+<p><a href="https://adventofcode.com/2021/day/15" class="uri">https://adventofcode.com/2021/day/15</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
 </div>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>15</span>, year <span class='op'>=</span> <span class='fl'>2021</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2021/day-15-input.txt"</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='st'>""</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='va'>as.numeric</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+
+<span class='va'>example</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"1163751742"</span>,
+           <span class='st'>"1381373672"</span>,
+           <span class='st'>"2136511328"</span>,
+           <span class='st'>"3694931569"</span>,
+           <span class='st'>"7463417111"</span>,
+           <span class='st'>"1319128137"</span>,
+           <span class='st'>"1359912421"</span>,
+           <span class='st'>"3125421639"</span>,
+           <span class='st'>"1293138521"</span>,
+           <span class='st'>"2311944581"</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='st'>""</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='va'>as.numeric</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># give me all available up/down/left/right steps that are on the grid</span>
+
+<span class='va'>m</span> <span class='op'>&lt;-</span> <span class='va'>input</span>
+
+<span class='va'>get_neighbours</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>row_loc</span>, <span class='va'>col_loc</span>, <span class='va'>queue</span><span class='op'>)</span><span class='op'>{</span>
+  
+  <span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>row <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span>, col <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+      row <span class='op'>=</span> <span class='va'>row</span> <span class='op'>+</span> <span class='va'>row_loc</span>,
+      col <span class='op'>=</span> <span class='va'>col</span> <span class='op'>+</span> <span class='va'>col_loc</span>
+    <span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>row</span> <span class='op'>&lt;=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>, 
+           <span class='va'>col</span> <span class='op'>&lt;=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>, 
+           <span class='va'>row</span> <span class='op'>&gt;=</span> <span class='fl'>1</span>, 
+           <span class='va'>col</span> <span class='op'>&gt;=</span> <span class='fl'>1</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>inner_join</a></span><span class='op'>(</span><span class='va'>queue</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"row"</span>,<span class='st'>"col"</span><span class='op'>)</span><span class='op'>)</span>
+  
+  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span>
+<span class='op'>}</span>
+  
+  <span class='co'># populate distance matrix of equal size to m</span>
+  <span class='va'>distances</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='cn'>Inf</span>,nrow <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,ncol <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span>
+  
+  <span class='co'># set origin as top left hand corner</span>
+  <span class='va'>distances</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  
+  <span class='co'># create queue of indices to check</span>
+  <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/expand.html'>crossing</a></span><span class='op'>(</span>row <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>, col <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span>
+  
+  <span class='co'># create copy of queue that will list the shortest path from source.</span>
+  <span class='va'>prev</span> <span class='op'>&lt;-</span> <span class='va'>queue</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>prev <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span>
+  
+  <span class='va'>counter</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  
+  <span class='kw'>while</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>queue</span><span class='op'>)</span> <span class='op'>&gt;</span> <span class='fl'>0</span><span class='op'>)</span><span class='op'>{</span>
+    
+    <span class='va'>counter</span> <span class='op'>&lt;-</span> <span class='va'>counter</span> <span class='op'>+</span> <span class='fl'>1</span>
+    
+    <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='va'>queue</span> |&gt; 
+      <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>dist <span class='op'>=</span> <span class='va'>distances</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span><span class='va'>row</span>,<span class='va'>col</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
+    
+    <span class='va'>i</span> <span class='op'>&lt;-</span> <span class='va'>queue</span> |&gt; <span class='fu'><a href='https://dplyr.tidyverse.org/reference/slice.html'>slice_min</a></span><span class='op'>(</span><span class='va'>dist</span>,with_ties <span class='op'>=</span> <span class='cn'>FALSE</span>,n <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+    
+    <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='va'>queue</span> |&gt; <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter-joins.html'>anti_join</a></span><span class='op'>(</span><span class='va'>i</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"row"</span>,<span class='st'>"col"</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='va'>neighbours</span> <span class='op'>&lt;-</span> <span class='fu'>get_neighbours</span><span class='op'>(</span><span class='va'>i</span><span class='op'>$</span><span class='va'>row</span>, <span class='va'>i</span><span class='op'>$</span><span class='va'>col</span>, <span class='va'>queue</span><span class='op'>)</span>
+    
+    <span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>neighbours</span><span class='op'>)</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span> <span class='kw'>next</span>
+    
+    <span class='kw'>for</span><span class='op'>(</span><span class='va'>n</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>neighbours</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+      
+      <span class='va'>possible_dist</span> <span class='op'>&lt;-</span> <span class='va'>i</span><span class='op'>$</span><span class='va'>dist</span> <span class='op'>+</span> <span class='va'>m</span><span class='op'>[</span><span class='va'>neighbours</span><span class='op'>$</span><span class='va'>row</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span>,<span class='va'>neighbours</span><span class='op'>$</span><span class='va'>col</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>]</span>
+      
+      <span class='kw'>if</span><span class='op'>(</span><span class='va'>possible_dist</span> <span class='op'>&lt;</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>neighbours</span><span class='op'>$</span><span class='va'>row</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span>,<span class='va'>neighbours</span><span class='op'>$</span><span class='va'>col</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>{</span>
+        <span class='va'>distances</span><span class='op'>[</span><span class='va'>neighbours</span><span class='op'>$</span><span class='va'>row</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span>,<span class='va'>neighbours</span><span class='op'>$</span><span class='va'>col</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>possible_dist</span>
+        <span class='va'>prev</span><span class='op'>$</span><span class='va'>prev</span><span class='op'>[</span><span class='va'>prev</span><span class='op'>$</span><span class='va'>row</span> <span class='op'>==</span> <span class='va'>neighbours</span><span class='op'>$</span><span class='va'>row</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span> <span class='op'>&amp;</span> <span class='va'>prev</span><span class='op'>$</span><span class='va'>col</span> <span class='op'>==</span> <span class='va'>neighbours</span><span class='op'>$</span><span class='va'>col</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>counter</span>
+      <span class='op'>}</span>
+      
+    <span class='op'>}</span>
+    
+  <span class='op'>}</span>
+
+  <span class='va'>distances</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>]</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>[1] 523</code></pre>
+</div>
+<p>— Part 2 —</p>
+<p>Ran into a bunch of problems and ended up leaving on overnight after attempting some optimizations.</p>
+<p>Build out incremented matrix.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>m</span> <span class='op'>&lt;-</span> <span class='va'>input</span>
+
+<span class='va'>col_1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>4</span>,<span class='op'>~</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>&gt;</span> <span class='fl'>9</span>,<span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>-</span> <span class='fl'>9</span>, <span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+<span class='va'>col_2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>,<span class='op'>~</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>&gt;</span> <span class='fl'>9</span>,<span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>-</span> <span class='fl'>9</span>, <span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+<span class='va'>col_3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='fl'>2</span><span class='op'>:</span><span class='fl'>6</span>,<span class='op'>~</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>&gt;</span> <span class='fl'>9</span>,<span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>-</span> <span class='fl'>9</span>, <span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+<span class='va'>col_4</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='fl'>3</span><span class='op'>:</span><span class='fl'>7</span>,<span class='op'>~</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>&gt;</span> <span class='fl'>9</span>,<span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>-</span> <span class='fl'>9</span>, <span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+<span class='va'>col_5</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='op'>(</span><span class='fl'>4</span><span class='op'>:</span><span class='fl'>8</span>,<span class='op'>~</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>&gt;</span> <span class='fl'>9</span>,<span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span> <span class='op'>-</span> <span class='fl'>9</span>, <span class='va'>m</span> <span class='op'>+</span> <span class='va'>.x</span><span class='op'>)</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://purrr.tidyverse.org/reference/reduce.html'>reduce</a></span><span class='op'>(</span><span class='va'>rbind</span><span class='op'>)</span>
+
+<span class='va'>m</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span><span class='va'>col_1</span>,<span class='va'>col_2</span>,<span class='va'>col_3</span>,<span class='va'>col_4</span>,<span class='va'>col_5</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>build out a list structure of neighbours rather than calculating at each step</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>neighbours_matrix</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/expand.html'>crossing</a></span><span class='op'>(</span>row <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span>,
+                              col <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange</a></span><span class='op'>(</span><span class='va'>col</span>,<span class='va'>row</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>index <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span><span class='op'>(</span><span class='op'>)</span>,
+         add <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>rp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span>, cp <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/nest.html'>unnest</a></span><span class='op'>(</span><span class='va'>add</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>row2 <span class='op'>=</span> <span class='va'>row</span> <span class='op'>+</span> <span class='va'>rp</span>,
+         col2 <span class='op'>=</span> <span class='va'>col</span> <span class='op'>+</span> <span class='va'>cp</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>row2</span> <span class='op'>&lt;=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,
+         <span class='va'>col2</span> <span class='op'>&lt;=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,
+         <span class='va'>row2</span> <span class='op'>&gt;=</span><span class='fl'>1</span>,
+         <span class='va'>col2</span> <span class='op'>&gt;=</span><span class='fl'>1</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>-</span><span class='va'>rp</span>,<span class='op'>-</span><span class='va'>cp</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate-joins.html'>left_join</a></span><span class='op'>(</span><span class='va'>.</span>,<span class='va'>.</span>,by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"row2"</span><span class='op'>=</span><span class='st'>"row"</span>,<span class='st'>"col2"</span><span class='op'>=</span><span class='st'>"col"</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span>index <span class='op'>=</span> <span class='va'>index.x</span>, neighbour <span class='op'>=</span> <span class='va'>index.y</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/distinct.html'>distinct</a></span><span class='op'>(</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>index</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>neighbour <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>neighbour</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://tibble.tidyverse.org/reference/enframe.html'>deframe</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>neighbours_matrix</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>$`1`
+[1]   2 501
+
+$`2`
+[1]   1   3 502
+
+$`3`
+[1]   2   4 503
+
+$`4`
+[1]   3   5 504
+
+$`5`
+[1]   4   6 505
+
+$`6`
+[1]   5   7 506</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>$`1`
+[1]   2 501
+
+$`2`
+[1]   1   3 502
+
+$`3`
+[1]   2   4 503
+
+$`4`
+[1]   3   5 504
+
+$`5`
+[1]   4   6 505
+
+$`6`
+[1]   5   7 506</code></pre>
+</div>
+<p>run dijkstra’s algo (?) oddly slow.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r">  <span class='va'>distances</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='cn'>Inf</span>,nrow <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,ncol <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span>
+  
+  <span class='co'># set origin as top left hand corner</span>
+  <span class='va'>distances</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  
+  <span class='co'># create queue of indices to check</span>
+  <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='va'>counter</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  
+  <span class='kw'>while</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>queue</span><span class='op'>)</span> <span class='op'>&gt;</span> <span class='fl'>0</span><span class='op'>)</span><span class='op'>{</span>
+    
+    <span class='va'>counter</span> <span class='op'>&lt;-</span> <span class='va'>counter</span> <span class='op'>+</span> <span class='fl'>1</span>
+    
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>counter</span> <span class='op'><a href='https://rdrr.io/r/base/Arithmetic.html'>%%</a></span> <span class='fl'>1000</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span><span class='op'>(</span><span class='va'>counter</span>, <span class='fu'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.time</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>, <span class='st'>"\n"</span><span class='op'>)</span>
+    
+    <span class='va'>i</span> <span class='op'>&lt;-</span> <span class='va'>queue</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/which.min.html'>which.min</a></span><span class='op'>(</span><span class='va'>distances</span><span class='op'>[</span><span class='va'>queue</span><span class='op'>]</span><span class='op'>)</span><span class='op'>]</span> <span class='co'># slow?</span>
+    
+    <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='va'>queue</span><span class='op'>[</span><span class='va'>queue</span><span class='op'>!=</span><span class='va'>i</span><span class='op'>]</span> <span class='co'>#slow?</span>
+    
+    <span class='va'>neighbours</span> <span class='op'>&lt;-</span> <span class='va'>neighbours_matrix</span><span class='op'>[[</span><span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='va'>i</span><span class='op'>)</span><span class='op'>]</span><span class='op'>]</span>
+    <span class='va'>neighbours</span> <span class='op'>&lt;-</span> <span class='va'>neighbours</span><span class='op'>[</span><span class='va'>neighbours</span> <span class='op'><a href='https://rdrr.io/r/base/match.html'>%in%</a></span> <span class='va'>queue</span><span class='op'>]</span> <span class='co'># slow?</span>
+    
+    <span class='kw'>for</span><span class='op'>(</span><span class='va'>n</span> <span class='kw'>in</span> <span class='va'>neighbours</span><span class='op'>)</span><span class='op'>{</span>
+      
+      <span class='va'>possible_dist</span> <span class='op'>&lt;-</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>i</span><span class='op'>]</span> <span class='op'>+</span> <span class='va'>m</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span> 
+      
+      <span class='kw'>if</span><span class='op'>(</span><span class='va'>possible_dist</span> <span class='op'>&lt;</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>)</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>possible_dist</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+
+  <span class='va'>distances</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>]</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<pre><code>[1] 2876</code></pre>
+</div>
+<p>— Optimizing —</p>
+<p>Optimizing. Biggest culprits so far:</p>
+<ul>
+<li><code>neighbours %in% queue</code> scans 250K vector for ~1-4 objects, much better is a visited matrix to lookup by position. net gain: 45 minutes -&gt; 6 minutes (screaming internally.)</li>
+<li><code>queue &lt;- queue != i</code> should be next?</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># populate distance matrix of equal size to m</span>
+  <span class='va'>distances</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='cn'>Inf</span>,nrow <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,ncol <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span>
+  
+  <span class='co'># set origin as top left hand corner</span>
+  <span class='va'>distances</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  
+  <span class='co'># create queue of indices to check</span>
+  <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>
+  <span class='va'>visited</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='cn'>F</span>,nrow <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>, ncol <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='va'>counter</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  
+  <span class='kw'>while</span><span class='op'>(</span><span class='op'>!</span><span class='va'>visited</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span><span class='op'>{</span>
+    
+    <span class='va'>counter</span> <span class='op'>&lt;-</span> <span class='va'>counter</span> <span class='op'>+</span> <span class='fl'>1</span>
+    
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>counter</span> <span class='op'><a href='https://rdrr.io/r/base/Arithmetic.html'>%%</a></span> <span class='fl'>1000</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span><span class='op'>(</span><span class='va'>counter</span>, <span class='fu'><a href='https://rdrr.io/r/base/format.html'>format</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.time</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>, <span class='st'>"\n"</span><span class='op'>)</span>
+    
+    <span class='va'>i</span> <span class='op'>&lt;-</span> <span class='va'>queue</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/which.min.html'>which.min</a></span><span class='op'>(</span><span class='va'>distances</span><span class='op'>[</span><span class='va'>queue</span><span class='op'>]</span><span class='op'>)</span><span class='op'>]</span> <span class='co'># slow?</span>
+    <span class='va'>queue</span> <span class='op'>&lt;-</span> <span class='va'>queue</span><span class='op'>[</span><span class='va'>queue</span><span class='op'>!=</span><span class='va'>i</span><span class='op'>]</span> <span class='co'>#slow?</span>
+    <span class='va'>visited</span><span class='op'>[</span><span class='va'>i</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='cn'>TRUE</span>
+    
+    <span class='va'>neighbours</span> <span class='op'>&lt;-</span> <span class='va'>neighbours_matrix</span><span class='op'>[</span><span class='va'>i</span><span class='op'>]</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span><span class='op'>)</span>
+    <span class='va'>neighbours</span> <span class='op'>&lt;-</span> <span class='va'>neighbours</span><span class='op'>[</span><span class='op'>!</span><span class='va'>visited</span><span class='op'>[</span><span class='va'>neighbours</span><span class='op'>]</span><span class='op'>]</span>
+    
+    <span class='kw'>for</span><span class='op'>(</span><span class='va'>n</span> <span class='kw'>in</span> <span class='va'>neighbours</span><span class='op'>)</span><span class='op'>{</span>
+      
+      <span class='va'>possible_dist</span> <span class='op'>&lt;-</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>i</span><span class='op'>]</span> <span class='op'>+</span> <span class='va'>m</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span>
+      <span class='kw'>if</span><span class='op'>(</span><span class='va'>possible_dist</span> <span class='op'>&lt;</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span><span class='op'>)</span> <span class='va'>distances</span><span class='op'>[</span><span class='va'>n</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='va'>possible_dist</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+</code></pre>
+</div>
+<pre><code>1000 2021-12-17 13:07:24 
+2000 2021-12-17 13:07:29 
+3000 2021-12-17 13:07:35 
+4000 2021-12-17 13:07:40 
+5000 2021-12-17 13:07:45 
+6000 2021-12-17 13:07:51 
+7000 2021-12-17 13:07:57 
+8000 2021-12-17 13:08:02 
+9000 2021-12-17 13:08:08 
+10000 2021-12-17 13:08:10 
+11000 2021-12-17 13:08:12 
+12000 2021-12-17 13:08:14 
+13000 2021-12-17 13:08:16 
+14000 2021-12-17 13:08:18 
+15000 2021-12-17 13:08:20 
+16000 2021-12-17 13:08:22 
+17000 2021-12-17 13:08:24 
+18000 2021-12-17 13:08:27 
+19000 2021-12-17 13:08:29 
+20000 2021-12-17 13:08:31 
+21000 2021-12-17 13:08:33 
+22000 2021-12-17 13:08:35 
+23000 2021-12-17 13:08:37 
+24000 2021-12-17 13:08:39 
+25000 2021-12-17 13:08:41 
+26000 2021-12-17 13:08:43 
+27000 2021-12-17 13:08:45 
+28000 2021-12-17 13:08:47 
+29000 2021-12-17 13:08:49 
+30000 2021-12-17 13:08:51 
+31000 2021-12-17 13:08:53 
+32000 2021-12-17 13:08:55 
+33000 2021-12-17 13:08:57 
+34000 2021-12-17 13:08:59 
+35000 2021-12-17 13:09:01 
+36000 2021-12-17 13:09:03 
+37000 2021-12-17 13:09:05 
+38000 2021-12-17 13:09:07 
+39000 2021-12-17 13:09:09 
+40000 2021-12-17 13:09:11 
+41000 2021-12-17 13:09:13 
+42000 2021-12-17 13:09:15 
+43000 2021-12-17 13:09:16 
+44000 2021-12-17 13:09:18 
+45000 2021-12-17 13:09:20 
+46000 2021-12-17 13:09:22 
+47000 2021-12-17 13:09:24 
+48000 2021-12-17 13:09:25 
+49000 2021-12-17 13:09:27 
+50000 2021-12-17 13:09:29 
+51000 2021-12-17 13:09:31 
+52000 2021-12-17 13:09:32 
+53000 2021-12-17 13:09:34 
+54000 2021-12-17 13:09:36 
+55000 2021-12-17 13:09:38 
+56000 2021-12-17 13:09:39 
+57000 2021-12-17 13:09:41 
+58000 2021-12-17 13:09:43 
+59000 2021-12-17 13:09:45 
+60000 2021-12-17 13:09:46 
+61000 2021-12-17 13:09:48 
+62000 2021-12-17 13:09:50 
+63000 2021-12-17 13:09:51 
+64000 2021-12-17 13:09:53 
+65000 2021-12-17 13:09:55 
+66000 2021-12-17 13:09:56 
+67000 2021-12-17 13:09:58 
+68000 2021-12-17 13:10:00 
+69000 2021-12-17 13:10:01 
+70000 2021-12-17 13:10:03 
+71000 2021-12-17 13:10:04 
+72000 2021-12-17 13:10:06 
+73000 2021-12-17 13:10:08 
+74000 2021-12-17 13:10:09 
+75000 2021-12-17 13:10:11 
+76000 2021-12-17 13:10:13 
+77000 2021-12-17 13:10:14 
+78000 2021-12-17 13:10:16 
+79000 2021-12-17 13:10:17 
+80000 2021-12-17 13:10:19 
+81000 2021-12-17 13:10:20 
+82000 2021-12-17 13:10:22 
+83000 2021-12-17 13:10:23 
+84000 2021-12-17 13:10:25 
+85000 2021-12-17 13:10:26 
+86000 2021-12-17 13:10:28 
+87000 2021-12-17 13:10:29 
+88000 2021-12-17 13:10:30 
+89000 2021-12-17 13:10:32 
+90000 2021-12-17 13:10:33 
+91000 2021-12-17 13:10:35 
+92000 2021-12-17 13:10:36 
+93000 2021-12-17 13:10:38 
+94000 2021-12-17 13:10:39 
+95000 2021-12-17 13:10:40 
+96000 2021-12-17 13:10:42 
+97000 2021-12-17 13:10:43 
+98000 2021-12-17 13:10:45 
+99000 2021-12-17 13:10:46 
+100000 2021-12-17 13:10:48 
+101000 2021-12-17 13:10:49 
+102000 2021-12-17 13:10:50 
+103000 2021-12-17 13:10:52 
+104000 2021-12-17 13:10:53 
+105000 2021-12-17 13:10:54 
+106000 2021-12-17 13:10:55 
+107000 2021-12-17 13:10:57 
+108000 2021-12-17 13:10:58 
+109000 2021-12-17 13:10:59 
+110000 2021-12-17 13:11:00 
+111000 2021-12-17 13:11:02 
+112000 2021-12-17 13:11:03 
+113000 2021-12-17 13:11:04 
+114000 2021-12-17 13:11:05 
+115000 2021-12-17 13:11:07 
+116000 2021-12-17 13:11:08 
+117000 2021-12-17 13:11:09 
+118000 2021-12-17 13:11:10 
+119000 2021-12-17 13:11:11 
+120000 2021-12-17 13:11:13 
+121000 2021-12-17 13:11:14 
+122000 2021-12-17 13:11:15 
+123000 2021-12-17 13:11:16 
+124000 2021-12-17 13:11:17 
+125000 2021-12-17 13:11:18 
+126000 2021-12-17 13:11:19 
+127000 2021-12-17 13:11:21 
+128000 2021-12-17 13:11:22 
+129000 2021-12-17 13:11:23 
+130000 2021-12-17 13:11:24 
+131000 2021-12-17 13:11:25 
+132000 2021-12-17 13:11:26 
+133000 2021-12-17 13:11:27 
+134000 2021-12-17 13:11:28 
+135000 2021-12-17 13:11:29 
+136000 2021-12-17 13:11:30 
+137000 2021-12-17 13:11:31 
+138000 2021-12-17 13:11:32 
+139000 2021-12-17 13:11:33 
+140000 2021-12-17 13:11:34 
+141000 2021-12-17 13:11:35 
+142000 2021-12-17 13:11:36 
+143000 2021-12-17 13:11:37 
+144000 2021-12-17 13:11:38 
+145000 2021-12-17 13:11:39 
+146000 2021-12-17 13:11:40 
+147000 2021-12-17 13:11:41 
+148000 2021-12-17 13:11:42 
+149000 2021-12-17 13:11:43 
+150000 2021-12-17 13:11:44 
+151000 2021-12-17 13:11:44 
+152000 2021-12-17 13:11:45 
+153000 2021-12-17 13:11:46 
+154000 2021-12-17 13:11:47 
+155000 2021-12-17 13:11:48 
+156000 2021-12-17 13:11:49 
+157000 2021-12-17 13:11:50 
+158000 2021-12-17 13:11:51 
+159000 2021-12-17 13:11:51 
+160000 2021-12-17 13:11:52 
+161000 2021-12-17 13:11:53 
+162000 2021-12-17 13:11:54 
+163000 2021-12-17 13:11:55 
+164000 2021-12-17 13:11:55 
+165000 2021-12-17 13:11:56 
+166000 2021-12-17 13:11:57 
+167000 2021-12-17 13:11:57 
+168000 2021-12-17 13:11:58 
+169000 2021-12-17 13:11:59 
+170000 2021-12-17 13:12:00 
+171000 2021-12-17 13:12:00 
+172000 2021-12-17 13:12:01 
+173000 2021-12-17 13:12:02 
+174000 2021-12-17 13:12:02 
+175000 2021-12-17 13:12:03 
+176000 2021-12-17 13:12:04 
+177000 2021-12-17 13:12:04 
+178000 2021-12-17 13:12:05 
+179000 2021-12-17 13:12:05 
+180000 2021-12-17 13:12:06 
+181000 2021-12-17 13:12:07 
+182000 2021-12-17 13:12:07 
+183000 2021-12-17 13:12:08 
+184000 2021-12-17 13:12:08 
+185000 2021-12-17 13:12:09 
+186000 2021-12-17 13:12:09 
+187000 2021-12-17 13:12:10 
+188000 2021-12-17 13:12:11 
+189000 2021-12-17 13:12:11 
+190000 2021-12-17 13:12:12 
+191000 2021-12-17 13:12:12 
+192000 2021-12-17 13:12:13 
+193000 2021-12-17 13:12:13 
+194000 2021-12-17 13:12:14 
+195000 2021-12-17 13:12:14 
+196000 2021-12-17 13:12:15 
+197000 2021-12-17 13:12:15 
+198000 2021-12-17 13:12:15 
+199000 2021-12-17 13:12:16 
+200000 2021-12-17 13:12:16 
+201000 2021-12-17 13:12:17 
+202000 2021-12-17 13:12:17 
+203000 2021-12-17 13:12:18 
+204000 2021-12-17 13:12:18 
+205000 2021-12-17 13:12:19 
+206000 2021-12-17 13:12:19 
+207000 2021-12-17 13:12:19 
+208000 2021-12-17 13:12:20 
+209000 2021-12-17 13:12:20 
+210000 2021-12-17 13:12:20 
+211000 2021-12-17 13:12:21 
+212000 2021-12-17 13:12:21 
+213000 2021-12-17 13:12:21 
+214000 2021-12-17 13:12:22 
+215000 2021-12-17 13:12:22 
+216000 2021-12-17 13:12:22 
+217000 2021-12-17 13:12:22 
+218000 2021-12-17 13:12:23 
+219000 2021-12-17 13:12:23 
+220000 2021-12-17 13:12:23 
+221000 2021-12-17 13:12:24 
+222000 2021-12-17 13:12:24 
+223000 2021-12-17 13:12:24 
+224000 2021-12-17 13:12:24 
+225000 2021-12-17 13:12:25 
+226000 2021-12-17 13:12:25 
+227000 2021-12-17 13:12:25 
+228000 2021-12-17 13:12:25 
+229000 2021-12-17 13:12:25 
+230000 2021-12-17 13:12:26 
+231000 2021-12-17 13:12:26 
+232000 2021-12-17 13:12:26 
+233000 2021-12-17 13:12:26 
+234000 2021-12-17 13:12:26 
+235000 2021-12-17 13:12:26 
+236000 2021-12-17 13:12:26 
+237000 2021-12-17 13:12:27 
+238000 2021-12-17 13:12:27 
+239000 2021-12-17 13:12:27 
+240000 2021-12-17 13:12:27 
+241000 2021-12-17 13:12:27 
+242000 2021-12-17 13:12:27 
+243000 2021-12-17 13:12:27 
+244000 2021-12-17 13:12:27 
+245000 2021-12-17 13:12:27 
+246000 2021-12-17 13:12:27 
+247000 2021-12-17 13:12:27 
+248000 2021-12-17 13:12:27 
+249000 2021-12-17 13:12:27 </code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r">  <span class='va'>distances</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span>,<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>m</span><span class='op'>)</span><span class='op'>]</span>
+</code></pre>
+</div>
+<pre><code>[1] 2876</code></pre>
+</div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="day-16">Day 16</h2>
+<p><a href="https://adventofcode.com/2021/day/16" class="uri">https://adventofcode.com/2021/day/16</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/HenrikBengtsson/R.utils'>R.utils</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>16</span>, year <span class='op'>=</span> <span class='fl'>2021</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>input</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2021/day-16-input.txt"</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Part 1 —</p>
+<p>Helper functions for converting:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>.hexbin</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble</a></span><span class='op'>(</span>
+  <span class='op'>~</span><span class='va'>hex</span>, <span class='op'>~</span><span class='va'>bin</span>,
+  <span class='st'>"0"</span>, <span class='st'>"0000"</span>,
+   <span class='st'>"1"</span>,  <span class='st'>"0001"</span>,
+   <span class='st'>"2"</span>,  <span class='st'>"0010"</span>,
+   <span class='st'>"3"</span>,  <span class='st'>"0011"</span>,
+   <span class='st'>"4"</span>,  <span class='st'>"0100"</span>,
+   <span class='st'>"5"</span>,  <span class='st'>"0101"</span>,
+   <span class='st'>"6"</span>,  <span class='st'>"0110"</span>,
+   <span class='st'>"7"</span>,  <span class='st'>"0111"</span>,
+   <span class='st'>"8"</span>,  <span class='st'>"1000"</span>,
+   <span class='st'>"9"</span>,  <span class='st'>"1001"</span>,
+   <span class='st'>"A"</span>,  <span class='st'>"1010"</span>,
+   <span class='st'>"B"</span>,  <span class='st'>"1011"</span>,
+   <span class='st'>"C"</span>,  <span class='st'>"1100"</span>,
+   <span class='st'>"D"</span>,  <span class='st'>"1101"</span>,
+   <span class='st'>"E"</span>,  <span class='st'>"1110"</span>,
+   <span class='st'>"F"</span>,  <span class='st'>"1111"</span>
+  <span class='op'>)</span> |&gt; 
+  <span class='fu'><a href='https://tibble.tidyverse.org/reference/enframe.html'>deframe</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>hex2bin</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>hex</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='va'>s</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='va'>hex</span>,<span class='st'>""</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='va'>.hexbin</span><span class='op'>[</span><span class='va'>s</span><span class='op'>]</span>,collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>bin2int</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>bin</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='co'># strtoi(bin,base = 2) # no good, overflows after 2^31</span>
+  <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='va'>bin</span>, <span class='st'>""</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>x</span> <span class='op'>*</span> <span class='fl'>2</span><span class='op'>^</span><span class='fu'><a href='https://rdrr.io/r/base/rev.html'>rev</a></span><span class='op'>(</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+<p><em>furious notes as I try to understand stuff</em></p>
+<p>Identify packets.</p>
+<p>Function to parse:</p>
+<ul>
+<li>first three characters of the binary string are the version number</li>
+<li>next three characters of binary identify type ID which controls how the rest of the string is parsed</li>
+</ul>
+<p>if:</p>
+<ul>
+<li>type id = 4 =&gt; literal binary value</li>
+<li>type id != 4 =&gt; operator, also passes in the subpackets.</li>
+</ul>
+<p>functions - read packet version - read packet type - do operation for packet type</p>
+<p>Some helpers.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>read_packet_version</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='fl'>3</span><span class='op'>)</span> |&gt; <span class='fu'>bin2int</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>read_packet_type</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='fl'>3</span><span class='op'>)</span> |&gt; <span class='fu'>bin2int</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>read_packet_length_type</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='fl'>1</span><span class='op'>)</span> |&gt; <span class='fu'>bin2int</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>read_subpacket_bits</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='fl'>15</span><span class='op'>)</span> |&gt; <span class='fu'>bin2int</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>read_subpacket_length</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/substr.html'>substr</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='fl'>11</span><span class='op'>)</span> |&gt; <span class='fu'>bin2int</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>read_literal_packet</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  
+  <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/strsplit.html'>strsplit</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='st'>""</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+      n <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://rdrr.io/r/base/Arithmetic.html'>%/%</a></span> <span class='fl'>5.00001</span> <span class='op'>+</span> <span class='fl'>1</span>
+    <span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+      h <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/nth.html'>first</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='op'>)</span>,
+      x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>==</span> <span class='fl'>1</span>,<span class='st'>""</span>,<span class='va'>x</span><span class='op'>)</span>
+    <span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>n</span>,<span class='va'>h</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='va'>x</span>, collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>ungroup</a></span><span class='op'>(</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>
+      cumsum_h <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/cumsum.html'>cumsum</a></span><span class='op'>(</span><span class='va'>h</span><span class='op'>==</span><span class='fl'>0</span><span class='op'>)</span>,
+      keep <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/lead-lag.html'>lag</a></span><span class='op'>(</span><span class='va'>cumsum_h</span>,default <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span> <span class='op'>==</span> <span class='fl'>0</span>
+    <span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>keep</span><span class='op'>)</span>
+    
+  <span class='va'>unprocessed</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>$</span><span class='va'>n</span><span class='op'>)</span><span class='op'>*</span><span class='fl'>5</span><span class='op'>+</span><span class='fl'>1</span><span class='op'>)</span>
+  
+  <span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://stringr.tidyverse.org/reference/str_length.html'>str_length</a></span><span class='op'>(</span><span class='va'>unprocessed</span><span class='op'>)</span> <span class='op'>&lt;</span> <span class='fl'>11</span><span class='op'>)</span> <span class='va'>unprocessed</span> <span class='op'>&lt;-</span> <span class='st'>""</span>
+  
+  <span class='va'>literal_value</span> <span class='op'>&lt;-</span> <span class='va'>x</span> |&gt; 
+    <span class='fu'><a href='https://dplyr.tidyverse.org/reference/pull.html'>pull</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> |&gt; 
+    <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span> |&gt; 
+    <span class='fu'>bin2int</span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='kw'>if</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='op'>(</span><span class='va'>literal_value</span><span class='op'>)</span><span class='op'>)</span> <span class='fu'><a href='https://rdrr.io/r/base/browser.html'>browser</a></span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>value <span class='op'>=</span> <span class='va'>literal_value</span>, unprocessed <span class='op'>=</span> <span class='va'>unprocessed</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>read_packet</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='va'>packet_version</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet_version</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+  <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>4</span><span class='op'>)</span>
+  <span class='va'>packet_type</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet_type</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+  <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>4</span><span class='op'>)</span>
+  
+  <span class='co'>## LITERAL PACKETS (Type 4)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>packet_type</span> <span class='op'>==</span> <span class='fl'>4</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='co'># return(packet_version)</span>
+    <span class='va'>literal</span> <span class='op'>&lt;-</span> <span class='fu'>read_literal_packet</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+    <span class='co'># For Part One</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span>
+      <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>version <span class='op'>=</span> <span class='va'>packet_version</span>,
+           type <span class='op'>=</span> <span class='va'>packet_type</span>,
+           value <span class='op'>=</span> <span class='va'>literal</span><span class='op'>$</span><span class='va'>value</span>,
+           unprocessed <span class='op'>=</span> <span class='va'>literal</span><span class='op'>$</span><span class='va'>unprocessed</span><span class='op'>)</span>
+    <span class='op'>)</span>
+  <span class='op'>}</span>
+  
+  <span class='va'>packet_versions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_version</span><span class='op'>)</span>
+  <span class='va'>packet_types</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_type</span><span class='op'>)</span>
+  <span class='va'>packet_values</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span>
+  <span class='co'># SUBPACKETS </span>
+  <span class='co'>## SUBPACKETS WITH A LENGTH CONSTRAINT</span>
+  <span class='va'>length_type</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet_length_type</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+  <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>2</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>length_type</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='va'>subpacket_bits</span> <span class='op'>&lt;-</span> <span class='fu'>read_subpacket_bits</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+    <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>16</span><span class='op'>)</span>
+    <span class='va'>subpacket</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='va'>subpacket_bits</span><span class='op'>)</span>
+    <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='va'>subpacket_bits</span><span class='op'>+</span><span class='fl'>1</span><span class='op'>)</span>
+    <span class='kw'>while</span><span class='op'>(</span><span class='fu'><a href='https://stringr.tidyverse.org/reference/str_length.html'>str_length</a></span><span class='op'>(</span><span class='va'>subpacket</span><span class='op'>)</span> <span class='op'>&gt;</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>{</span>
+      <span class='va'>returned_subpacket</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet</span><span class='op'>(</span><span class='va'>subpacket</span><span class='op'>)</span>
+      <span class='va'>packet_versions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_versions</span>, <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>version</span><span class='op'>)</span>
+      <span class='va'>packet_types</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_types</span>, <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>type</span><span class='op'>)</span>
+      <span class='va'>packet_values</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_values</span>, <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>value</span><span class='op'>)</span>
+      <span class='va'>subpacket</span> <span class='op'>&lt;-</span> <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>unprocessed</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+  
+  <span class='co'>## SUBPACKETS WITH A COUNT CONSTRAINT</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>length_type</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>subpacket_length</span> <span class='op'>&lt;-</span> <span class='fu'>read_subpacket_length</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+    <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>12</span><span class='op'>)</span>
+    <span class='kw'>for</span><span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='va'>subpacket_length</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+      <span class='va'>returned_subpacket</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+      <span class='va'>packet_versions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_versions</span>, <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>version</span><span class='op'>)</span>
+      <span class='va'>packet_types</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_types</span>, <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>type</span><span class='op'>)</span>
+      <span class='va'>packet_values</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>packet_values</span>,<span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>value</span><span class='op'>)</span>
+      <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>unprocessed</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+  
+  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>version <span class='op'>=</span> <span class='va'>packet_versions</span>,
+              type <span class='op'>=</span> <span class='va'>packet_types</span>,
+              value <span class='op'>=</span> <span class='va'>packet_values</span>,
+              unprocessed <span class='op'>=</span> <span class='va'>packet</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+
+<span class='va'>decode_packet</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>hex</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'>hex2bin</span><span class='op'>(</span><span class='va'>hex</span><span class='op'>)</span> |&gt; <span class='fu'>read_packet</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+Tests:
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>.e1</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='st'>"D2FE28"</span><span class='op'>)</span>
+<span class='fu'>testthat</span><span class='fu'>::</span><span class='fu'><a href='https://testthat.r-lib.org/reference/equality-expectations.html'>expect_equal</a></span><span class='op'>(</span><span class='va'>.e1</span><span class='op'>$</span><span class='va'>version</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='fl'>6</span><span class='op'>)</span>
+<span class='va'>.e2</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='st'>"8A004A801A8002F478"</span><span class='op'>)</span>
+<span class='fu'>testthat</span><span class='fu'>::</span><span class='fu'><a href='https://testthat.r-lib.org/reference/equality-expectations.html'>expect_equal</a></span><span class='op'>(</span><span class='va'>.e2</span><span class='op'>$</span><span class='va'>version</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='fl'>16</span><span class='op'>)</span>
+<span class='va'>.e3</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='st'>"38006F45291200"</span><span class='op'>)</span>
+<span class='fu'>testthat</span><span class='fu'>::</span><span class='fu'><a href='https://testthat.r-lib.org/reference/equality-expectations.html'>expect_equal</a></span><span class='op'>(</span><span class='va'>.e3</span><span class='op'>$</span><span class='va'>version</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>,<span class='fl'>9</span><span class='op'>)</span>
+<span class='va'>.e4</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='st'>"620080001611562C8802118E34"</span><span class='op'>)</span>
+<span class='fu'>testthat</span><span class='fu'>::</span><span class='fu'><a href='https://testthat.r-lib.org/reference/equality-expectations.html'>expect_equal</a></span><span class='op'>(</span><span class='va'>.e4</span><span class='op'>$</span><span class='va'>version</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>,<span class='fl'>12</span><span class='op'>)</span>
+<span class='va'>.e5</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='st'>"C0015000016115A2E0802F182340"</span><span class='op'>)</span>
+<span class='fu'>testthat</span><span class='fu'>::</span><span class='fu'><a href='https://testthat.r-lib.org/reference/equality-expectations.html'>expect_equal</a></span><span class='op'>(</span><span class='va'>.e5</span><span class='op'>$</span><span class='va'>version</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>,<span class='fl'>23</span><span class='op'>)</span>
+<span class='va'>.e6</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='st'>"A0016C880162017C3686B18A3D4780"</span><span class='op'>)</span>
+<span class='fu'>testthat</span><span class='fu'>::</span><span class='fu'><a href='https://testthat.r-lib.org/reference/equality-expectations.html'>expect_equal</a></span><span class='op'>(</span><span class='va'>.e6</span><span class='op'>$</span><span class='va'>version</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>,<span class='fl'>31</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>p1</span> <span class='op'>&lt;-</span> <span class='fu'>decode_packet</span><span class='op'>(</span><span class='va'>input</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>p1</span><span class='op'>$</span><span class='va'>version</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 913</code></pre>
+</div>
+<p>— Part 2 —</p>
+<p>Editing so that I return a tree instead of a collapsed vector:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>read_packet</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='va'>packet_version</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet_version</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+  <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>4</span><span class='op'>)</span>
+  <span class='va'>packet_type</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet_type</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+  <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>4</span><span class='op'>)</span>
+  
+  <span class='co'>## LITERAL PACKETS (Type 4)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>packet_type</span> <span class='op'>==</span> <span class='fl'>4</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>literal</span> <span class='op'>&lt;-</span> <span class='fu'>read_literal_packet</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span>
+      <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>version <span class='op'>=</span> <span class='va'>packet_version</span>,
+           type <span class='op'>=</span> <span class='va'>packet_type</span>,
+           value <span class='op'>=</span> <span class='va'>literal</span><span class='op'>$</span><span class='va'>value</span>,
+           unprocessed <span class='op'>=</span> <span class='va'>literal</span><span class='op'>$</span><span class='va'>unprocessed</span><span class='op'>)</span>
+    <span class='op'>)</span>
+  <span class='op'>}</span>
+  <span class='va'>subpackets</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
+  <span class='co'># SUBPACKETS </span>
+  <span class='co'>## SUBPACKETS WITH A LENGTH CONSTRAINT</span>
+  <span class='va'>length_type</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet_length_type</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+  <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>2</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>length_type</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='va'>subpacket_bits</span> <span class='op'>&lt;-</span> <span class='fu'>read_subpacket_bits</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+    <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>16</span><span class='op'>)</span>
+    <span class='va'>subpacket</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>1</span>,<span class='va'>subpacket_bits</span><span class='op'>)</span>
+    <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='va'>subpacket_bits</span><span class='op'>+</span><span class='fl'>1</span><span class='op'>)</span>
+    <span class='kw'>while</span><span class='op'>(</span><span class='fu'><a href='https://stringr.tidyverse.org/reference/str_length.html'>str_length</a></span><span class='op'>(</span><span class='va'>subpacket</span><span class='op'>)</span> <span class='op'>&gt;</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>{</span>
+      <span class='va'>returned_subpacket</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet</span><span class='op'>(</span><span class='va'>subpacket</span><span class='op'>)</span>
+      <span class='va'>subpackets</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>subpackets</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>returned_subpacket</span><span class='op'>)</span><span class='op'>)</span>
+      <span class='va'>subpacket</span> <span class='op'>&lt;-</span> <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>unprocessed</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+  
+  <span class='co'>## SUBPACKETS WITH A COUNT CONSTRAINT</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>length_type</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>subpacket_length</span> <span class='op'>&lt;-</span> <span class='fu'>read_subpacket_length</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+    <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://stringr.tidyverse.org/reference/str_sub.html'>str_sub</a></span><span class='op'>(</span><span class='va'>packet</span>,<span class='fl'>12</span><span class='op'>)</span>
+    <span class='kw'>for</span><span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='va'>subpacket_length</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+      <span class='va'>returned_subpacket</span> <span class='op'>&lt;-</span> <span class='fu'>read_packet</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span>
+      <span class='va'>subpackets</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>subpackets</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>returned_subpacket</span><span class='op'>)</span><span class='op'>)</span>
+      <span class='va'>packet</span> <span class='op'>&lt;-</span> <span class='va'>returned_subpacket</span><span class='op'>$</span><span class='va'>unprocessed</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+  
+  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+    version <span class='op'>=</span> <span class='va'>packet_version</span>, 
+    type <span class='op'>=</span> <span class='va'>packet_type</span>,
+    packets <span class='op'>=</span> <span class='va'>subpackets</span>,
+    unprocessed <span class='op'>=</span> <span class='va'>packet</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+<p>Recursing over my tree:</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>evaluate_packet</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='va'>packet_type</span> <span class='op'>&lt;-</span> <span class='va'>packet</span> |&gt; <span class='fu'><a href='https://purrr.tidyverse.org/reference/pluck.html'>pluck</a></span><span class='op'>(</span><span class='st'>"type"</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>packet_type</span> <span class='op'>==</span> <span class='fl'>4</span><span class='op'>)</span> <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>packet</span><span class='op'>$</span><span class='va'>value</span><span class='op'>)</span>
+  
+  <span class='va'>subpacket_values</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span>
+  
+  <span class='kw'>for</span><span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>packet</span><span class='op'>$</span><span class='va'>packets</span><span class='op'>)</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>subpacket_values</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>subpacket_values</span>, <span class='fu'>evaluate_packet</span><span class='op'>(</span><span class='va'>packet</span><span class='op'>$</span><span class='va'>packets</span><span class='op'>[[</span><span class='va'>i</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+  
+  <span class='va'>packet_value</span> <span class='op'>&lt;-</span> <span class='kw'><a href='https://rdrr.io/r/base/switch.html'>switch</a></span><span class='op'>(</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='va'>packet_type</span><span class='op'>)</span>,
+    <span class='st'>"0"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>subpacket_values</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+    <span class='st'>"1"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/prod.html'>prod</a></span><span class='op'>(</span><span class='va'>subpacket_values</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+    <span class='st'>"2"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='va'>subpacket_values</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+    <span class='st'>"3"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>subpacket_values</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+    <span class='st'>"5"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>subpacket_values</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&gt;</span> <span class='va'>subpacket_values</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>)</span>,
+    <span class='st'>"6"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>subpacket_values</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>&lt;</span> <span class='va'>subpacket_values</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>)</span>,
+    <span class='st'>"7"</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>subpacket_values</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>]</span> <span class='op'>==</span> <span class='va'>subpacket_values</span><span class='op'>[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>)</span>
+  <span class='op'>)</span>
+  
+  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>packet_value</span><span class='op'>)</span>
+<span class='op'>}</span>
+<span class='va'>decode_packet</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>hex</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='fu'>hex2bin</span><span class='op'>(</span><span class='va'>hex</span><span class='op'>)</span> |&gt; <span class='fu'>read_packet</span><span class='op'>(</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+<p>Discovered a few NAs and needed to go back and rewrite the bin2int function after it overflowed silently</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>decode_packet</span><span class='op'>(</span><span class='va'>input</span><span class='op'>)</span> |&gt; <span class='fu'>evaluate_packet</span><span class='op'>(</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 1510977819698</code></pre>
+</div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="day-17">Day 17</h2>
+<p><a href="https://adventofcode.com/2021/day/17" class="uri">https://adventofcode.com/2021/day/17</a></p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/message.html'>suppressPackageStartupMessages</a></span><span class='op'>(</span><span class='op'>{</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/tidyverse/glue'>glue</a></span><span class='op'>)</span>
+  
+  <span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>echo <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>}</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>scipen <span class='op'>=</span> <span class='fl'>9999999</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>dplyr.summarise.inform <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>— Data —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># tanho63/aoc.elf</span>
+<span class='fu'>aoc.elf</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/aoc.elf/man/aoc_get.html'>aoc_get</a></span><span class='op'>(</span>day <span class='op'>=</span> <span class='fl'>17</span>, year <span class='op'>=</span> <span class='fl'>2021</span><span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/readLines.html'>readLines</a></span><span class='op'>(</span><span class='fu'>here</span><span class='fu'>::</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"2021/day-17-input.txt"</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] &quot;target area: x=175..227, y=-134..-79&quot;</code></pre>
+</div>
+<p>— Part 1 —</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>launch</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>xv</span>,<span class='va'>yv</span><span class='op'>)</span><span class='op'>{</span>
+  <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='va'>y</span> <span class='op'>&lt;-</span> <span class='va'>max_y</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+  <span class='va'>success</span> <span class='op'>&lt;-</span> <span class='cn'>FALSE</span>
+  
+  <span class='kw'>while</span><span class='op'>(</span><span class='va'>x</span> <span class='op'>&lt;</span> <span class='fl'>227</span> <span class='op'>&amp;</span> <span class='va'>y</span> <span class='op'>&gt;</span> <span class='op'>-</span><span class='fl'>134</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='va'>x</span> <span class='op'>+</span> <span class='va'>xv</span>
+    <span class='va'>y</span> <span class='op'>&lt;-</span> <span class='va'>y</span> <span class='op'>+</span> <span class='va'>yv</span>
+    <span class='va'>xv</span> <span class='op'>&lt;-</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sign.html'>sign</a></span><span class='op'>(</span><span class='va'>xv</span><span class='op'>)</span> <span class='op'>*</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span> <span class='va'>xv</span>
+    <span class='va'>yv</span> <span class='op'>&lt;-</span> <span class='va'>yv</span> <span class='op'>-</span> <span class='fl'>1</span>
+    
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>y</span> <span class='op'>&gt;</span> <span class='va'>max_y</span><span class='op'>)</span> <span class='va'>max_y</span> <span class='op'>&lt;-</span> <span class='va'>y</span>
+    
+    <span class='kw'>if</span><span class='op'>(</span><span class='va'>x</span> <span class='op'>&gt;=</span> <span class='fl'>175</span> <span class='op'>&amp;&amp;</span> <span class='va'>x</span> <span class='op'>&lt;=</span> <span class='fl'>227</span> <span class='op'>&amp;&amp;</span> <span class='va'>y</span> <span class='op'>&gt;=</span> <span class='op'>-</span><span class='fl'>134</span> <span class='op'>&amp;&amp;</span> <span class='va'>y</span> <span class='op'>&lt;=</span> <span class='op'>-</span><span class='fl'>79</span><span class='op'>)</span><span class='op'>{</span>
+      <span class='va'>success</span> <span class='op'>&lt;-</span> <span class='cn'>TRUE</span> 
+      <span class='kw'>break</span>
+    <span class='op'>}</span>
+  <span class='op'>}</span>
+  <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>success <span class='op'>=</span> <span class='va'>success</span>, y <span class='op'>=</span> <span class='va'>max_y</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
+</code></pre>
+</div>
+</div>
+<p><del>solve for some kind of system of equations?</del> <del>solve for inequalities?</del> <del>optim?</del> guess and check lul</p>
+<p>Highest point of Y will involve X being the first point at which X reaches zero velocity within the range.</p>
+<p>Since x decreases by one and converges towards zero, x is equal to the sum of sequence that falls within the x range.</p>
+<p>Then Y is just “the highest y velocity that still falls within the success range” so search backwards til you find it.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fl'>0</span>
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fl'>1000</span>
+
+<span class='kw'>repeat</span> <span class='op'>{</span>
+  <span class='va'>r</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_len</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>r</span> <span class='op'>&gt;=</span> <span class='fl'>175</span> <span class='op'>&amp;&amp;</span> <span class='va'>r</span> <span class='op'>&lt;=</span> <span class='fl'>227</span><span class='op'>)</span> <span class='kw'>break</span>
+  <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='va'>x</span> <span class='op'>+</span> <span class='fl'>1</span>
+<span class='op'>}</span>
+
+<span class='kw'>repeat</span> <span class='op'>{</span>
+  <span class='va'>y</span> <span class='op'>&lt;-</span> <span class='va'>y</span><span class='op'>-</span><span class='fl'>1</span>
+  <span class='va'>res</span> <span class='op'>&lt;-</span> <span class='fu'>launch</span><span class='op'>(</span><span class='va'>x</span>,<span class='va'>y</span><span class='op'>)</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>res</span><span class='op'>$</span><span class='va'>success</span><span class='op'>)</span> <span class='kw'>break</span>
+  <span class='kw'>if</span><span class='op'>(</span><span class='va'>y</span> <span class='op'>&lt;</span> <span class='fl'>0</span><span class='op'>)</span> <span class='kw'>break</span>
+<span class='op'>}</span>
+
+<span class='va'>res</span><span class='op'>$</span><span class='va'>y</span>
+</code></pre>
+</div>
+<pre><code>[1] 8911</code></pre>
+</div>
+<p>— Part 2 —</p>
+<p>I know:</p>
+<ul>
+<li>x min velocity is 19 from prev step</li>
+<li>x max velocity is 227 (xmax)</li>
+<li>y min velocity is -134 (ymin)</li>
+<li>y max velocity is 133 from prev step</li>
+</ul>
+Make a search grid and launch em all!
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>g</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/expand.html'>crossing</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fl'>19</span><span class='op'>:</span><span class='fl'>227</span>, y <span class='op'>=</span> <span class='op'>-</span><span class='fl'>134</span><span class='op'>:</span><span class='fl'>133</span><span class='op'>)</span>
+<span class='fu'><a href='https://purrr.tidyverse.org/reference/map2.html'>map2_lgl</a></span><span class='op'>(</span><span class='va'>g</span><span class='op'>$</span><span class='va'>x</span>,<span class='va'>g</span><span class='op'>$</span><span class='va'>y</span>,<span class='op'>~</span><span class='fu'>launch</span><span class='op'>(</span><span class='va'>.x</span>,<span class='va'>.y</span><span class='op'>)</span><span class='op'>$</span><span class='va'>success</span><span class='op'>)</span> |&gt; <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='op'>)</span>
+</code></pre>
+</div>
+<pre><code>[1] 4748</code></pre>
+</div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+</div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

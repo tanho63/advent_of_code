@@ -188,8 +188,6 @@ aoc.elf::aoc_get(day = 17, year = 2021)</code></pre>
 <pre class="r"><code>readLines(here::here(&quot;2021/day-17-input.txt&quot;))</code></pre>
 <pre><code>## [1] &quot;target area: x=175..227, y=-134..-79&quot;</code></pre>
 <p>— Part 1 —</p>
-<p><del>solve for some kind of system of equations?</del> <del>solve for inequalities?</del> <del>optim?</del> guess and check lul</p>
-<p>Highest point of Y will involve X being the first point at which X reaches zero velocity within the range</p>
 <pre class="r"><code>launch &lt;- function(xv,yv){
   x &lt;- y &lt;- max_y &lt;- 0
   success &lt;- FALSE
@@ -209,15 +207,18 @@ aoc.elf::aoc_get(day = 17, year = 2021)</code></pre>
   }
   return(list(success = success, y = max_y))
 }</code></pre>
+<p><del>solve for some kind of system of equations?</del> <del>solve for inequalities?</del> <del>optim?</del> guess and check lul</p>
+<p>Highest point of Y will involve X being the first point at which X reaches zero velocity within the range.</p>
+<p>Since x decreases by one and converges towards zero, x is equal to the sum of sequence that falls within the x range.</p>
+<p>Then Y is just “the highest y velocity that still falls within the success range” so search backwards til you find it.</p>
 <pre class="r"><code>x &lt;- 0
+y &lt;- 1000
 
 repeat {
   r &lt;- sum(seq_len(x))
   if(r &gt;= 175 &amp;&amp; r &lt;= 227) break
   x &lt;- x + 1
 }
-
-y &lt;- 1000
 
 repeat {
   y &lt;- y-1

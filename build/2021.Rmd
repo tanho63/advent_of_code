@@ -5,25 +5,27 @@ description: |
 output:
   distill::distill_article:
     toc: true
-    toc_depth: 2
     toc_float: true
 ---
-```{r results = 'asis', echo = FALSE}
+
+```{r include = FALSE}
 available_rmds <- list.files(here::here("2021"),full.names = TRUE,pattern = "Rmd$")
 
-day <- seq_along(available_rmds)
+xfun::gsub_dir(pattern = "{r setup}", replacement = "{r}", fixed = TRUE, dir = here::here("2021"))
 
-headings <- paste("## Day", day)
-url_links <- paste0("<https://adventofcode.com/2021/day/",day,">")
+day <- seq_along(available_rmds)
+headings <- paste('## Day', day, "\n")
+url_links <- paste0("<https://adventofcode.com/2021/day/",day,"> \n")
 
 pages <- available_rmds |> 
   purrr::map(knitr::knit_child, envir = environment(), quiet = TRUE)
+```
 
+```{r results = 'asis', echo = FALSE}
 for(i in seq_along(available_rmds)){
   cat(headings[[i]])
   cat("\n")
   cat(url_links[[i]])
-  cat("\n")
   cat(pages[[i]])
   cat("\n")
 }

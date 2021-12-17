@@ -29,4 +29,5 @@ output:
   distill::distill_article:
     toc: true
     toc_depth: 2
+    toc_float: true
 theme: theme.css

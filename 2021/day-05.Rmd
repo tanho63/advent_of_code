@@ -12,9 +12,10 @@ suppressPackageStartupMessages({
   library(glue)
   library(tantastic)
   
-  tantastic::fontimport_bai_jamjuree()
-  tantastic::fontimport_plex_condensed()
-  
+  ragg_png = function(..., res = 150) {
+    ragg::agg_png(..., res = res, units = "in")
+  }
+  knitr::opts_chunk$set(dev = "ragg_png")
   knitr::opts_chunk$set(echo = TRUE)
 })
 
