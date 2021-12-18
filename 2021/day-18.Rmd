@@ -37,8 +37,9 @@ input <- readLines(here::here("2021/day-18-input.txt"))
   - Perform explosion
   - Identify split (any number larger than 10)
   - Perform split
-- Function to perform combine
 - Function to do magnitude
+
+Travelling today. S
 
 ```{r}
 do_add <- \(left,right){
@@ -48,18 +49,15 @@ do_add("[[[[4,3],4],4],[7,[[8,4],9]]]","[1,1]")
 ```
 
 ```{r}
-identify_reduce <- \(pair){
-  first_split <- str_locate(pair,"[0-9]{2}") |> 
-    unlist() |> 
-    as.numeric() |> 
+identify_split <- \(pair){
+  x <- str_locate(pair,"[0-9]{2}") |>
+    unlist() |>
+    as.numeric() |>
     min(Inf, na.rm = TRUE)
   
-  first_explode <- identify_explode(pair)
+  if(is.infinite(x)) return(FALSE)
   
-  if(is.infinite(first_split) && is.infinite(first_explode)) return("reduced")
-  
-  out <- c("split","explode")[which.min(c(first_split,first_explode))]
-  return(out)
+  return(TRUE)
 }
 
 identify_explode <- \(pair){
@@ -68,24 +66,25 @@ identify_explode <- \(pair){
   for (i in seq_along(v)){
     if(v[i] == "[") b <- b + 1
     if(v[i] == "]") b <- b - 1
-    if(b == 5) return(i)
+    if(b == 5) return(TRUE)
   }
-  return(Inf)
+  return(FALSE)
 }
 
 ```
 
 ```{r}
 do_split <- \(pair){
-  num_chars <- str_extract_all(pair,"[0-9]{2}") |> 
-    unlist() |> 
-    as.numeric()
+  first_pair <- str_locate(pair,"[0-9]{2,}")
+  val <- str_sub(pair,first_pair[1],first_pair[2]) |> as.numeric()
   
-  if(any(num_chars >= 10)){
-    x <- num_chars[which(num_chars >= 10)[1]]
-    pair <- str_replace(pair,as.character(x),split_n(x))
-  }
+  pair <- paste0(
+    str_sub(pair,1,first_pair[1]-1),
+    split_n(val),
+    str_sub(pair,first_pair[2]+1)
+  )
   
+  if(str_detect(pair,"NA")) browser()
   return(pair)
 }
 
@@ -97,31 +96,38 @@ do_split("[[[[0,7],4],[15,[0,13]]],[1,1]]")
 ```
 ```{r}
 add_left <- \(left, x){
-  left_num <- str_extract_all(left,"[0-9]") |> unlist() |> tail(1) |> as.numeric()
+  left_num <- str_extract_all(left,"[0-9]+") |> 
+    unlist() |> 
+    tail(1) |> 
+    as.numeric()
   if(length(left_num) == 0) return(left)
   
   left_num <- left_num + x
-  replace_loc <- str_locate(left,"[0-9][\\],\\,,\\[]+$")[1]
+  replace_loc <- str_locate_all(left,"([0-9]+)") |> reduce(rbind) |> tail(1)
   
   new_left <- paste0(
-    str_sub(left,1,replace_loc -1),
+    str_sub(left, 1, replace_loc[1] -1),
     left_num,
-    str_sub(left,replace_loc + 1)
+    str_sub(left, replace_loc[2] + 1)
   )
   return(new_left)
 }
 
 add_right <- \(right, x){
-  right_num <- str_extract_all(right,"[0-9]+") |> unlist() |> head(1) |> as.numeric()
+  right_num <- str_extract_all(right,"[0-9]+") |> 
+    unlist() |> 
+    head(1) |> 
+    as.numeric()
+  
   if(length(right_num) == 0) return(right)
   
   right_num <- right_num + x
-  replace_loc <- str_locate(right,"[0-9]")[1]
+  replace_loc <- str_locate(right,"[0-9]+")
   
   new_right <- paste0(
-    str_sub(right,1,replace_loc -1),
+    str_sub(right,1,replace_loc[1] -1),
     right_num,
-    str_sub(right,replace_loc + 1)
+    str_sub(right,replace_loc[2] + 1)
   )
   return(new_right)
 }
@@ -135,43 +141,49 @@ do_explode <- \(pair){
     if(b == 5) break
   }
   
-  explode <- str_sub(pair,i,i+4) |> 
+  explode <- str_sub(pair,i) |> 
     str_extract_all("[0-9]+") |> 
     unlist() |> 
-    as.numeric()
+    as.numeric() |> 
+    head(2)
+  
+  explode_length <- paste0(explode,collapse = "") |> 
+    str_length() |> 
+    magrittr::add(3)
   
   left <- str_sub(pair,1,i-1) |> add_left(explode[1])
-  right <- str_sub(pair,i+5) |> add_right(explode[2])
-  
-  return(
-    paste0(left,0,right)
-  )
+  right <- str_sub(pair,i+explode_length) |> add_right(explode[2])
+  out <- paste0(left,0,right)
+  return(out)
 }
 
 do_explode("[[[[[9,8],1],2],3],4]")
+do_explode("[[6,[5,[4,[3,2]]]],1]")
 do_explode("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
 ```
 
 ```{r}
 do_reduce <- \(pair){
-  flag <- identify_reduce(pair)
-  while(flag %in% c("split","explode")){
-    switch(flag,
-           "split" = pair <- do_split(pair),
-           "explode" = pair <- do_explode(pair))
-    flag <- identify_reduce(pair)
+  flag_explode <- identify_explode(pair)
+  flag_split <- identify_split(pair)
+  while(flag_explode || flag_split){
+    if(flag_explode){
+      pair <- do_explode(pair)
+      flag_explode <- identify_explode(pair)
+      flag_split <- identify_split(pair)
+      next
+    }
+    if(flag_split){
+      pair <- do_split(pair)
+      flag_explode <- identify_explode(pair)
+      flag_split <- identify_split(pair)
+      next
+    }
   }
-  print(pair)
   return(pair)
 }
 
-# do_reduce("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
-
-do_add("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]") |> do_reduce()
-```
-
-```{r}
-calculate_magnitude
+do_reduce("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
 ```
 
 ```{r}
@@ -187,16 +199,43 @@ example <- c(
 "[[[5,[7,4]],7],1]",
 "[[[[4,2],2],6],[8,7]]"
 )
+reduce(example, ~do_add(.x,.y) |> do_reduce())
+```
 
-p1 <- reduce(example,~do_add(.x,.y) |> do_reduce())
+```{r}
+calculate_magnitude <- \(snailfish){
+  x <- snailfish |> 
+    str_replace_all(fixed(","),"*3+2*") |> 
+    str_replace_all(fixed("["),"(") |> 
+    str_replace_all(fixed("]"),")")
+  eval(parse(text = x))
+}
+calculate_magnitude("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]")
+```
 
-do_add(p1,input[3]) |> do_reduce()
+```{r}
+input_magnitude <- reduce(input, ~do_add(.x,.y) |> do_reduce()) |> calculate_magnitude()
+
+input_magnitude
 ```
 
 
 --- Part 2 ---
 
-```{r}
+Initially did this with furrr but got curious enough to do it with just normal map:
 
+```{r eval = FALSE}
+tictoc::tic()
+p2 <- crossing(x = input, y = input) |> 
+  mutate(
+    magnitude = map2(x,y,~do_add(.x,.y) |> do_reduce() |> calculate_magnitude())
+  )
+tictoc::toc()
+p2$magnitude |> unlist() |> max()
 ```
+```{r echo = FALSE}
+cat("77.815 sec elapsed")
+4595
+```
+
 
