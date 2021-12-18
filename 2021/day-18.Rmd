@@ -27,12 +27,6 @@ aoc.elf::aoc_get(day = 18, year = 2021)
 
 ```{r}
 input <- readLines(here::here("2021/day-18-input.txt"))
-
-parsed_lists <- input |> 
-  stringr::str_replace_all(fixed("["),"list(") |> 
-  stringr::str_replace_all(fixed("]"),")") |> 
-  map(~eval(parse(text = .x)))
-
 ```
 
 --- Part 1 ---
@@ -50,32 +44,35 @@ parsed_lists <- input |>
 do_add <- \(left,right){
   glue::glue("[{left},{right}]")
 }
-pair <- do_add("[[[[4,3],4],4],[7,[[8,4],9]]]","[1,1]")
-pair
+do_add("[[[[4,3],4],4],[7,[[8,4],9]]]","[1,1]")
 ```
 
-```{r}
-do_reduce <- \(pair){
-  flag <- identify_reduce(pair)
-  while(flag){
-    
-    switch(do_first,
-           "split" = pair <- do_split(pair),
-           "explode" = pair <- do_explode(pair))
-    
-    flag <- identify_reduce()
-  }
-  return(pair)
-}
-```
 ```{r}
 identify_reduce <- \(pair){
   first_split <- str_locate(pair,"[0-9]{2}") |> 
     unlist() |> 
     as.numeric() |> 
-    min(Inf)
+    min(Inf, na.rm = TRUE)
   
+  first_explode <- identify_explode(pair)
+  
+  if(is.infinite(first_split) && is.infinite(first_explode)) return("reduced")
+  
+  out <- c("split","explode")[which.min(c(first_split,first_explode))]
+  return(out)
 }
+
+identify_explode <- \(pair){
+  v <- str_split(pair,"") |> unlist()
+  b <- 0
+  for (i in seq_along(v)){
+    if(v[i] == "[") b <- b + 1
+    if(v[i] == "]") b <- b - 1
+    if(b == 5) return(i)
+  }
+  return(Inf)
+}
+
 ```
 
 ```{r}
@@ -86,27 +83,116 @@ do_split <- \(pair){
   
   if(any(num_chars >= 10)){
     x <- num_chars[which(num_chars >= 10)[1]]
-    pair <- str_replace(pair,as.character(x),split_number(x))
+    pair <- str_replace(pair,as.character(x),split_n(x))
   }
   
   return(pair)
 }
 
-split_number <- \(n){
+split_n <- \(n){
   glue::glue("[{floor(n/2)},{ceiling(n/2)}]")
 }
 
-pair <- "[[[[0,7],4],[15,[0,13]]],[1,1]]"
-do_split(pair)
+do_split("[[[[0,7],4],[15,[0,13]]],[1,1]]")
 ```
 ```{r}
+add_left <- \(left, x){
+  left_num <- str_extract_all(left,"[0-9]") |> unlist() |> tail(1) |> as.numeric()
+  if(length(left_num) == 0) return(left)
+  
+  left_num <- left_num + x
+  replace_loc <- str_locate(left,"[0-9][\\],\\,,\\[]+$")[1]
+  
+  new_left <- paste0(
+    str_sub(left,1,replace_loc -1),
+    left_num,
+    str_sub(left,replace_loc + 1)
+  )
+  return(new_left)
+}
+
+add_right <- \(right, x){
+  right_num <- str_extract_all(right,"[0-9]+") |> unlist() |> head(1) |> as.numeric()
+  if(length(right_num) == 0) return(right)
+  
+  right_num <- right_num + x
+  replace_loc <- str_locate(right,"[0-9]")[1]
+  
+  new_right <- paste0(
+    str_sub(right,1,replace_loc -1),
+    right_num,
+    str_sub(right,replace_loc + 1)
+  )
+  return(new_right)
+}
+
 do_explode <- \(pair){
   v <- str_split(pair,"") |> unlist()
-  n_loc <- str_locate_all(pair,"[0-9]+") |> unlist()
+  b <- 0
+  for (i in seq_along(v)){
+    if(v[i] == "[") b <- b + 1
+    if(v[i] == "]") b <- b - 1
+    if(b == 5) break
+  }
   
+  explode <- str_sub(pair,i,i+4) |> 
+    str_extract_all("[0-9]+") |> 
+    unlist() |> 
+    as.numeric()
+  
+  left <- str_sub(pair,1,i-1) |> add_left(explode[1])
+  right <- str_sub(pair,i+5) |> add_right(explode[2])
+  
+  return(
+    paste0(left,0,right)
+  )
+}
+
+do_explode("[[[[[9,8],1],2],3],4]")
+do_explode("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
+```
+
+```{r}
+do_reduce <- \(pair){
+  flag <- identify_reduce(pair)
+  while(flag %in% c("split","explode")){
+    switch(flag,
+           "split" = pair <- do_split(pair),
+           "explode" = pair <- do_explode(pair))
+    flag <- identify_reduce(pair)
+  }
+  print(pair)
   return(pair)
 }
+
+# do_reduce("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
+
+do_add("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]") |> do_reduce()
 ```
+
+```{r}
+calculate_magnitude
+```
+
+```{r}
+example <- c(
+"[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]",
+"[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]",
+"[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]",
+"[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]",
+"[7,[5,[[3,8],[1,4]]]]",
+"[[2,[2,2]],[8,[8,1]]]",
+"[2,9]",
+"[1,[[[9,3],9],[[9,0],[0,7]]]]",
+"[[[5,[7,4]],7],1]",
+"[[[[4,2],2],6],[8,7]]"
+)
+
+p1 <- reduce(example,~do_add(.x,.y) |> do_reduce())
+
+do_add(p1,input[3]) |> do_reduce()
+```
+
 
 --- Part 2 ---
 
