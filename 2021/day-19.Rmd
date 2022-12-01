@@ -1,0 +1,115 @@
+---
+title: 'Advent Of Code: 2021-19'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 19, year = 2021)
+```
+
+```{r warning=FALSE}
+input <- tibble(x = readLines(here::here("2021/day-19-input.txt"))) |> 
+  mutate(
+    scanner = ifelse(str_detect(x,"scanner"),x,NA_character_),
+    x = ifelse(!str_detect(x,"scanner"),x,NA_character_)
+  ) |> 
+  separate(x, into = c("x","y","z"),sep = ",",convert = TRUE) |> 
+  extract(scanner, into = "scanner", regex = "([0-9]+)", convert = TRUE) |> 
+  fill(scanner) |> 
+  filter(!is.na(z))
+
+```
+
+--- Part 1 ---
+
+- Use dist() to get relative distances of beacons from each other within each scanner.
+- Count distance matches with scanner 0.
+- Translate positions provided by scanner N to scanner 0 positions.
+- Add to scanner 0.
+- Repeat with every scanner to add until we have a list of every possible beacon.
+
+```{r}
+
+relative_distances <- input |> 
+  group_split(scanner) |> 
+  map(
+    ~.x |> 
+      as.matrix(ncol = 3) |> 
+      dist() |> 
+      as.matrix(ncol = ncol(3)) |> 
+      as_tibble() %>%
+      bind_cols(.x,.) |> 
+      group_by(x,y,z,scanner) |>
+      transmute(dist = list(c_across()) |> map(~sort(.x) |> round(3)),
+                dist = map(dist,~.x[.x!=0])) |>
+      ungroup()
+      ) |> 
+  bind_rows()
+
+scanner_mapping <- crossing(a = relative_distances, b = relative_distances) |> 
+  unpack(c(a,b), names_sep = "_") |> 
+  filter(!(a_x == b_x & a_y == b_y & a_z == b_z)) |> 
+  mutate(
+    intersect = map2_dbl(a_dist,b_dist,~intersect(.x,.y) |> length())
+  ) |> 
+  select(a_x,a_y,a_z, a_scanner,b_x,b_y,b_z,b_scanner,intersect) |> 
+  filter(intersect >= 11) |> 
+  group_by(a_scanner, b_scanner) |> 
+  slice_head(n = 2) |> 
+  mutate(
+    across(c(a_x,a_y,a_z,b_x,b_y,b_z),list(diff = diff))
+  ) |> 
+  # ungroup() |> 
+  pivot_longer(c(a_x_diff,a_y_diff,a_z_diff,b_x_diff,b_y_diff,b_z_diff), names_to = c("scanner","dimension",NA),names_sep = "_") |> 
+  group_by(a_scanner,b_scanner, a_x,a_y,a_z,b_x,b_y,b_z) |> 
+  mutate(
+    id = rank(abs(value),ties.method = "min")
+  ) |> 
+  ungroup() |> 
+  arrange(a_scanner,b_scanner,scanner) |> 
+  group_by(a_scanner,b_scanner,a_x,a_y,a_z,b_x,b_y,b_z,id) |> 
+  summarise(
+    dim_mapping = list(dimension),
+    dir = sign(prod(value))
+  ) |> 
+  ungroup() |> 
+  select(-id) |> 
+  hoist(dim_mapping, a = 1, b = 2) |> 
+  # distinct(
+  #   a_scanner,b_scanner,a,b,dir, .keep_all = TRUE
+  # ) |> 
+  mutate(a_col = paste0("a_",a), b_col = paste0("b_",b), i = row_number())
+
+scanner_mapping$diff <- pmap_dbl(list(scanner_mapping$a_col,scanner_mapping$b_col,scanner_mapping$i), ~ scanner_mapping[[..2]][[..3]]-scanner_mapping[[..1]][[..3]])
+# scanner_mapping <- scanner_mapping |> 
+#   select(a_scanner,b_scanner,a,b,dir,diff)
+
+
+  
+
+```
+
+--- Part 2 ---
+
+```{r}
+
+```
+

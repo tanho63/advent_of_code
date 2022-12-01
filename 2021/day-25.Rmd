@@ -1,0 +1,84 @@
+---
+title: 'Advent Of Code: 2021-25'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 25, year = 2021)
+```
+
+```{r}
+input <- readLines(here::here("2021/day-25-input.txt")) |> 
+  strsplit("") |> 
+  reduce(rbind)
+
+max_col <- ncol(input)
+max_row <- nrow(input)
+```
+
+--- Part 1 ---
+
+```{r}
+east <- which(input == ">", arr.ind = TRUE) |> 
+  as_tibble() |> 
+  mutate(type = "east")
+  
+south <- which(input == "v", arr.ind = TRUE) |> 
+  as_tibble() |> 
+  mutate(type = "south")
+
+occupied <- bind_rows(east,south) |> 
+  arrange(row,col)
+
+new <- NULL
+
+repeat{
+  east <- east |> 
+    mutate(new_col = ifelse(col + 1 > max_col, 1, col + 1)) |> 
+    left_join(south,by = c("row","new_col"="col")) |> 
+    mutate(
+      col = ifelse(is.na(type.y),new_col,col),
+      type = "east",
+      type.x = NULL,
+      type.y = NULL,
+      new_col = NULL
+    )
+  south <- south |> 
+    mutate(new_row = ifelse(row + 1 > max_row, 1, row + 1)) |> 
+    left_join(east,by = c("col","new_row"="row")) |> 
+    mutate(
+      row = ifelse(is.na(type.y),new_row,row),
+      type = "south",
+      type.x = NULL,
+      type.y = NULL,
+      new_row = NULL
+    )
+  new <- bind_rows(south,east) |> arrange(row,col)
+}
+
+```
+
+--- Part 2 ---
+
+```{r}
+
+```
+

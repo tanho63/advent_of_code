@@ -8,20 +8,20 @@ navbar:
   right:
     - text: "Home"
       href: index.html
-    - text: "2015"
-      href: 2015.html
-    - text: "2016"
-      href: 2016.html
-    - text: "2017"
-      href: 2017.html
-    - text: "2018"
-      href: 2018.html
-    - text: "2019"
-      href: 2019.html
-    - text: "2020"
-      href: 2020.html
     - text: "2021"
       href: 2021.html
+    - text: "2020"
+      href: 2020.html
+    - text: "2019"
+      href: 2019.html
+    - text: "2018"
+      href: 2018.html
+    - text: "2017"
+      href: 2017.html
+    - text: "2016"
+      href: 2016.html
+    - text: "2015"
+      href: 2015.html
     - text: "aoc.elf"
       href: https://github.com/tanho63/aoc.elf
   source_url: true
