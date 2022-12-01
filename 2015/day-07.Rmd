@@ -26,20 +26,19 @@ aoc.elf::aoc_get(day = 7, year = 2015)
 ```
 
 ```{r}
-example <- c("123 -> x", "456 -> y", "x AND y -> d", "x OR y -> e", "x LSHIFT 2 -> f", "y RSHIFT 2 -> g", "NOT x -> h", "NOT y -> i")
-
 input <- readLines(here::here("2015/day-07-input.txt"))
 ```
 
 --- Part 1 ---
 
-```{r}
+```{r }
 `%AND%` <- bitwAnd
 `%OR%` <- bitwOr
 # `%NOT%` <- bitwNot
 `%XOR%` <- bitwXor
 `%LSHIFT%` <- bitwShiftL
 `%RSHIFT%` <- bitwShiftR
+BITWNOT <- bitwNot
 
 operators <- c("AND","OR","XOR","LSHIFT","RSHIFT")
 
@@ -49,17 +48,54 @@ for( i in operators){
 
 input <- stringr::str_replace_all(input, "NOT (.+) \\-\\> (.+)", "bitwNot(\\1) -> \\2")  
 
-input <- input |> stringr::str_replace_all("if","IF") |> stringr::str_replace_all("in", "IN")
+input <- input |> stringr::str_replace_all("if","IF") |> stringr::str_replace_all("in", "IN") |> toupper()
 
+input |> 
+  tibble::tibble() |> 
+  tidyr::separate(col = 1,into = c("value","name"), sep = " -> ")
 
-
-eval(parse(text = input))
-
+A
 ```
 
 --- Part 2 ---
 
 ```{r}
+status <- rep(FALSE, length(input))
 
+while(!all(status == TRUE)){
+  for(i in seq_along(input)){
+    try_state <- try(eval(parse(text = input[i])), silent = TRUE)
+    if(!inherits(try_state, "try-error")) {status[i] <- TRUE}
+  }
+}
+
+rm(list = ls())
+input <- readLines(here::here("2015/day-07-input.txt"))
+B <- 46065L
+
+operators <- c("AND","OR","XOR","LSHIFT","RSHIFT")
+
+for( i in operators){
+  input <- stringr::str_replace_all(input, paste0(" ",i," "), paste0(" %",i,"% "))
+}
+
+input <- stringr::str_replace_all(input, "NOT (.+) \\-\\> (.+)", "bitwNot(\\1) -> \\2")  
+
+input <- input |> 
+  stringr::str_replace_all("if","IF") |> 
+  stringr::str_replace_all("in", "IN") |> 
+  toupper()
+
+input <- input[!stringr::str_detect(input,"\\-\\> B")]
+input <- input[order(stringr::str_length(input))]
+
+status <- rep(FALSE, length(input))
+
+while(!all(status == TRUE)){
+  for(i in seq_along(input)){
+    try_state <- try(eval(parse(text = input[i])), silent = TRUE)
+    if(!inherits(try_state, "try-error")) {status[i] <- TRUE}
+  }
+}
 ```
 
