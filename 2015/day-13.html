@@ -408,17 +408,11 @@ get_happiness &lt;- function(x){
   y &lt;- c(x,x[1])
   for(i in seq_along(x)){
     dd &lt;- happiness$amount[happiness$name == y[i] &amp; happiness$target == y[i+1]]
-    # print(y[i])
-    # print(y[i+1])
-    # print(dd)
     d &lt;- d + dd
   }
   y &lt;- rev(y)
   for(i in seq_along(x)){
     dd &lt;- happiness$amount[happiness$name == y[i] &amp; happiness$target == y[i+1]]
-    # print(y[i])
-    # print(y[i+1])
-    # print(dd)
     d &lt;- d + dd
   }
   d
@@ -447,17 +441,11 @@ get_happiness &lt;- function(x){
   y &lt;- c(x,x[1])
   for(i in seq_along(x)){
     dd &lt;- happiness$amount[happiness$name == y[i] &amp; happiness$target == y[i+1]]
-    # print(y[i])
-    # print(y[i+1])
-    # print(dd)
     d &lt;- d + dd
   }
   y &lt;- rev(y)
   for(i in seq_along(x)){
     dd &lt;- happiness$amount[happiness$name == y[i] &amp; happiness$target == y[i+1]]
-    # print(y[i])
-    # print(y[i+1])
-    # print(dd)
     d &lt;- d + dd
   }
   d
