@@ -1,0 +1,76 @@
+---
+title: 'Advent Of Code: 2022-02'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 2, year = 2022)
+```
+
+```{r}
+input_raw <- readLines(here::here("2022/day-02-input.txt"))
+input <- aoc.elf::aoc_read(day = "02", year = "2022")
+```
+
+--- Part 1 ---
+
+```{r}
+p1 <- input |> 
+  separate(1, c("opp","me"), sep = " ") |> 
+  mutate(
+    result = case_when(
+      opp == "A" & me == "X" ~ 1 + 3,
+      opp == "B" & me == "X" ~ 1 + 0,
+      opp == "C" & me == "X" ~ 1 + 6,
+      opp == "A" & me == "Y" ~ 2 + 6,
+      opp == "B" & me == "Y" ~ 2 + 3,
+      opp == "C" & me == "Y" ~ 2 + 0,
+      opp == "A" & me == "Z" ~ 3 + 0,
+      opp == "B" & me == "Z" ~ 3 + 6,
+      opp == "C" & me == "Z" ~ 3 + 3
+    )
+  )
+
+p1$result |> sum()
+```
+
+--- Part 2 ---
+
+```{r}
+p2 <- input |> 
+  separate(1, c("opp","outcome"), sep = " ") |> 
+  mutate(
+    result = case_when(
+      opp == "A" & outcome == "X" ~ 3,
+      opp == "B" & outcome == "X" ~ 1,
+      opp == "C" & outcome == "X" ~ 2,
+      opp == "A" & outcome == "Y" ~ 4,
+      opp == "B" & outcome == "Y" ~ 5,
+      opp == "C" & outcome == "Y" ~ 6,
+      opp == "A" & outcome == "Z" ~ 8,
+      opp == "B" & outcome == "Z" ~ 9,
+      opp == "C" & outcome == "Z" ~ 7
+    )
+  )
+
+p2$result |> sum()
+```
+
