@@ -13,7 +13,7 @@
 
 <meta name="date" content="2022-12-01" />
 
-<title>Advent Of Code: 2015-07</title>
+<title>Advent Of Code: 2015-09</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -356,7 +356,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Advent Of Code: 2015-07</h1>
+<h1 class="title toc-ignore">Advent Of Code: 2015-09</h1>
 <h4 class="author">Tan Ho</h4>
 <h4 class="date">2022-12-01</h4>
 
@@ -375,80 +375,57 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)</code></pre>
 <p>— Data —</p>
 <pre class="r"><code># tanho63/aoc.elf
-aoc.elf::aoc_get(day = 7, year = 2015)</code></pre>
-<pre class="r"><code>input &lt;- readLines(here::here(&quot;2015/day-07-input.txt&quot;))</code></pre>
+aoc.elf::aoc_get(day = 9, year = 2015)</code></pre>
+<pre class="r"><code>input_raw &lt;- readLines(here::here(&quot;2015/day-09-input.txt&quot;))
+input &lt;- aoc.elf::aoc_read(day = &quot;09&quot;, year = &quot;2015&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   x = col_character()
+## )</code></pre>
 <p>— Part 1 —</p>
-<p>This already comes baked in with a valid right-assign looking
-operator. Strategy then to just execute all of these expressions and
-vomit them into the environment?</p>
-<pre class="r"><code># create infix operators to use the base bitwise functions
-`%AND%` &lt;- bitwAnd
-`%OR%` &lt;- bitwOr
-`%XOR%` &lt;- bitwXor
-`%LSHIFT%` &lt;- bitwShiftL
-`%RSHIFT%` &lt;- bitwShiftR
-BITWNOT &lt;- bitwNot
-
-operators &lt;- c(&quot;AND&quot;,&quot;OR&quot;,&quot;XOR&quot;,&quot;LSHIFT&quot;,&quot;RSHIFT&quot;)
-
-for( i in operators){
-  input &lt;- stringr::str_replace_all(input, paste0(&quot; &quot;,i,&quot; &quot;), paste0(&quot; %&quot;,i,&quot;% &quot;))
-}
-
-input &lt;- input |&gt; 
-  stringr::str_replace_all(&quot;NOT (.+) \\-\\&gt; (.+)&quot;, &quot;bitwNot(\\1) -&gt; \\2&quot;) |&gt; 
-  toupper()
-
-input &lt;- input[order(stringr::str_length(input))]
-
-# brute force! just try the commands until they all work
-while(length(input) &gt; 0){
-  for(i in input){
-    try_state &lt;- try(eval(parse(text = i)), silent = TRUE)
-    if(!inherits(try_state, &quot;try-error&quot;)) {
-      input &lt;- setdiff(input,i)
+<p>Travelling salesman? Dijkstra’s?</p>
+<pre class="r"><code>distances &lt;- input |&gt; 
+  tidyr::extract(1, into = c(&quot;from&quot;, &quot;to&quot;, &quot;distance&quot;), regex = &quot;([A-z]+) to ([A-z]+) = (\\d+)&quot;, convert = TRUE) %&gt;%
+  dplyr::bind_rows(
+    .,
+    . |&gt; rename(to = from, from = to)
+  ) |&gt; 
+  arrange(distance)</code></pre>
+<p>Eyeballing: Tristram -&gt; Tambi (49) -&gt; Snowdin (15) -&gt;
+AlphaCentauri (12) -&gt; Faerun (13) -&gt; Arbre(24) -&gt; Straylight
+(40) -&gt; Norrath (54)</p>
+<p>A bit unsatisfying…</p>
+<pre class="r"><code>getPerms &lt;- function(x) {
+    if (length(x) == 1) {
+        return(x)
     }
-  }
+    else {
+        res &lt;- matrix(nrow = 0, ncol = length(x))
+        for (i in seq_along(x)) {
+            res &lt;- rbind(res, cbind(x[i], Recall(x[-i])))
+        }
+        return(res)
+    }
 }
-A</code></pre>
-<pre><code>## [1] 46065</code></pre>
+
+all_paths &lt;- getPerms(unique(distances$from))
+
+get_distance &lt;- function(x){
+  d &lt;- 0
+  for(i in 1:7){
+    d &lt;- d + distances$distance[distances$from == x[i] &amp; distances$to == x[i+1]]
+  }
+  d
+}
+
+x &lt;- apply(all_paths,MARGIN = 1, get_distance)
+
+min(x)</code></pre>
+<pre><code>## [1] 207</code></pre>
 <p>— Part 2 —</p>
-<pre class="r"><code>rm(list = ls(pattern = &quot;[A-Z]+&quot;))
-input &lt;- readLines(here::here(&quot;2015/day-07-input.txt&quot;))
-B &lt;- 46065L
-`%AND%` &lt;- bitwAnd
-`%OR%` &lt;- bitwOr
-`%XOR%` &lt;- bitwXor
-`%LSHIFT%` &lt;- bitwShiftL
-`%RSHIFT%` &lt;- bitwShiftR
-BITWNOT &lt;- bitwNot
-
-operators &lt;- c(&quot;AND&quot;,&quot;OR&quot;,&quot;XOR&quot;,&quot;LSHIFT&quot;,&quot;RSHIFT&quot;)
-
-for( i in operators){
-  input &lt;- stringr::str_replace_all(input, paste0(&quot; &quot;,i,&quot; &quot;), paste0(&quot; %&quot;,i,&quot;% &quot;))
-}
-
-input &lt;- stringr::str_replace_all(input, &quot;NOT (.+) \\-\\&gt; (.+)&quot;, &quot;bitwNot(\\1) -&gt; \\2&quot;)  
-
-input &lt;- input |&gt; 
-  stringr::str_replace_all(&quot;if&quot;,&quot;IF&quot;) |&gt; 
-  stringr::str_replace_all(&quot;in&quot;, &quot;IN&quot;) |&gt; 
-  toupper()
-
-input &lt;- input[order(stringr::str_length(input))]
-input &lt;- input[input!=&quot;1674 -&gt; B&quot;]
-
-while(length(input) &gt; 0){
-  for(i in input){
-    try_state &lt;- try(eval(parse(text = i)), silent = TRUE)
-    if(!inherits(try_state, &quot;try-error&quot;)) {
-      input &lt;- setdiff(input,i)
-    }
-  }
-}
-A</code></pre>
-<pre><code>## [1] 14134</code></pre>
+<pre class="r"><code>max(x)</code></pre>
+<pre><code>## [1] 804</code></pre>
 
 
 

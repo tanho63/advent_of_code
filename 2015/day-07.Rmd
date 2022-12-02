@@ -27,14 +27,18 @@ aoc.elf::aoc_get(day = 7, year = 2015)
 
 ```{r}
 input <- readLines(here::here("2015/day-07-input.txt"))
+
 ```
 
 --- Part 1 ---
 
-```{r }
+This already comes baked in with a valid right-assign looking operator. 
+Strategy then to just execute all of these expressions and vomit them into the environment?
+
+```{r eval = FALSE}
+# create infix operators to use the base bitwise functions
 `%AND%` <- bitwAnd
 `%OR%` <- bitwOr
-# `%NOT%` <- bitwNot
 `%XOR%` <- bitwXor
 `%LSHIFT%` <- bitwShiftL
 `%RSHIFT%` <- bitwShiftR
@@ -46,32 +50,39 @@ for( i in operators){
   input <- stringr::str_replace_all(input, paste0(" ",i," "), paste0(" %",i,"% "))
 }
 
-input <- stringr::str_replace_all(input, "NOT (.+) \\-\\> (.+)", "bitwNot(\\1) -> \\2")  
+input <- input |> 
+  stringr::str_replace_all("NOT (.+) \\-\\> (.+)", "bitwNot(\\1) -> \\2") |> 
+  toupper()
 
-input <- input |> stringr::str_replace_all("if","IF") |> stringr::str_replace_all("in", "IN") |> toupper()
+input <- input[order(stringr::str_length(input))]
 
-input |> 
-  tibble::tibble() |> 
-  tidyr::separate(col = 1,into = c("value","name"), sep = " -> ")
-
+# brute force! just try the commands until they all work
+while(length(input) > 0){
+  for(i in input){
+    try_state <- try(eval(parse(text = i)), silent = TRUE)
+    if(!inherits(try_state, "try-error")) {
+      input <- setdiff(input,i)
+    }
+  }
+}
 A
+```
+```{r echo = FALSE}
+46065
 ```
 
 --- Part 2 ---
 
-```{r}
-status <- rep(FALSE, length(input))
-
-while(!all(status == TRUE)){
-  for(i in seq_along(input)){
-    try_state <- try(eval(parse(text = input[i])), silent = TRUE)
-    if(!inherits(try_state, "try-error")) {status[i] <- TRUE}
-  }
-}
-
-rm(list = ls())
+```{r eval = FALSE}
+rm(list = ls(pattern = "[A-Z]+"))
 input <- readLines(here::here("2015/day-07-input.txt"))
 B <- 46065L
+`%AND%` <- bitwAnd
+`%OR%` <- bitwOr
+`%XOR%` <- bitwXor
+`%LSHIFT%` <- bitwShiftL
+`%RSHIFT%` <- bitwShiftR
+BITWNOT <- bitwNot
 
 operators <- c("AND","OR","XOR","LSHIFT","RSHIFT")
 
@@ -86,16 +97,20 @@ input <- input |>
   stringr::str_replace_all("in", "IN") |> 
   toupper()
 
-input <- input[!stringr::str_detect(input,"\\-\\> B")]
 input <- input[order(stringr::str_length(input))]
+input <- input[input!="1674 -> B"]
 
-status <- rep(FALSE, length(input))
-
-while(!all(status == TRUE)){
-  for(i in seq_along(input)){
-    try_state <- try(eval(parse(text = input[i])), silent = TRUE)
-    if(!inherits(try_state, "try-error")) {status[i] <- TRUE}
+while(length(input) > 0){
+  for(i in input){
+    try_state <- try(eval(parse(text = i)), silent = TRUE)
+    if(!inherits(try_state, "try-error")) {
+      input <- setdiff(input,i)
+    }
   }
 }
+A
+```
+```{r echo = FALSE}
+14134
 ```
 

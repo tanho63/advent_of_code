@@ -13,7 +13,7 @@
 
 <meta name="date" content="2022-12-01" />
 
-<title>Advent Of Code: 2015-07</title>
+<title>Advent Of Code: 2015-10</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -356,7 +356,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Advent Of Code: 2015-07</h1>
+<h1 class="title toc-ignore">Advent Of Code: 2015-10</h1>
 <h4 class="author">Tan Ho</h4>
 <h4 class="date">2022-12-01</h4>
 
@@ -375,80 +375,33 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)</code></pre>
 <p>— Data —</p>
 <pre class="r"><code># tanho63/aoc.elf
-aoc.elf::aoc_get(day = 7, year = 2015)</code></pre>
-<pre class="r"><code>input &lt;- readLines(here::here(&quot;2015/day-07-input.txt&quot;))</code></pre>
+aoc.elf::aoc_get(day = 10, year = 2015)</code></pre>
+<pre class="r"><code>input &lt;- readLines(here::here(&quot;2015/day-10-input.txt&quot;)) |&gt; 
+  strsplit(&quot;&quot;) |&gt; 
+  unlist() |&gt; 
+  as.numeric()</code></pre>
 <p>— Part 1 —</p>
-<p>This already comes baked in with a valid right-assign looking
-operator. Strategy then to just execute all of these expressions and
-vomit them into the environment?</p>
-<pre class="r"><code># create infix operators to use the base bitwise functions
-`%AND%` &lt;- bitwAnd
-`%OR%` &lt;- bitwOr
-`%XOR%` &lt;- bitwXor
-`%LSHIFT%` &lt;- bitwShiftL
-`%RSHIFT%` &lt;- bitwShiftR
-BITWNOT &lt;- bitwNot
-
-operators &lt;- c(&quot;AND&quot;,&quot;OR&quot;,&quot;XOR&quot;,&quot;LSHIFT&quot;,&quot;RSHIFT&quot;)
-
-for( i in operators){
-  input &lt;- stringr::str_replace_all(input, paste0(&quot; &quot;,i,&quot; &quot;), paste0(&quot; %&quot;,i,&quot;% &quot;))
+<pre class="r"><code>get_next_seq &lt;- function(x){
+  y &lt;- rle(x)
+  matrix(
+    nrow = 2,
+    c(y$lengths,y$values),
+    byrow = TRUE
+  ) |&gt; 
+    as.numeric()
 }
-
-input &lt;- input |&gt; 
-  stringr::str_replace_all(&quot;NOT (.+) \\-\\&gt; (.+)&quot;, &quot;bitwNot(\\1) -&gt; \\2&quot;) |&gt; 
-  toupper()
-
-input &lt;- input[order(stringr::str_length(input))]
-
-# brute force! just try the commands until they all work
-while(length(input) &gt; 0){
-  for(i in input){
-    try_state &lt;- try(eval(parse(text = i)), silent = TRUE)
-    if(!inherits(try_state, &quot;try-error&quot;)) {
-      input &lt;- setdiff(input,i)
-    }
-  }
+x &lt;- input
+for(i in 1:40){
+  x &lt;- get_next_seq(x)
 }
-A</code></pre>
-<pre><code>## [1] 46065</code></pre>
+length(x)</code></pre>
+<pre><code>## [1] 329356</code></pre>
 <p>— Part 2 —</p>
-<pre class="r"><code>rm(list = ls(pattern = &quot;[A-Z]+&quot;))
-input &lt;- readLines(here::here(&quot;2015/day-07-input.txt&quot;))
-B &lt;- 46065L
-`%AND%` &lt;- bitwAnd
-`%OR%` &lt;- bitwOr
-`%XOR%` &lt;- bitwXor
-`%LSHIFT%` &lt;- bitwShiftL
-`%RSHIFT%` &lt;- bitwShiftR
-BITWNOT &lt;- bitwNot
-
-operators &lt;- c(&quot;AND&quot;,&quot;OR&quot;,&quot;XOR&quot;,&quot;LSHIFT&quot;,&quot;RSHIFT&quot;)
-
-for( i in operators){
-  input &lt;- stringr::str_replace_all(input, paste0(&quot; &quot;,i,&quot; &quot;), paste0(&quot; %&quot;,i,&quot;% &quot;))
+<pre class="r"><code>for(i in 1:10){
+  x &lt;- get_next_seq(x)
 }
-
-input &lt;- stringr::str_replace_all(input, &quot;NOT (.+) \\-\\&gt; (.+)&quot;, &quot;bitwNot(\\1) -&gt; \\2&quot;)  
-
-input &lt;- input |&gt; 
-  stringr::str_replace_all(&quot;if&quot;,&quot;IF&quot;) |&gt; 
-  stringr::str_replace_all(&quot;in&quot;, &quot;IN&quot;) |&gt; 
-  toupper()
-
-input &lt;- input[order(stringr::str_length(input))]
-input &lt;- input[input!=&quot;1674 -&gt; B&quot;]
-
-while(length(input) &gt; 0){
-  for(i in input){
-    try_state &lt;- try(eval(parse(text = i)), silent = TRUE)
-    if(!inherits(try_state, &quot;try-error&quot;)) {
-      input &lt;- setdiff(input,i)
-    }
-  }
-}
-A</code></pre>
-<pre><code>## [1] 14134</code></pre>
+length(x)</code></pre>
+<pre><code>## [1] 4666278</code></pre>
 
 
 
