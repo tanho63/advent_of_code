@@ -26,7 +26,6 @@ aoc.elf::aoc_get(day = 3, year = 2022)
 ```
 
 ```{r}
-input_raw <- readLines(here::here("2022/day-03-input.txt"))
 input <- aoc.elf::aoc_read(day = "03", year = "2022")
 ```
 
@@ -34,16 +33,17 @@ input <- aoc.elf::aoc_read(day = "03", year = "2022")
 
 ```{r}
 dictionary <- c(letters,LETTERS)
-p1 <- input |> 
+
+input |> 
   mutate(
     x = strsplit(x,""),
     len = lengths(x),
-    c1 = purrr::map2(x,len, ~.x[seq_len(.y/2)]),
-    c2 = purrr::map2(x,len,~.x[(.y/2+1):.y]),
-    common = purrr::map2_dbl(c1,c2,~intersect(.x,.y) |> match(dictionary) |> sum())
-  ) 
-
-sum(p1$common)
+    c1 = purrr::map2(x,len/2, head),
+    c2 = purrr::map2(x,len/2, tail),
+    common = purrr::map2_dbl(c1,c2,~intersect(...) |> match(dictionary) |> sum())
+  ) |> 
+  pull(common) |> 
+  sum()
 ```
 
 --- Part 2 ---
@@ -52,16 +52,11 @@ sum(p1$common)
 input |> 
   mutate(
     x = strsplit(x,""),
-    group = row_number()%/%3.000001
+    group = row_number() %/% 3.000001
   ) |> 
   group_by(group) |> 
-  mutate(id = row_number()) |> 
-  pivot_wider(names_from = id, names_prefix = "a", values_from = x) |> 
-  mutate(
-    common = purrr::pmap_dbl(list(a1,a2,a3), 
-                             ~intersect(..1,..2) |> 
-                               intersect(..3) |> 
-                               match(dictionary))
+  summarise(
+    common = reduce(x, intersect) |> match(dictionary)
   ) |> 
   pull(common) |> 
   sum()

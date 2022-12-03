@@ -376,8 +376,7 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 <p>— Data —</p>
 <pre class="r"><code># tanho63/aoc.elf
 aoc.elf::aoc_get(day = 3, year = 2022)</code></pre>
-<pre class="r"><code>input_raw &lt;- readLines(here::here(&quot;2022/day-03-input.txt&quot;))
-input &lt;- aoc.elf::aoc_read(day = &quot;03&quot;, year = &quot;2022&quot;)</code></pre>
+<pre class="r"><code>input &lt;- aoc.elf::aoc_read(day = &quot;03&quot;, year = &quot;2022&quot;)</code></pre>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
@@ -385,31 +384,27 @@ input &lt;- aoc.elf::aoc_read(day = &quot;03&quot;, year = &quot;2022&quot;)</co
 ## )</code></pre>
 <p>— Part 1 —</p>
 <pre class="r"><code>dictionary &lt;- c(letters,LETTERS)
-p1 &lt;- input |&gt; 
+
+input |&gt; 
   mutate(
     x = strsplit(x,&quot;&quot;),
     len = lengths(x),
-    c1 = purrr::map2(x,len, ~.x[seq_len(.y/2)]),
-    c2 = purrr::map2(x,len,~.x[(.y/2+1):.y]),
-    common = purrr::map2_dbl(c1,c2,~intersect(.x,.y) |&gt; match(dictionary) |&gt; sum())
-  ) 
-
-sum(p1$common)</code></pre>
+    c1 = purrr::map2(x,len/2, head),
+    c2 = purrr::map2(x,len/2, tail),
+    common = purrr::map2_dbl(c1,c2,~intersect(...) |&gt; match(dictionary) |&gt; sum())
+  ) |&gt; 
+  pull(common) |&gt; 
+  sum()</code></pre>
 <pre><code>## [1] 7878</code></pre>
 <p>— Part 2 —</p>
 <pre class="r"><code>input |&gt; 
   mutate(
     x = strsplit(x,&quot;&quot;),
-    group = row_number()%/%3.000001
+    group = row_number() %/% 3.000001
   ) |&gt; 
   group_by(group) |&gt; 
-  mutate(id = row_number()) |&gt; 
-  pivot_wider(names_from = id, names_prefix = &quot;a&quot;, values_from = x) |&gt; 
-  mutate(
-    common = purrr::pmap_dbl(list(a1,a2,a3), 
-                             ~intersect(..1,..2) |&gt; 
-                               intersect(..3) |&gt; 
-                               match(dictionary))
+  summarise(
+    common = reduce(x, intersect) |&gt; match(dictionary)
   ) |&gt; 
   pull(common) |&gt; 
   sum()</code></pre>
