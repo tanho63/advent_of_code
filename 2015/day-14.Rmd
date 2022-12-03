@@ -36,7 +36,6 @@ input <- aoc.elf::aoc_read(day = "14", year = "2015") |>
 --- Part 1 ---
 
 ```{r}
-
 reindeer_distance <- function(total, speed, duration, rest){
   whole <- total %/% (duration + rest)
   partial <- total %% (duration + rest)
@@ -49,13 +48,11 @@ p1 <- input |>
   arrange(-distance)
 
 head(p1$distance,1)
-
 ```
 
 --- Part 2 ---
 
 ```{r}
-
 p2 <- crossing(
   time = 1:2503,
   input
@@ -69,6 +66,5 @@ p2 <- crossing(
   arrange(-score)
 
 head(p2$score,1)
-
 ```
 
