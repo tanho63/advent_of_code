@@ -27,7 +27,9 @@ aoc.elf::aoc_get(day = 4, year = 2022)
 
 ```{r}
 input <- aoc.elf::aoc_read(day = 4, year = 2022) |> 
-  separate(1, sep = ",|\\-", into = c("e1_start","e1_end", "e2_start", "e2_end"),
+  separate(1, 
+           sep = ",|\\-", 
+           into = c("x1","x2", "y1", "y2"),
            convert = TRUE)
 ```
 
@@ -36,10 +38,12 @@ input <- aoc.elf::aoc_read(day = 4, year = 2022) |>
 ```{r}
 p1 <- input |> 
   mutate(
-    e1_in_e2 = e1_start >= e2_start & e1_end <= e2_end,
-    e2_in_e1 = e2_start >= e1_start & e2_end <= e1_end
+    x = purrr::map2(x1,x2,~.x:.y),
+    y = purrr::map2(y1,y2,~.x:.y),
+    xd = purrr::map2(x,y,setdiff),
+    yd = purrr::map2(y,x,setdiff),
     ) |> 
-  filter(e1_in_e2 | e2_in_e1)
+  filter(lengths(xd) == 0 | lengths(yd) == 0)
 nrow(p1)
 ```
 
@@ -48,9 +52,9 @@ nrow(p1)
 ```{r}
 p2 <- input |> 
   mutate(
-    e1 = purrr::map2(e1_start,e1_end,~.x:.y),
-    e2 = purrr::map2(e2_start,e2_end,~.x:.y),
-    intersect = purrr::map2(e1,e2,intersect)
+    x = purrr::map2(x1,x2,~.x:.y),
+    y = purrr::map2(y1,y2,~.x:.y),
+    intersect = purrr::map2(x,y,intersect)
     ) |> 
   filter(lengths(intersect) > 0)
 nrow(p2)

@@ -377,7 +377,9 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 <pre class="r"><code># tanho63/aoc.elf
 aoc.elf::aoc_get(day = 4, year = 2022)</code></pre>
 <pre class="r"><code>input &lt;- aoc.elf::aoc_read(day = 4, year = 2022) |&gt; 
-  separate(1, sep = &quot;,|\\-&quot;, into = c(&quot;e1_start&quot;,&quot;e1_end&quot;, &quot;e2_start&quot;, &quot;e2_end&quot;),
+  separate(1, 
+           sep = &quot;,|\\-&quot;, 
+           into = c(&quot;x1&quot;,&quot;x2&quot;, &quot;y1&quot;, &quot;y2&quot;),
            convert = TRUE)</code></pre>
 <pre><code>## 
 ## ── Column specification ────────────────────────────────────────────────────────
@@ -387,18 +389,20 @@ aoc.elf::aoc_get(day = 4, year = 2022)</code></pre>
 <p>— Part 1 —</p>
 <pre class="r"><code>p1 &lt;- input |&gt; 
   mutate(
-    e1_in_e2 = e1_start &gt;= e2_start &amp; e1_end &lt;= e2_end,
-    e2_in_e1 = e2_start &gt;= e1_start &amp; e2_end &lt;= e1_end
+    x = purrr::map2(x1,x2,~.x:.y),
+    y = purrr::map2(y1,y2,~.x:.y),
+    xd = purrr::map2(x,y,setdiff),
+    yd = purrr::map2(y,x,setdiff),
     ) |&gt; 
-  filter(e1_in_e2 | e2_in_e1)
+  filter(lengths(xd) == 0 | lengths(yd) == 0)
 nrow(p1)</code></pre>
 <pre><code>## [1] 500</code></pre>
 <p>— Part 2 —</p>
 <pre class="r"><code>p2 &lt;- input |&gt; 
   mutate(
-    e1 = purrr::map2(e1_start,e1_end,~.x:.y),
-    e2 = purrr::map2(e2_start,e2_end,~.x:.y),
-    intersect = purrr::map2(e1,e2,intersect)
+    x = purrr::map2(x1,x2,~.x:.y),
+    y = purrr::map2(y1,y2,~.x:.y),
+    intersect = purrr::map2(x,y,intersect)
     ) |&gt; 
   filter(lengths(intersect) &gt; 0)
 nrow(p2)</code></pre>
