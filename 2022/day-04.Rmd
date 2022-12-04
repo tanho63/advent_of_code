@@ -1,0 +1,58 @@
+---
+title: 'Advent Of Code: 2022-04'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 4, year = 2022)
+```
+
+```{r}
+input <- aoc.elf::aoc_read(day = 4, year = 2022) |> 
+  separate(1, sep = ",|\\-", into = c("e1_start","e1_end", "e2_start", "e2_end"),
+           convert = TRUE)
+```
+
+--- Part 1 ---
+
+```{r}
+p1 <- input |> 
+  mutate(
+    e1_in_e2 = e1_start >= e2_start & e1_end <= e2_end,
+    e2_in_e1 = e2_start >= e1_start & e2_end <= e1_end
+    ) |> 
+  filter(e1_in_e2 | e2_in_e1)
+nrow(p1)
+```
+
+--- Part 2 ---
+
+```{r}
+p2 <- input |> 
+  mutate(
+    e1 = purrr::map2(e1_start,e1_end,~.x:.y),
+    e2 = purrr::map2(e2_start,e2_end,~.x:.y),
+    intersect = purrr::map2(e1,e2,intersect)
+    ) |> 
+  filter(lengths(intersect) > 0)
+nrow(p2)
+```
+
