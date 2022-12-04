@@ -1,0 +1,122 @@
+---
+title: 'Advent Of Code: 2015-21'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 21, year = 2015)
+```
+
+```{r}
+boss <- aoc.elf::aoc_read(day = 21, year = 2015) |> 
+  mutate(x = tolower(x)) |> 
+  separate(1, sep = ": ", into = c('attr','value'), convert = TRUE) |> 
+  deframe() |> 
+  as.list()
+
+weapons <- c("Dagger        8     4       0",
+             "Shortsword   10     5       0",
+             "Warhammer    25     6       0",
+             "Longsword    40     7       0",
+             "Greataxe     74     8       0") |> 
+  tibble() |> 
+  separate(1, sep = "\\s+", into = c("name", "cost", "damage", "armor"), convert = TRUE)
+
+armor <- c("Leather      13     0       1",
+           "Chainmail    31     0       2",
+           "Splintmail   53     0       3",
+           "Bandedmail   75     0       4",
+           "Platemail   102     0       5") |> 
+  tibble() |> 
+  separate(1, sep = "\\s+", into = c("name", "cost", "damage", "armor"), convert = TRUE)
+
+rings <- c("Damage+1    25     1       0",
+           "Damage+2    50     2       0",
+           "Damage+3   100     3       0",
+           "Defense+1   20     0       1",
+           "Defense+2   40     0       2",
+           "Defense+3   80     0       3") |> 
+  tibble() |> 
+  separate(1, sep = "\\s+", into = c("name", "cost", "damage", "armor"), convert = TRUE)
+
+hp <- 100
+```
+
+--- Part 1 ---
+
+```{r}
+simulate <- function(damage, armor){
+  player_damage <- max(damage - boss$armor,1)
+  boss_damage <- max(boss$damage - armor, 1)
+  player_hp <- 100
+  boss_hp <- boss$`hit points`
+  turn <- 0
+  
+  while(player_hp > 0 & boss_hp > 0) {
+    if(turn %% 2 == 0) boss_hp <- boss_hp - player_damage
+    if(turn %% 2 == 1) player_hp <- player_hp - boss_damage
+    turn <- turn + 1
+  }
+  
+  return(ifelse(player_hp > 0, 1, 0))
+}
+
+outcomes <- crossing(damage = 0:13, armor = 0:10) |> 
+  mutate(outcome = map2(damage, armor, simulate)) |> 
+  filter(outcome == 1)
+
+combos <- crossing(
+  weapon_name = weapons$name,
+  armor_name = c(armor$name, NA_character_),
+  ring = c(
+    NA,
+    rings$name, 
+    combn(rings$name,2) |> apply(MARGIN = 2, list) |> unlist(FALSE))
+) |> 
+  mutate(id = row_number()) |> 
+  unnest_wider(ring,names_sep = "") |> 
+  left_join(weapons |> select(weapon_name = name, weapon_cost = cost, weapon_damage = damage), 
+            by = c("weapon_name")) |> 
+  left_join(armor |> select(armor_name = name, armor_cost = cost, armor_armor = armor), 
+            by = c("armor_name")) |> 
+  left_join(rings |> select(name, ring1_cost = cost, ring1_armor = armor, ring1_damage = damage), 
+            by = c("ring1"="name")) |> 
+  left_join(rings |> select(name, ring2_cost = cost, ring2_armor = armor, ring2_damage = damage), 
+            by = c("ring2"="name")) |> 
+  rowwise() |> 
+  mutate(
+    damage = sum(c_across(contains("_damage")),na.rm = TRUE),
+    armor = sum(c_across(contains("_armor")),na.rm = TRUE),
+    cost = sum(c_across(contains("_cost")),na.rm = TRUE)) |> 
+  ungroup() |> 
+  mutate(
+    outcome = map2_dbl(damage, armor, simulate)
+  )
+  
+min(combos$cost[combos$outcome == 1])
+```
+
+--- Part 2 ---
+
+```{r}
+max(combos$cost[combos$outcome == 0])
+```
+
