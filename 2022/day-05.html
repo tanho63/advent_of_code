@@ -376,11 +376,9 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 <p>— Data —</p>
 <pre class="r"><code># tanho63/aoc.elf
 aoc.elf::aoc_get(day = 5, year = 2022)</code></pre>
-<pre class="r"><code>input_raw &lt;- readLines(here::here(&quot;2022/day-05-input.txt&quot;))
-stacks &lt;- head(input_raw,8) |&gt; 
-  paste(collapse = &quot;\n&quot;) |&gt; 
-  read_fwf() |&gt; 
-  set_names(paste0(&quot;s&quot;,1:9))</code></pre>
+<pre class="r"><code>stacks &lt;- read_fwf(here::here(&quot;2022/day-05-input.txt&quot;),n_max = 8) |&gt; 
+  as.list() |&gt; 
+  map(~na.omit(.x) |&gt; str_replace_all(&quot;\\[|\\]&quot;,&quot;&quot;))</code></pre>
 <pre><code>## Rows: 8 Columns: 9
 ## ── Column specification ────────────────────────────────────────────────────────
 ## 
@@ -388,41 +386,33 @@ stacks &lt;- head(input_raw,8) |&gt;
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>stack_list &lt;- stacks |&gt; 
-  as.list() |&gt; 
-  map(na.omit)
-
-moves &lt;- tail(input_raw,-10) |&gt; 
+<pre class="r"><code>moves &lt;- read_lines(here::here(&quot;2022/day-05-input.txt&quot;), skip = 10) |&gt; 
   tibble() |&gt; 
   extract(1, 
           into = c(&quot;count&quot;,&quot;from&quot;,&quot;to&quot;), 
           regex = &quot;move (\\d+) from (\\d+) to (\\d+)&quot;, 
           convert = TRUE)</code></pre>
 <p>— Part 1 —</p>
-<pre class="r"><code>do_move &lt;- function(sl, count, from, to){
-  crates &lt;- head(sl[[from]], count)
-  sl[[from]] &lt;- tail(sl[[from]], -count)
-  sl[[to]] &lt;- c(rev(crates), sl[[to]])
+<pre class="r"><code>do_move &lt;- function(sl, m, rev = TRUE){
+  crates &lt;- head(sl[[m$from]], m$count)
+  if(rev) crates &lt;- rev(crates)
+  sl[[m$from]] &lt;- tail(sl[[m$from]], -m$count)
+  sl[[m$to]] &lt;- c(crates, sl[[m$to]])
   sl
 }
-sl &lt;- stack_list
-for(i in seq_len(nrow(moves))){
-  sl &lt;- do_move(sl, moves$count[i], moves$from[i], moves$to[i])
-}
-map_chr(sl,head,1) |&gt; paste(collapse = &quot;&quot;) |&gt; str_replace_all(&quot;\\[|\\]&quot;,&quot;&quot;)</code></pre>
+
+moves |&gt; 
+  split(seq_len(nrow(moves))) |&gt; 
+  reduce(do_move, .init = stacks) |&gt; 
+  map_chr(head,1) |&gt; 
+  paste(collapse = &quot;&quot;)</code></pre>
 <pre><code>## [1] &quot;WCZTHTMPS&quot;</code></pre>
 <p>— Part 2 —</p>
-<pre class="r"><code>do_move &lt;- function(sl, count, from, to){
-  crates &lt;- head(sl[[from]], count)
-  sl[[from]] &lt;- tail(sl[[from]], -count)
-  sl[[to]] &lt;- c(crates, sl[[to]])
-  sl
-}
-sl &lt;- stack_list
-for(i in seq_len(nrow(moves))){
-  sl &lt;- do_move(sl, moves$count[i], moves$from[i], moves$to[i])
-}
-map_chr(sl,head,1) |&gt; paste(collapse = &quot;&quot;) |&gt; str_replace_all(&quot;\\[|\\]&quot;,&quot;&quot;)</code></pre>
+<pre class="r"><code>moves |&gt; 
+  split(seq_len(nrow(moves))) |&gt; 
+  reduce(do_move, .init = stacks, rev = FALSE) |&gt; 
+  map_chr(head,1) |&gt; 
+  paste(collapse = &quot;&quot;)</code></pre>
 <pre><code>## [1] &quot;BLSGJSDTS&quot;</code></pre>
 
 

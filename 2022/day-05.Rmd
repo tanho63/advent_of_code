@@ -26,17 +26,11 @@ aoc.elf::aoc_get(day = 5, year = 2022)
 ```
 
 ```{r}
-input_raw <- readLines(here::here("2022/day-05-input.txt"))
-stacks <- head(input_raw,8) |> 
-  paste(collapse = "\n") |> 
-  read_fwf() |> 
-  set_names(paste0("s",1:9))
-
-stack_list <- stacks |> 
+stacks <- read_fwf(here::here("2022/day-05-input.txt"),n_max = 8) |> 
   as.list() |> 
-  map(na.omit)
+  map(~na.omit(.x) |> str_replace_all("\\[|\\]",""))
 
-moves <- tail(input_raw,-10) |> 
+moves <- read_lines(here::here("2022/day-05-input.txt"), skip = 10) |> 
   tibble() |> 
   extract(1, 
           into = c("count","from","to"), 
@@ -48,34 +42,28 @@ moves <- tail(input_raw,-10) |>
 
 ```{r}
 
-do_move <- function(sl, count, from, to){
-  crates <- head(sl[[from]], count)
-  sl[[from]] <- tail(sl[[from]], -count)
-  sl[[to]] <- c(rev(crates), sl[[to]])
+do_move <- function(sl, m, rev = TRUE){
+  crates <- head(sl[[m$from]], m$count)
+  if(rev) crates <- rev(crates)
+  sl[[m$from]] <- tail(sl[[m$from]], -m$count)
+  sl[[m$to]] <- c(crates, sl[[m$to]])
   sl
 }
-sl <- stack_list
-for(i in seq_len(nrow(moves))){
-  sl <- do_move(sl, moves$count[i], moves$from[i], moves$to[i])
-}
-map_chr(sl,head,1) |> paste(collapse = "") |> str_replace_all("\\[|\\]","")
 
+moves |> 
+  split(seq_len(nrow(moves))) |> 
+  reduce(do_move, .init = stacks) |> 
+  map_chr(head,1) |> 
+  paste(collapse = "")
 ```
 
 --- Part 2 ---
 
 ```{r}
-
-do_move <- function(sl, count, from, to){
-  crates <- head(sl[[from]], count)
-  sl[[from]] <- tail(sl[[from]], -count)
-  sl[[to]] <- c(crates, sl[[to]])
-  sl
-}
-sl <- stack_list
-for(i in seq_len(nrow(moves))){
-  sl <- do_move(sl, moves$count[i], moves$from[i], moves$to[i])
-}
-map_chr(sl,head,1) |> paste(collapse = "") |> str_replace_all("\\[|\\]","")
+moves |> 
+  split(seq_len(nrow(moves))) |> 
+  reduce(do_move, .init = stacks, rev = FALSE) |> 
+  map_chr(head,1) |> 
+  paste(collapse = "")
 ```
 
