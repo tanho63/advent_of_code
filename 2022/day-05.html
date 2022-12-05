@@ -11,9 +11,9 @@
 
 <meta name="author" content="Tan Ho" />
 
-<meta name="date" content="2022-12-04" />
+<meta name="date" content="2022-12-05" />
 
-<title>Advent Of Code: 2022-04</title>
+<title>Advent Of Code: 2022-05</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -356,9 +356,9 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Advent Of Code: 2022-04</h1>
+<h1 class="title toc-ignore">Advent Of Code: 2022-05</h1>
 <h4 class="author">Tan Ho</h4>
-<h4 class="date">2022-12-04</h4>
+<h4 class="date">2022-12-05</h4>
 
 </div>
 
@@ -375,38 +375,55 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)</code></pre>
 <p>— Data —</p>
 <pre class="r"><code># tanho63/aoc.elf
-aoc.elf::aoc_get(day = 4, year = 2022)</code></pre>
-<pre class="r"><code>input &lt;- aoc.elf::aoc_read(day = 4, year = 2022) |&gt; 
-  separate(1, 
-           sep = &quot;,|\\-&quot;, 
-           into = c(&quot;x1&quot;,&quot;x2&quot;, &quot;y1&quot;, &quot;y2&quot;),
-           convert = TRUE)</code></pre>
-<pre><code>## 
+aoc.elf::aoc_get(day = 5, year = 2022)</code></pre>
+<pre class="r"><code>input_raw &lt;- readLines(here::here(&quot;2022/day-05-input.txt&quot;))
+stacks &lt;- head(input_raw,8) |&gt; 
+  paste(collapse = &quot;\n&quot;) |&gt; 
+  read_fwf() |&gt; 
+  set_names(paste0(&quot;s&quot;,1:9))</code></pre>
+<pre><code>## Rows: 8 Columns: 9
 ## ── Column specification ────────────────────────────────────────────────────────
-## cols(
-##   x = col_character()
-## )</code></pre>
+## 
+## chr (9): X1, X2, X3, X4, X5, X6, X7, X8, X9
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>stack_list &lt;- stacks |&gt; 
+  as.list() |&gt; 
+  map(na.omit)
+
+moves &lt;- tail(input_raw,-10) |&gt; 
+  tibble() |&gt; 
+  extract(1, 
+          into = c(&quot;count&quot;,&quot;from&quot;,&quot;to&quot;), 
+          regex = &quot;move (\\d+) from (\\d+) to (\\d+)&quot;, 
+          convert = TRUE)</code></pre>
 <p>— Part 1 —</p>
-<pre class="r"><code>p1 &lt;- input |&gt; 
-  mutate(
-    x = purrr::map2(x1,x2,~.x:.y),
-    y = purrr::map2(y1,y2,~.x:.y),
-    xd = purrr::map2(x,y,setdiff),
-    yd = purrr::map2(y,x,setdiff)
-    ) |&gt; 
-  filter(lengths(xd) == 0 | lengths(yd) == 0)
-nrow(p1)</code></pre>
-<pre><code>## [1] 500</code></pre>
+<pre class="r"><code>do_move &lt;- function(sl, count, from, to){
+  crates &lt;- head(sl[[from]], count)
+  sl[[from]] &lt;- tail(sl[[from]], -count)
+  sl[[to]] &lt;- c(rev(crates), sl[[to]])
+  sl
+}
+sl &lt;- stack_list
+for(i in seq_len(nrow(moves))){
+  sl &lt;- do_move(sl, moves$count[i], moves$from[i], moves$to[i])
+}
+map_chr(sl,head,1) |&gt; paste(collapse = &quot;&quot;) |&gt; str_replace_all(&quot;\\[|\\]&quot;,&quot;&quot;)</code></pre>
+<pre><code>## [1] &quot;WCZTHTMPS&quot;</code></pre>
 <p>— Part 2 —</p>
-<pre class="r"><code>p2 &lt;- input |&gt; 
-  mutate(
-    x = purrr::map2(x1,x2,~.x:.y),
-    y = purrr::map2(y1,y2,~.x:.y),
-    intersect = purrr::map2(x,y,intersect)
-    ) |&gt; 
-  filter(lengths(intersect) &gt; 0)
-nrow(p2)</code></pre>
-<pre><code>## [1] 815</code></pre>
+<pre class="r"><code>do_move &lt;- function(sl, count, from, to){
+  crates &lt;- head(sl[[from]], count)
+  sl[[from]] &lt;- tail(sl[[from]], -count)
+  sl[[to]] &lt;- c(crates, sl[[to]])
+  sl
+}
+sl &lt;- stack_list
+for(i in seq_len(nrow(moves))){
+  sl &lt;- do_move(sl, moves$count[i], moves$from[i], moves$to[i])
+}
+map_chr(sl,head,1) |&gt; paste(collapse = &quot;&quot;) |&gt; str_replace_all(&quot;\\[|\\]&quot;,&quot;&quot;)</code></pre>
+<pre><code>## [1] &quot;BLSGJSDTS&quot;</code></pre>
 
 
 

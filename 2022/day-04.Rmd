@@ -41,7 +41,7 @@ p1 <- input |>
     x = purrr::map2(x1,x2,~.x:.y),
     y = purrr::map2(y1,y2,~.x:.y),
     xd = purrr::map2(x,y,setdiff),
-    yd = purrr::map2(y,x,setdiff),
+    yd = purrr::map2(y,x,setdiff)
     ) |> 
   filter(lengths(xd) == 0 | lengths(yd) == 0)
 nrow(p1)
