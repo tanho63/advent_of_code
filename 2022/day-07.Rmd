@@ -1,0 +1,95 @@
+---
+title: 'Advent Of Code: 2022-07'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 7, year = 2022)
+```
+
+```{r}
+input <- readLines(here::here("2022/day-07-input.txt"))
+```
+
+--- Part 1 ---
+
+```{r}
+pwd <- ""
+dir_history <- character(length(input))
+i <- 1
+for (i in seq_along(input)){
+  if(str_detect(input[i], "\\$ cd \\.\\.")) {
+    pwd <- str_remove(pwd, "/[a-z]+$")
+    if(pwd == "") pwd <- "/"
+    dir_history[i] <- pwd
+    next
+  }
+  
+  if(str_detect(input[i], "\\$ cd")) {
+    pwd <- paste0(pwd,"/",str_remove_all(input[i],"\\$ cd ")) |> str_replace_all("//","/")
+    dir_history[i] <- pwd
+    next
+  }
+  dir_history[i] <- pwd
+}
+
+```
+
+```{r}
+file_tree <- tibble(x = input) |> 
+  mutate(
+    wd = dir_history,
+    subdir_name = ifelse(str_detect(x, "dir "), str_replace_all(x, "dir ", ""), NA_character_),
+    file_size = parse_number(x)
+  ) |> 
+  filter(!str_detect(x,"\\$"))
+
+
+find_dir_size <- function(dir){
+  this_dir <- file_tree |> 
+    filter(wd == dir)
+  if(any(is.na(this_dir$file_size))) {
+    this_dir <- this_dir |> 
+      mutate(
+        file_size = ifelse(
+          !is.na(file_size), 
+          file_size, 
+          purrr::map_dbl(paste0(wd,"/",subdir_name) |> str_replace_all("//","/"), find_dir_size)
+        )
+      )
+  }
+  
+  return(sum(this_dir$file_size))
+}
+
+find_dir_size <- memoise::memoise(find_dir_size)
+all_dirs <- map_dbl(unique(file_tree$wd), find_dir_size)
+
+```
+
+--- Part 2 ---
+
+```{r}
+current_free_space <- 70000000 - all_dirs[1]
+target <- 30000000
+min(all_dirs[all_dirs >= (target-current_free_space)])
+```
+

@@ -32,11 +32,12 @@ input <- readLines(here::here("2022/day-06-input.txt")) |> strsplit("") |> unlis
 --- Part 1 ---
 
 ```{r}
-i <- 0
-
-for (i in seq_along(input)){
-  i <- i+1
-  if(!any(duplicated(input[i:(i+3)]))) break
+function(input, offset){
+  i <- 0
+  for (i in seq_along(input)){
+    i <- i+1
+    if(!any(duplicated(input[i:(i+3)]))) break
+  }
 }
 
 i+3
