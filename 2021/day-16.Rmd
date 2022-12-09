@@ -7,7 +7,6 @@ output: html_document
 
 ```{r}
 suppressPackageStartupMessages({
-  library(R.utils)
   library(tidyverse)
   library(here)
   library(glue)

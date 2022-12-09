@@ -52,7 +52,6 @@ sum(!is.na(p1$two)) * sum(!is.na(p1$three))
 --- Part 2 ---
 
 ```{r}
-library(stringdist)
 
 input <- readLines(here::here("2018/day-02-input.txt"))
 
@@ -61,7 +60,7 @@ p2 <- crossing(
   b = input,
 ) |> 
   mutate(
-    dist = stringdist(a,b)
+    dist = stringdist::stringdist(a,b)
   ) |> 
   filter(dist == 1) |> 
   pull(a) |> 
