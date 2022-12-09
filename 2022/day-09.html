@@ -379,6 +379,7 @@ options(dplyr.summarise.inform = FALSE)</code></pre>
 aoc.elf::aoc_get(day = 9, year = 2022)</code></pre>
 <pre class="r"><code>input &lt;- aoc.elf::aoc_read(day = 9, year = 2022) |&gt; 
   separate(1, into = c(&quot;dir&quot;,&quot;val&quot;), sep = &quot; &quot;, convert = TRUE) |&gt; 
+  # duplicate each direction by val steps so that we have each sub-step
   uncount(val) |&gt; 
   pull(dir)</code></pre>
 <pre><code>## 
@@ -387,9 +388,12 @@ aoc.elf::aoc_get(day = 9, year = 2022)</code></pre>
 ##   x = col_character()
 ## )</code></pre>
 <p>— Part 1 —</p>
-<pre class="r"><code>head_pos &lt;- c(row = 0, col = 0)
+<pre class="r"><code># keep pointer for head and tail positions
+head_pos &lt;- c(row = 0, col = 0)
 tail_pos &lt;- c(row = 0, col = 0)
+# track positions of tail, including 0 0
 pos &lt;- c(character(length(input)),&quot;0 0&quot;)
+
 i &lt;- 0
 for (move in input){
   i &lt;- i+1
@@ -400,13 +404,18 @@ for (move in input){
   if(move == &quot;D&quot;) head_pos[1] &lt;- head_pos[1] - 1
   # determine dist
   diff &lt;- head_pos - tail_pos
+  # move tail by one step towards head in the relevant direction
+  # sign() returns 1, 0, or -1
   if(any(abs(diff) &gt; 1))  tail_pos &lt;- tail_pos + sign(diff)
+  
+  # store tail pos
   pos[i] &lt;- paste(tail_pos,collapse = &quot; &quot;)
 }
 length(unique(pos))</code></pre>
 <pre><code>## [1] 6269</code></pre>
 <p>— Part 2 —</p>
-<pre class="r"><code>pos_1 &lt;- c(row = 0, col = 0)
+<pre class="r"><code># apply liberal amounts of copy and paste
+pos_1 &lt;- c(row = 0, col = 0)
 pos_2 &lt;- c(row = 0, col = 0)
 pos_3 &lt;- c(row = 0, col = 0)
 pos_4 &lt;- c(row = 0, col = 0)
@@ -425,6 +434,7 @@ for (move in input){
   if(move == &quot;R&quot;) pos_1[2] &lt;- pos_1[2] + 1
   if(move == &quot;U&quot;) pos_1[1] &lt;- pos_1[1] + 1
   if(move == &quot;D&quot;) pos_1[1] &lt;- pos_1[1] - 1
+  
   diff2 &lt;- pos_1 - pos_2
   if(any(abs(diff2) &gt; 1))  pos_2 &lt;- pos_2 + sign(diff2)
   diff3 &lt;- pos_2 - pos_3

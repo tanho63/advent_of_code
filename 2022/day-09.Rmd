@@ -30,6 +30,7 @@ aoc.elf::aoc_get(day = 9, year = 2022)
 ```{r}
 input <- aoc.elf::aoc_read(day = 9, year = 2022) |> 
   separate(1, into = c("dir","val"), sep = " ", convert = TRUE) |> 
+  # duplicate each direction by val steps so that we have each sub-step
   uncount(val) |> 
   pull(dir)
 ```
@@ -37,9 +38,12 @@ input <- aoc.elf::aoc_read(day = 9, year = 2022) |>
 --- Part 1 ---
 
 ```{r}
+# keep pointer for head and tail positions
 head_pos <- c(row = 0, col = 0)
 tail_pos <- c(row = 0, col = 0)
+# track positions of tail, including 0 0
 pos <- c(character(length(input)),"0 0")
+
 i <- 0
 for (move in input){
   i <- i+1
@@ -50,7 +54,11 @@ for (move in input){
   if(move == "D") head_pos[1] <- head_pos[1] - 1
   # determine dist
   diff <- head_pos - tail_pos
+  # move tail by one step towards head in the relevant direction
+  # sign() returns 1, 0, or -1
   if(any(abs(diff) > 1))  tail_pos <- tail_pos + sign(diff)
+  
+  # store tail pos
   pos[i] <- paste(tail_pos,collapse = " ")
 }
 length(unique(pos))
@@ -59,6 +67,7 @@ length(unique(pos))
 --- Part 2 ---
 
 ```{r}
+# apply liberal amounts of copy and paste
 pos_1 <- c(row = 0, col = 0)
 pos_2 <- c(row = 0, col = 0)
 pos_3 <- c(row = 0, col = 0)
@@ -78,6 +87,7 @@ for (move in input){
   if(move == "R") pos_1[2] <- pos_1[2] + 1
   if(move == "U") pos_1[1] <- pos_1[1] + 1
   if(move == "D") pos_1[1] <- pos_1[1] - 1
+  
   diff2 <- pos_1 - pos_2
   if(any(abs(diff2) > 1))  pos_2 <- pos_2 + sign(diff2)
   diff3 <- pos_2 - pos_3
