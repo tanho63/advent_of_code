@@ -18,6 +18,13 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
+I think this had to be a recursion thing yeah? Not sure how else you'd solve this.
+
+I tried avoiding building out the actual file structure but got burned because my intended "parent = child" relationship didn't account for duplicate names for different folder levels, so I lost almost an hour trying to get fancy in forcing that solution to work (finding the name + file depth or name + two immediate parents)
+
+In the end I just built a for loop to churn out the actual filepaths and used recursion from there
+
+
 --- Data ---
 
 ```{r eval = FALSE}
@@ -80,7 +87,6 @@ find_dir_size <- function(dir){
   return(sum(this_dir$file_size))
 }
 
-find_dir_size <- memoise::memoise(find_dir_size)
 all_dirs <- map_dbl(unique(file_tree$wd), find_dir_size)
 
 ```
