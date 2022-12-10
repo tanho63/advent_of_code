@@ -28,19 +28,45 @@ aoc.elf::aoc_get(day = 10, year = 2022)
 ```
 
 ```{r}
-input_raw <- readLines(here::here("2022/day-10-input.txt"))
-input <- aoc.elf::aoc_read(day = 10, year = 2022)
+input <- aoc.elf::aoc_read(day = 10, year = 2022) |> 
+  separate(1, into = c("op","val"), sep = " ", convert = TRUE)
+
 ```
 
 --- Part 1 ---
 
 ```{r}
+cycle_time <- tibble(op = c("noop","addx"),
+                     cycle = c(1,2))
+cpu <- input |> 
+  dplyr::left_join(cycle_time, by = "op") |> 
+  mutate(id = row_number(),
+         val = ifelse(op == "noop", 0, val)) |> 
+  uncount(cycle) |> 
+  mutate(cycle = row_number(),
+         register = cumsum(ifelse(id != lag(id, default = -1), lag(val, default = 0), 0)) + 1) |> 
+  mutate(signal_strength = register * cycle)
+
+cpu |> 
+  filter(cycle %in% (c(20,60,100,140,180,220))) |>
+  pull(signal_strength) |> 
+  sum()
 
 ```
 
 --- Part 2 ---
 
 ```{r}
+crt <- cpu |> 
+  transmute(row = (cycle-1) %/% 40,
+            col = (cycle-1) %% 40,
+            draw = ifelse(col >= register - 1 & col <= register + 1,"#"," ")) |> 
+  pivot_wider(names_from = col, values_from = draw) |> 
+  select(-row) |> 
+  as.matrix() |> 
+  apply(MARGIN = 1, \(x) paste(x, collapse = ""))
+
+cat(crt, sep = "\n")
 
 ```
 
