@@ -112,3 +112,35 @@ for (move in input){
 length(unique(pos))
 ```
 
+Some cleanup into a second for loop
+
+```{r}
+# keep pointers for rope positions
+rope <- rep(list(c(0,0)),10)
+# track positions of tail, including 0 0
+pos <- c("0 0", character(length(input)))
+
+i <- 1
+for (move in input){
+  i <- i+1
+  # move head
+  if(move == "L") rope[[1]][2] <- rope[[1]][2] - 1
+  if(move == "R") rope[[1]][2] <- rope[[1]][2] + 1
+  if(move == "U") rope[[1]][1] <- rope[[1]][1] + 1
+  if(move == "D") rope[[1]][1] <- rope[[1]][1] - 1
+  
+  for (j in seq_len(length(rope)-1)+1){
+    
+  # determine dist
+  diff <- rope[[j-1]] - rope[[j]]
+  # move tail by one step towards head in the relevant direction
+  # sign() returns 1, 0, or -1
+  if(any(abs(diff) > 1))  rope[[j]] <- rope[[j]] + sign(diff)
+  }
+  
+  # store tail pos
+  pos[i] <- paste(rope[[10]], collapse = " ")
+}
+length(unique(pos))
+```
+

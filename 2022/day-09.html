@@ -458,6 +458,35 @@ for (move in input){
 }
 length(unique(pos))</code></pre>
 <pre><code>## [1] 2557</code></pre>
+<p>Some cleanup into a second for loop</p>
+<pre class="r"><code># keep pointers for rope positions
+rope &lt;- rep(list(c(0,0)),10)
+# track positions of tail, including 0 0
+pos &lt;- c(&quot;0 0&quot;, character(length(input)))
+
+i &lt;- 1
+for (move in input){
+  i &lt;- i+1
+  # move head
+  if(move == &quot;L&quot;) rope[[1]][2] &lt;- rope[[1]][2] - 1
+  if(move == &quot;R&quot;) rope[[1]][2] &lt;- rope[[1]][2] + 1
+  if(move == &quot;U&quot;) rope[[1]][1] &lt;- rope[[1]][1] + 1
+  if(move == &quot;D&quot;) rope[[1]][1] &lt;- rope[[1]][1] - 1
+  
+  for (j in seq_len(length(rope)-1)+1){
+    
+  # determine dist
+  diff &lt;- rope[[j-1]] - rope[[j]]
+  # move tail by one step towards head in the relevant direction
+  # sign() returns 1, 0, or -1
+  if(any(abs(diff) &gt; 1))  rope[[j]] &lt;- rope[[j]] + sign(diff)
+  }
+  
+  # store tail pos
+  pos[i] &lt;- paste(rope[[10]], collapse = &quot; &quot;)
+}
+length(unique(pos))</code></pre>
+<pre><code>## [1] 2557</code></pre>
 
 
 
