@@ -1,0 +1,114 @@
+---
+title: 'Advent Of Code: 2022-11'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<https://adventofcode.com/2022/day/11>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 11, year = 2022)
+```
+
+```{r}
+input_raw <- readLines(here::here("2022/day-11-input.txt"))
+input <- aoc.elf::aoc_read(day = 11, year = 2022) |> 
+  mutate(
+    monkey = ifelse(str_detect(x,"Monkey"), parse_number(x),NA),
+    start = ifelse(str_detect(x,"Starting items"), 
+                   str_remove(x, "Starting items:"), 
+                   NA_real_),
+    operation = ifelse(str_detect(x,"Operation"), str_remove(x,"Operation: "), NA),
+    test = ifelse(str_detect(x,"Test"), parse_number(x), NA),
+    next_true = ifelse(str_detect(x,"If true"), parse_number(x), NA),
+    next_false = ifelse(str_detect(x, "If false"), parse_number(x), NA),
+    x = NULL
+  ) |> 
+  fill(monkey) |> 
+  group_by(monkey) |> 
+  fill(everything(),.direction = "downup") |> 
+  ungroup() |> 
+  distinct() |> 
+  mutate(
+    monkey = monkey + 1, 
+    next_true = next_true + 1, 
+    next_false = next_false + 1,
+    start = strsplit(start,",") |> map(as.numeric)
+  )
+
+```
+
+--- Part 1 ---
+
+```{r}
+do_operation <- function(old, operation) {eval(parse(text = operation)); return(new)}
+
+hold <- input$start
+insp_count <- numeric(nrow(input))
+round <- 1
+
+while (round <= 20) {
+  for (monkey in input$monkey){
+    vals <- do_operation(hold[[monkey]], input$operation[[monkey]])
+    vals <- floor(vals / 3)
+    test <- (vals %% input$test[[monkey]]) == 0
+    next_true <- input$next_true[monkey]
+    next_false <- input$next_false[monkey]
+    hold[[next_true]] <- c(hold[[next_true]], vals[test])
+    hold[[next_false]] <- c(hold[[next_false]], vals[!test])
+    hold[[monkey]] <- numeric()
+    insp_count[monkey] <- insp_count[monkey] + length(vals)
+  }
+  round <- round + 1
+}
+
+sort(insp_count) |> tail(2) |> prod()
+
+```
+
+--- Part 2 ---
+
+```{r}
+
+do_operation <- function(old, operation) {eval(parse(text = operation)); return(new)}
+
+hold <- input$start
+insp_count <- numeric(nrow(input))
+round <- 1
+
+while (round <= 10000) {
+  for (monkey in input$monkey){
+    vals <- do_operation(hold[[monkey]], input$operation[[monkey]])
+    test <- (vals %% input$test[[monkey]]) == 0
+    vals <- vals %% 9699690
+    next_true <- input$next_true[monkey]
+    next_false <- input$next_false[monkey]
+    hold[[next_true]] <- c(hold[[next_true]], vals[test])
+    hold[[next_false]] <- c(hold[[next_false]], vals[!test])
+    hold[[monkey]] <- numeric()
+    insp_count[monkey] <- insp_count[monkey] + length(vals)
+  }
+  round <- round + 1
+}
+
+sort(insp_count) |> tail(2) |> prod()
+
+```
+
