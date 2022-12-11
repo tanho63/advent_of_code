@@ -1,0 +1,85 @@
+---
+title: 'Advent Of Code: 2015-23'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<https://adventofcode.com/2015/day/23>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 23, year = 2015)
+```
+
+```{r}
+input_raw <- readLines(here::here("2015/day-23-input.txt"))
+input <- aoc.elf::aoc_read(day = 23, year = 2015) |> 
+  separate(1, sep = " ", into = c("name","x"),extra = "merge") |> 
+  mutate(register = str_extract(x,"^[a|b]"),
+         val = suppressWarnings(parse_number(x)),
+         x = NULL)
+```
+
+--- Part 1 ---
+
+```{r}
+x <- input$name
+r <- input$register
+v <- as.numeric(input$val)
+
+run <- function(x, r, v, a = 0, b = 0){
+  reg <- c(a = a, b = b)
+  i <- 1
+  while(i >= 1 && i <= length(x)) {
+    if(x[i]=="hlf"){
+      reg[r[i]] <- reg[r[i]]/2
+    }
+    if(x[i]=="tpl"){
+      reg[r[i]] <- reg[r[i]]*3
+    }
+    if(x[i]=="inc"){
+      reg[r[i]] <- reg[r[i]] + 1
+    }
+    if(x[i]=="jmp"){
+      i <- i + v[i]
+      next
+    }
+    if(x[i] == "jie" && (reg[r[i]] %% 2 == 0)){
+      i <- i + v[i]
+      next
+    }
+    if(x[i] == "jio" && (reg[r[i]] == 1)){
+      i <- i + v[i]
+      next
+    }
+    i <- i + 1
+  }
+  return(reg)
+}
+
+run(x,r,v)
+
+```
+
+--- Part 2 ---
+
+```{r}
+run(x,r,v,1)
+```
+
