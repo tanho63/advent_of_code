@@ -1,0 +1,44 @@
+---
+title: 'Advent Of Code: 2015-22'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 22, year = 2015)
+```
+
+```{r}
+input_raw <- readLines(here::here("2015/day-22-input.txt"))
+input <- aoc.elf::aoc_read(day = 22, year = 2015)
+```
+
+--- Part 1 ---
+
+```{r}
+
+```
+
+--- Part 2 ---
+
+```{r}
+
+```
+
