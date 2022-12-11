@@ -97,6 +97,9 @@ while (round <= 10000) {
   for (monkey in input$monkey){
     vals <- do_operation(hold[[monkey]], input$operation[[monkey]])
     test <- (vals %% input$test[[monkey]]) == 0
+    # Numbers grow super big. 
+    # Modulo of vals divided by product of tests has a similar divisibility? 
+    # Not confident on the math, but my answer was accepted so 🤷
     vals <- vals %% 9699690
     next_true <- input$next_true[monkey]
     next_false <- input$next_false[monkey]
