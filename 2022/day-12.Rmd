@@ -1,0 +1,137 @@
+---
+title: 'Advent Of Code: 2022-12'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<https://adventofcode.com/2022/day/12>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 12, year = 2022)
+```
+
+```{r}
+input <- readLines(here::here("2022/day-12-input.txt")) |> 
+  strsplit("") |> 
+  reduce(rbind) |> 
+  unname()
+
+start <- which(input == "S",arr.ind = TRUE)
+end <- which(input == "E",arr.ind = TRUE)
+
+mat_elev <- input
+
+mat_elev[start] <- "a"
+mat_elev[end] <- "z"
+
+mat_elev <- apply(mat_elev, MARGIN = 2, match, letters)
+```
+
+--- Part 1 ---
+
+Noob re-learns Dijkstra's every single year. From scratch.
+
+```{r}
+mat_visit <- matrix(FALSE, nrow = nrow(input), ncol = ncol(input))
+mat_dist <- matrix(Inf, nrow = nrow(input), ncol = ncol(input))
+mat_dist[start] <- 0
+mat_visit[start] <- TRUE
+visit_queue <- data.frame(r = start[1], c = start[2])
+
+counter <- 1
+while(nrow(visit_queue) > 0) {
+  
+  row <- visit_queue$r[1]
+  col <- visit_queue$c[1]
+  visit_queue <- tail(visit_queue,-1)
+  
+  n <- data.frame(r = c(-1,  0, 0, 1) + row, 
+                  c = c( 0, -1, 1, 0) + col)
+  
+  # filter out n$rc == rowcol
+  n <- n[n$r >= 1 & n$c >= 1 & n$r <= nrow(input) & n$c <= ncol(input),]
+  
+  # check elev of n
+  n_elev <- mat_elev[cbind(n$r,n$c)]
+  
+  # filter to valid elevation steps
+  n <- n[n_elev <= (mat_elev[row,col] + 1),]
+  
+  # filter to only those we haven't visited yet
+  n <- n[!mat_visit[cbind(n$r, n$c)],]
+  
+  mat_dist[cbind(n$r, n$c)] <- mat_dist[row,col] + 1
+  mat_visit[cbind(n$r, n$c)] <- TRUE
+  visit_queue <- bind_rows(visit_queue, n)
+  
+  counter <- counter + 1
+}
+
+mat_dist[end]
+
+```
+```{r}
+
+```
+
+--- Part 2 ---
+
+Traverse backwards from end and then figure out shortest distance to any "a"
+
+```{r}
+mat_visit <- matrix(FALSE, nrow = nrow(input), ncol = ncol(input))
+mat_dist <- matrix(Inf, nrow = nrow(input), ncol = ncol(input))
+mat_dist[end] <- 0
+mat_visit[end] <- TRUE
+visit_queue <- data.frame(r = end[1], c = end[2])
+
+counter <- 1
+while(nrow(visit_queue) > 0) {
+  
+  row <- visit_queue$r[1]
+  col <- visit_queue$c[1]
+  visit_queue <- tail(visit_queue,-1)
+  
+  n <- data.frame(r = c(-1,  0, 0, 1) + row, 
+                  c = c( 0, -1, 1, 0) + col)
+  
+  # filter out n$rc == rowcol
+  n <- n[n$r >= 1 & n$c >= 1 & n$r <= nrow(input) & n$c <= ncol(input),]
+  
+  # check elev of n
+  n_elev <- mat_elev[cbind(n$r,n$c)]
+  
+  # filter to valid elevation steps
+  n <- n[n_elev >= (mat_elev[row,col] - 1),]
+  
+  # filter to only those we haven't visited yet
+  n <- n[!mat_visit[cbind(n$r, n$c)],]
+  
+  mat_dist[cbind(n$r, n$c)] <- mat_dist[row,col] + 1
+  mat_visit[cbind(n$r, n$c)] <- TRUE
+  visit_queue <- bind_rows(visit_queue, n)
+  
+  counter <- counter + 1
+}
+
+mat_dist[which(mat_elev == 1, arr.ind = TRUE)] |> min()
+
+```
+
