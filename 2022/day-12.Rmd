@@ -49,6 +49,7 @@ mat_elev <- apply(mat_elev, MARGIN = 2, match, letters)
 Noob re-learns Dijkstra's every single year. From scratch.
 
 ```{r}
+tictoc::tic()
 mat_visit <- matrix(FALSE, nrow = nrow(input), ncol = ncol(input))
 mat_dist <- matrix(Inf, nrow = nrow(input), ncol = ncol(input))
 mat_dist[start] <- 0
@@ -85,10 +86,7 @@ while(nrow(visit_queue) > 0) {
 }
 
 mat_dist[end]
-
-```
-```{r}
-
+tictoc::toc()
 ```
 
 --- Part 2 ---
