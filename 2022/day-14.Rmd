@@ -1,0 +1,296 @@
+---
+title: 'Advent Of Code: 2022-14'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<https://adventofcode.com/2022/day/14>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE,dev = "ragg_png",fig.height = 8, fig.width = 8,dpi = 300)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 14, year = 2022)
+```
+
+```{r}
+input <- readLines(here::here("2022/day-14-input.txt")) |> 
+  strsplit("->") |> 
+  tibble(x = _) |> 
+  mutate(id = row_number()) |> 
+  unnest_longer(x) |> 
+  separate(x, into = c("x","y"), sep = ",", convert = TRUE) |> 
+  group_by(id) |> 
+  mutate(
+    next_x = lead(x) |> coalesce(x),
+    next_y = lead(y) |> coalesce(y),
+    new_x = purrr::map2(x,next_x, ~.x:.y),
+    new_y = purrr::map2(y,next_y, ~.x:.y)
+  ) |> 
+  ungroup() |> 
+  unnest_longer(new_x) |> 
+  unnest_longer(new_y)
+
+input |> 
+  ggplot(aes(x = new_x, y = new_y, group = as.factor(id), color = as.factor(id))) +
+  geom_point() + 
+  scale_y_reverse() + 
+  tantastic::theme_tantastic() + 
+  theme(legend.position = "none")
+```
+
+--- Part 1 ---
+
+```{r}
+rocks <- input |> 
+  select(col = new_x, row = new_y) |> 
+  distinct() |> 
+  mutate(value = -1) |> 
+  full_join(
+    crossing(
+      row = seq_len(max(input$new_y)),
+      col = seq.int(from = min(input$new_x), to = max(input$new_x))
+    ),
+    by = c("row","col")
+  ) |>
+  arrange(col,row)
+
+mat_rocks <- rocks |> 
+  mutate(col = col - min(col) + 1) |> 
+  mutate(value = replace_na(value,0)) |> 
+  pivot_wider(names_from = col, values_from = value) |> 
+  arrange(row) |> 
+  select(-row) |> 
+  as.matrix() |> 
+  unname()
+
+origin_col <- 500 - min(input$new_x) + 1
+
+origin <- cbind(1,origin_col)
+
+valid_pos <- \(s){
+  if(is.null(s)) return(FALSE)
+  if(s[1] > nrow(mat_rocks)) return(FALSE)
+  if(s[2] < 1) return(FALSE)
+  if(s[2] > ncol(mat_rocks)) return(FALSE)
+  return(TRUE)
+}
+
+# search down searches all the way down as far as it can
+search_down <- \(sand_pos){
+  safe <- sand_pos
+  s <- sand_pos
+  repeat{
+    s[1] <- s[1] + 1
+    if(!valid_pos(s)) return(NULL)
+    if(mat_rocks[s] != 0) return(safe)
+    safe <- s
+  }
+}
+
+# search left only searches next diagleft
+search_left <- \(sand_pos){
+  s <- sand_pos
+  s[2] <- s[2] - 1
+  s[1] <- s[1] + 1
+  if(!valid_pos(s)) return(NULL)
+  if(mat_rocks[s] != 0) return(sand_pos)
+  return(s)
+}
+# search right only searches next diagright
+search_right <- \(sand_pos){
+  s <- sand_pos
+  s[2] <- s[2] + 1
+  s[1] <- s[1] + 1
+  if(!valid_pos(s)) return(NULL)
+  if(mat_rocks[s] != 0) return(sand_pos)
+  return(s)
+}
+
+sand_pos <- origin
+sand_count <- 0
+
+repeat{
+  repeat{
+    d <- search_down(sand_pos)
+    l <- search_left(sand_pos)
+    r <- search_right(sand_pos)
+    
+    if(is.null(d)) {sand_pos <- d; break;}
+    if(is.null(l)) {sand_pos <- l; break;}
+    if(is.null(r)) {sand_pos <- r; break;}
+    
+    if(!all(sand_pos == d)) {
+      sand_pos <- d 
+      next
+      }
+    if(!all(sand_pos == l)) {
+      sand_pos <- l
+      next
+    }
+    if(!all(sand_pos == r)) {
+      sand_pos <- r
+      next
+      }
+      break
+  }
+  if(valid_pos(sand_pos)) mat_rocks[sand_pos] <- 1
+  if(is.null(sand_pos)) break
+  if(all(sand_pos == origin)) break
+  sand_count <- sand_count + 1
+  last_sand_pos <- sand_pos
+  sand_pos <- origin
+}
+
+sum(mat_rocks > 0)
+```
+
+```{r}
+values <- rocks |> 
+  select(row,col) |> 
+  mutate(col = col - min(col) + 1) |> 
+  mutate(val = mat_rocks[cbind(row,col)]) |>
+  mutate(row = row - 2)
+
+values |>
+  ggplot(aes(x = col, y = row, fill = as.character(val))) +
+  geom_raster() +
+  scale_y_reverse() +
+  tantastic::theme_tantastic() + 
+  theme(legend.position = "none") +
+  coord_fixed()
+```
+
+--- Part 2 ---
+
+```{r}
+rocks <- input |> 
+  select(col = new_x, row = new_y) |> 
+  distinct() |> 
+  mutate(value = -1) |> 
+  full_join(
+    crossing(
+      row = seq_len(max(input$new_y) + 2),
+      col = seq.int(from = 1,700)
+    ),
+    by = c("row","col")
+  ) |>
+  arrange(col,row) |> 
+  mutate(value = ifelse(row == max(row), -1, value))
+
+mat_rocks <- rocks |> 
+  mutate(value = replace_na(value,0)) |> 
+  pivot_wider(names_from = col, values_from = value) |> 
+  arrange(row) |> 
+  select(-row) |> 
+  as.matrix() |> 
+  unname()
+
+origin <- cbind(0,500)
+
+valid_pos <- \(s){
+  if(is.null(s)) return(FALSE)
+  if(s[1] > nrow(mat_rocks)) return(FALSE)
+  return(TRUE)
+}
+
+# search down searches all the way down as far as it can
+search_down <- \(sand_pos){
+  safe <- sand_pos
+  s <- sand_pos
+  repeat{
+    s[1] <- s[1] + 1
+    if(!valid_pos(s)) return(NULL)
+    if(mat_rocks[s] != 0) return(safe)
+    safe <- s
+  }
+}
+
+# search left only searches next diagleft
+search_left <- \(sand_pos){
+  s <- sand_pos
+  s[2] <- s[2] - 1
+  s[1] <- s[1] + 1
+  if(!valid_pos(s)) return(NULL)
+  if(mat_rocks[s] != 0) return(sand_pos)
+  return(s)
+}
+# search right only searches next diagright
+search_right <- \(sand_pos){
+  s <- sand_pos
+  s[2] <- s[2] + 1
+  s[1] <- s[1] + 1
+  if(!valid_pos(s)) return(NULL)
+  if(mat_rocks[s] != 0) return(sand_pos)
+  return(s)
+}
+
+sand_pos <- origin
+sand_count <- 0
+
+repeat{
+  repeat{
+    d <- search_down(sand_pos)
+    l <- search_left(sand_pos)
+    r <- search_right(sand_pos)
+    
+    if(is.null(d)) {sand_pos <- d; break;}
+    if(is.null(l)) {sand_pos <- l; break;}
+    if(is.null(r)) {sand_pos <- r; break;}
+    
+    if(!all(sand_pos == d)) {
+      sand_pos <- d 
+      next
+      }
+    if(!all(sand_pos == l)) {
+      sand_pos <- l
+      next
+    }
+    if(!all(sand_pos == r)) {
+      sand_pos <- r
+      next
+      }
+      break
+  }
+  if(valid_pos(sand_pos)) mat_rocks[sand_pos] <- 1
+  if(is.null(sand_pos)) break
+  if(all(sand_pos == origin)) break
+  sand_count <- sand_count + 1
+  last_sand_pos <- sand_pos
+  sand_pos <- origin
+}
+
+sum(mat_rocks > 0) + 1
+```
+
+
+```{r}
+values <- rocks |> 
+  select(row,col) |> 
+  mutate(val = mat_rocks[cbind(row,col)]) |>
+  mutate(row = row - 2)
+
+values |>
+  ggplot(aes(x = col, y = row, fill = as.character(val))) +
+  geom_raster() +
+  scale_y_reverse() +
+  xlim(320,680) +
+  tantastic::theme_tantastic() + 
+  theme(legend.position = "none")
+
+```
+
