@@ -13,7 +13,7 @@ suppressPackageStartupMessages({
   library(here)
   library(glue)
   
-  knitr::opts_chunk$set(echo = TRUE,dev = "ragg_png",fig.height = 8, fig.width = 8,dpi = 300)
+  knitr::opts_chunk$set(echo = TRUE,dev = "ragg_png",fig.height = 6, fig.width = 8, dpi = 300)
 })
 
 options(scipen = 9999999)
@@ -50,7 +50,8 @@ input |>
   geom_point() + 
   scale_y_reverse() + 
   tantastic::theme_tantastic() + 
-  theme(legend.position = "none")
+  theme(legend.position = "none") + 
+  coord_fixed()
 ```
 
 --- Part 1 ---
@@ -164,7 +165,8 @@ values <- rocks |>
   select(row,col) |> 
   mutate(col = col - min(col) + 1) |> 
   mutate(val = mat_rocks[cbind(row,col)]) |>
-  mutate(row = row - 2)
+  mutate(row = row - 2) |> 
+  filter(val != 0)
 
 values |>
   ggplot(aes(x = col, y = row, fill = as.character(val))) +
@@ -282,7 +284,8 @@ sum(mat_rocks > 0) + 1
 values <- rocks |> 
   select(row,col) |> 
   mutate(val = mat_rocks[cbind(row,col)]) |>
-  mutate(row = row - 2)
+  mutate(row = row - 2) |> 
+  filter(val != 0)
 
 values |>
   ggplot(aes(x = col, y = row, fill = as.character(val))) +
@@ -290,7 +293,8 @@ values |>
   scale_y_reverse() +
   xlim(320,680) +
   tantastic::theme_tantastic() + 
-  theme(legend.position = "none")
+  theme(legend.position = "none") + 
+  coord_fixed()
 
 ```
 
