@@ -414,12 +414,13 @@ input &lt;- aoc.elf::aoc_read(day = 15, year = 2022) |&gt;
 #   unique()
 # 
 # length(e1) - distinct(example,bx,by) |&gt; filter(by == 10) |&gt; nrow()
-
+tictoc::tic()
 p1 &lt;- pmap(list(input$sx,input$sy,input$d), manhattan_x_on_v) |&gt; 
   unlist() |&gt; 
   unique()
-
-length(p1) - distinct(input,bx,by) |&gt; filter(by == 2e6) |&gt; nrow()</code></pre>
+tictoc::toc()</code></pre>
+<pre><code>## 1.31 sec elapsed</code></pre>
+<pre class="r"><code>length(p1) - distinct(input,bx,by) |&gt; filter(by == 2e6) |&gt; nrow()</code></pre>
 <pre><code>## [1] 4560025</code></pre>
 <p>— Part 2 —</p>
 <p>Brute force ish, but narrowed sample size by looking on points just
@@ -447,16 +448,18 @@ check_range &lt;- \(x,y){
   !any((abs(x - sensors$x) + abs(y - sensors$y)) &lt;= sensors$d)
 }
 
+tictoc::tic()
 i &lt;- 1
-
 repeat{
   if(i %% 100000 == 0) cat(i, sep = &quot;\n&quot;)
   beacon &lt;- check_range(candidates$x[i],candidates$y[i])
   if(beacon) break
   i &lt;- i + 1
 }
-candidates$x[i] * 4e6 + candidates$y[i]</code></pre>
-<pre><code>## [1] 12480406634249</code></pre>
+tictoc::toc()</code></pre>
+<pre><code>75.33 sec elapsed</code></pre>
+<pre class="r"><code>candidates$x[i] * 4e6 + candidates$y[i]</code></pre>
+<pre><code>[1] 12480406634249</code></pre>
 
 
 

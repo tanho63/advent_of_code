@@ -68,11 +68,11 @@ manhattan_x_on_v <- function(sx,sy,d, v = 2e6){
 #   unique()
 # 
 # length(e1) - distinct(example,bx,by) |> filter(by == 10) |> nrow()
-
+tictoc::tic()
 p1 <- pmap(list(input$sx,input$sy,input$d), manhattan_x_on_v) |> 
   unlist() |> 
   unique()
-
+tictoc::toc()
 length(p1) - distinct(input,bx,by) |> filter(by == 2e6) |> nrow()
 
 ```
@@ -103,17 +103,23 @@ check_range <- \(x,y){
   !any((abs(x - sensors$x) + abs(y - sensors$y)) <= sensors$d)
 }
 
+tictoc::tic()
 i <- 1
-
 repeat{
   if(i %% 100000 == 0) cat(i, sep = "\n")
   beacon <- check_range(candidates$x[i],candidates$y[i])
   if(beacon) break
   i <- i + 1
 }
+tictoc::toc()
+```
+```
+75.33 sec elapsed
+```
+```{r eval = FALSE}
 candidates$x[i] * 4e6 + candidates$y[i]
 ```
-```{r echo = FALSE}
-12480406634249
+```
+[1] 12480406634249
 ```
 
