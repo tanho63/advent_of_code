@@ -1,0 +1,99 @@
+---
+title: 'Advent Of Code: 2022-18'
+author: Tan Ho
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+<https://adventofcode.com/2022/day/18>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 18, year = 2022)
+```
+
+```{r}
+input_raw <- readLines(here::here("2022/day-18-input.txt"))
+input <- aoc.elf::aoc_read(day = 18, year = 2022) |> 
+  separate(1,c("a","b","c"), sep = ",", convert = TRUE)
+
+example <- c(222, 122, 322, 212, 232, 221, 223, 224, 226, 125, 325, 215, 235) |> 
+  as.character() |> 
+  strsplit("") |> 
+  reduce(rbind) |> 
+  as_tibble() |> 
+  rename(a = 1, b = 2, c = 3) |> 
+  mutate_all(as.integer)
+
+```
+
+--- Part 1 ---
+
+```{r}
+neighbours <- function(a,b,c, mat = example){
+  x <- (abs(mat$a - a) + abs(mat$b - b) + abs(mat$c - c)) == 1
+  sum(x)
+}
+
+sum(6 - pmap_dbl(input, neighbours, mat = input))
+```
+
+--- Part 2 ---
+
+```{r eval = FALSE}
+possible_spaces <- crossing(
+  a = seq_len(max(input$a)),
+  b = seq_len(max(input$b)),
+  c = seq_len(max(input$c)),
+  )
+
+next_points <- \(x,y,z){
+  tibble(a = c(-1, 0, 0, 0, 0, 1) + x, 
+         b = c(0, -1, 0, 0, 1, 0) + y, 
+         c = c(0, 0, -1, 1, 0, 0) + z) |> 
+    filter(a >= 0, b >= 0, c >= 0,  a <= 20, b <= 20, c <= 20) |> 
+    anti_join(input, by = c("a","b","c")) |> 
+    anti_join(checked, by = c("a","b","c")) |> 
+    anti_join(queue, by = c("a","b","c"))
+}
+
+checked <- tibble(a = numeric(), b = numeric(), c = numeric())
+queue <- tibble(a = 0, b = 0, c = 0)
+
+counter <- 0
+while(nrow(queue) > 0){
+  counter <- counter + 1
+  if(counter %% 100 == 0) print(counter)
+  x <- next_points(queue$a[1], queue$b[1], queue$c[1])
+  checked <- checked |> bind_rows(queue |> slice(1))
+  queue <- queue |> 
+    slice(-1) |> 
+    bind_rows(x)
+}
+
+filled_spaces <- possible_spaces |> 
+  dplyr::anti_join(checked) |>
+  dplyr::anti_join(input) |> 
+  bind_rows(input)
+
+sum(6-pmap_dbl(filled_spaces, neighbours, mat = filled_spaces))
+```
+```{r echo = FALSE}
+2080
+```
+
