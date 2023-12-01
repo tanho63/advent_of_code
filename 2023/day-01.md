@@ -1,0 +1,105 @@
+Advent Of Code: 2023-01
+================
+Tan Ho
+2023-12-01
+
+<https://adventofcode.com/2023/day/1>
+
+``` r
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+— Data —
+
+``` r
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 1, year = 2023)
+```
+
+``` r
+input_raw <- readLines(here::here("2023/day-01-input.txt"))
+input <- aoc.elf::aoc_read(day = 1, year = 2023)
+```
+
+    ## 
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## cols(
+    ##   x = col_character()
+    ## )
+
+— Part 1 —
+
+``` r
+v <- input_raw |> 
+  stringr::str_extract_all("\\d")
+
+v1 <- sapply(v,getElement,1)
+v2 <- sapply(v,\(x) x[length(x)])
+paste0(v1,v2) |> as.numeric() |> sum()
+```
+
+    ## [1] 56397
+
+— Part 2 —
+
+``` r
+# actual solution
+p <- c("one","two","three","four","five","six","seven","eight","nine", as.character(1:9))
+
+m <- as.character(1:9) |> 
+  setNames(
+    c("one","two","three","four","five","six","seven","eight","nine")
+  )
+
+tibble::tibble(
+  index = seq_along(input_raw),
+  x = input_raw
+) |> 
+  tidyr::expand_grid(p = p) |> 
+  dplyr::mutate(
+    locs = purrr::map2(x, p, \(x,p) stringr::str_locate_all(x,p)[[1]][,1]),
+    first = sapply(locs, \(x) x[1]),
+    last = sapply(locs, \(x) ifelse(length(x) > 0, x[length(x)], NA)),
+    p = ifelse(is.na(m[p]), p, m[p]) |> as.numeric()
+  ) |>
+  dplyr::filter(!is.na(first)) |>
+  dplyr::mutate(
+    is_first = first == min(first),
+    is_last = last == max(last),
+    .by = index
+  ) |> 
+  dplyr::filter(
+    is_first | is_last
+  ) |> 
+  dplyr::summarise(
+    v = paste0(p[is_first],p[is_last]) |> as.numeric(),
+    .by = index
+  ) |> 
+  dplyr::summarise(v = sum(v)) |> 
+  getElement(1)
+```
+
+    ## [1] 55701
+
+The regex I should have done…
+
+``` r
+d <- c(as.character(1:9),"one","two","three","four","five","six","seven","eight","nine")
+p <- paste(d, collapse = "|")
+m <- setNames(c(1:9,1:9), d)
+x1 <- m[stringr::str_extract(input_raw, p)]
+p2 <- glue::glue(".*({p}).*")
+x2 <- m[stringr::str_replace(input_raw, p2, "\\1")]
+paste0(x1,x2) |> as.numeric() |> sum()
+```
+
+    ## [1] 55701
