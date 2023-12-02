@@ -32,18 +32,16 @@ aoc.elf::aoc_get(day = 2, year = 2023)
 ```{r}
 input_raw <- readLines(here::here("2023/day-02-input.txt"))
 input <- aoc.elf::aoc_read(day = 2, year = 2023)
-```
 
-```{r}
 x <- input |> 
   tidyr::separate(x, into = c("game", "values"), sep = ": ") |> 
   tidyr::separate_rows(values, sep = "; ") |> 
   dplyr::mutate(round = dplyr::row_number()) |> 
   tidyr::separate_rows(values, sep = ", ") |> 
-  tidyr::separate(values, into = c("n", "color"), sep = " ", convert = T)
-  
+  tidyr::separate(values, into = c("n", "color"), sep = " ", convert = T) |> 
+  dplyr::select(game, round, color, n)
+head(x)
 ```
-
 
 --- Part 1 ---
 
@@ -58,7 +56,9 @@ x |>
   ) |> 
   dplyr::summarise(ok = all(r1_ok), .by = game) |> 
   dplyr::filter(ok) |> 
-  dplyr::summarise(sum(readr::parse_number(game)))
+  getElement("game") |> 
+  readr::parse_number() |> 
+  sum()
 ```
 
 --- Part 2 ---
@@ -68,7 +68,8 @@ x |>
   dplyr::group_by(game, color) |> 
   dplyr::summarise(req_n = max(n)) |> 
   dplyr::summarise(prod = prod(req_n)) |> 
-  dplyr::summarise(sum(prod))
+  getElement("prod") |> 
+  sum()
 ```
 
 Much better today than yesterday. Happy with this. 

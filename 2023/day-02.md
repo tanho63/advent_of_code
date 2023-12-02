@@ -42,8 +42,20 @@ x <- input |>
   tidyr::separate_rows(values, sep = "; ") |> 
   dplyr::mutate(round = dplyr::row_number()) |> 
   tidyr::separate_rows(values, sep = ", ") |> 
-  tidyr::separate(values, into = c("n", "color"), sep = " ", convert = T)
+  tidyr::separate(values, into = c("n", "color"), sep = " ", convert = T) |> 
+  dplyr::select(game, round, color, n)
+head(x)
 ```
+
+    ## # A tibble: 6 × 4
+    ##   game   round color     n
+    ##   <chr>  <int> <chr> <int>
+    ## 1 Game 1     1 blue      1
+    ## 2 Game 1     1 red       1
+    ## 3 Game 1     2 red      10
+    ## 4 Game 1     3 red       8
+    ## 5 Game 1     3 blue      1
+    ## 6 Game 1     3 green     1
 
 — Part 1 —
 
@@ -58,13 +70,12 @@ x |>
   ) |> 
   dplyr::summarise(ok = all(r1_ok), .by = game) |> 
   dplyr::filter(ok) |> 
-  dplyr::summarise(sum(readr::parse_number(game)))
+  getElement("game") |> 
+  readr::parse_number() |> 
+  sum()
 ```
 
-    ## # A tibble: 1 × 1
-    ##   `sum(readr::parse_number(game))`
-    ##                              <dbl>
-    ## 1                             2439
+    ## [1] 2439
 
 — Part 2 —
 
@@ -73,12 +84,10 @@ x |>
   dplyr::group_by(game, color) |> 
   dplyr::summarise(req_n = max(n)) |> 
   dplyr::summarise(prod = prod(req_n)) |> 
-  dplyr::summarise(sum(prod))
+  getElement("prod") |> 
+  sum()
 ```
 
-    ## # A tibble: 1 × 1
-    ##   `sum(prod)`
-    ##         <dbl>
-    ## 1       63711
+    ## [1] 63711
 
 Much better today than yesterday. Happy with this.
