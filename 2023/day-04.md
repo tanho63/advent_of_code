@@ -1,0 +1,93 @@
+Advent Of Code: 2023-04
+================
+Tan Ho
+2023-12-04
+
+<https://adventofcode.com/2023/day/4>
+
+``` r
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+— Data —
+
+``` r
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 4, year = 2023)
+```
+
+``` r
+input_raw <- readLines(here::here("2023/day-04-input.txt"))
+# input <- readLines(here::here('2023/day-04-example.txt')) |>
+#   tibble::tibble(x = _)
+input <- aoc.elf::aoc_read(day = 4, year = 2023)
+```
+
+    ## 
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## cols(
+    ##   x = col_character()
+    ## )
+
+``` r
+parsed <- input |> 
+  tidyr::extract(x,into = c("v1","v2"), regex = ".+: (.+) \\| (.+)") |> 
+  dplyr::mutate(
+    card = dplyr::row_number(),
+    win_n = stringr::str_extract_all(v1, "\\d+"),
+    your_n = stringr::str_extract_all(v2, "\\d+")
+  )
+```
+
+— Part 1 —
+
+``` r
+parsed |> 
+  dplyr::mutate(
+    matches = purrr::map2_dbl(your_n,win_n, \(your_n,win_n) intersect(your_n,win_n) |> length()),
+    points = ifelse(matches > 0, 2^(matches - 1), 0)
+  ) |> 
+  dplyr::summarise(
+    sum(points)
+  )
+```
+
+    ## # A tibble: 1 × 1
+    ##   `sum(points)`
+    ##           <dbl>
+    ## 1         20107
+
+— Part 2 —
+
+``` r
+card_matches <- parsed |> 
+  dplyr::mutate(
+    matches = purrr::map2_dbl(your_n,win_n, \(your_n,win_n) intersect(your_n,win_n) |> length())
+  ) |> 
+  dplyr::select(card, matches)
+
+card_count <- rep(1, length(card_matches$card))
+card <- 1
+while (card <= length(card_matches$card)) {
+  cards_won <- card_matches$matches[card]
+  if(cards_won > 0) {
+    new_cards <- seq_len(cards_won) + card
+    number_won <- card_count[card]
+    card_count[new_cards] <- number_won + card_count[new_cards]
+  }
+  card <- card + 1
+}
+
+sum(card_count)
+```
+
+    ## [1] 8172507
