@@ -1,7 +1,7 @@
 ---
 title: 'Advent Of Code: 2023-04'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-04"
 output: 
   github_document:
     preserve_yaml: true

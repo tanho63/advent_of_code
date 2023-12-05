@@ -1,3 +1,14 @@
+---
+title: 'Advent Of Code: 2023-02'
+author: Tan Ho
+date: "2023-12-02"
+output:    
+  github_document:     
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
 Advent Of Code: 2023-02
 ================
 Tan Ho

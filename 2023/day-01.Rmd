@@ -1,8 +1,10 @@
 ---
 title: 'Advent Of Code: 2023-01'
 author: Tan Ho
-date: "`r Sys.Date()`"
-output: github_document
+date: "2023-12-01"
+output:    
+  github_document:     
+    preserve_yaml: true
 editor_options: 
   chunk_output_type: console
 ---
