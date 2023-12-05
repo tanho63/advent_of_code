@@ -185,14 +185,15 @@ seed_ranges <- seeds |>
   )
 
 test_seeds <-  purrr::map2(seed_ranges$start,seed_ranges$end,\(s,e) seq.int(s,e,by = 50000)) |> 
-  unlist()
+  unlist() |> 
+  sort()
 length(test_seeds)
 ```
 
     ## [1] 50816
 
 ``` r
-crude <- tibble::tibble(seed = test_seeds) |> 
+crude <- tibble::tibble(seed = test_seeds)
   calculate_seeds(seed_map = seed_map)
 
 crude_min <- crude$seed[which.min(crude$location)]
@@ -218,3 +219,62 @@ min(p2$location)
 ```
 
     ## [1] 57451709
+
+— Parallelizing because I forgot to do that because I’m dumb —
+
+``` r
+tictoc::tic()
+seed_ranges <- seeds |> 
+  dplyr::mutate(t = rep_len(c("start","range"),nrow(seeds)),
+                id = cumsum(t == "start")) |> 
+  tidyr::pivot_wider(names_from = t, values_from = seed) |> 
+  dplyr::arrange(start) |> 
+  dplyr::mutate(
+    end = start + range - 1,
+    id = dplyr::row_number()
+  )
+
+test_seeds <-  purrr::map2(seed_ranges$start,seed_ranges$end,\(s,e) seq.int(s,e,by = 50000)) |> 
+  unlist() |> 
+  sort() |> 
+  tibble(seed = _) |> 
+  dplyr::mutate(id = seed %/% 2000) |> 
+  dplyr::group_split(id)
+
+future::plan(future::multisession)
+
+crude <- furrr::future_map_dfr(
+  test_seeds, 
+  calculate_seeds, 
+  seed_map = seed_map
+)
+
+crude_min <- crude$seed[which.min(crude$location)]
+
+crude |> 
+  dplyr::filter((seed + 50000) >= crude_min, (seed - 50000) <= crude_min) |> 
+  dplyr::select(seed, location)
+
+refine_seeds <- tibble(seed = seq.int(crude_min - 50000, crude_min)) |> 
+  dplyr::mutate(id = seed %/% 2000) |> 
+  dplyr::group_split(id)
+
+future::plan(future::multisession)
+
+p2 <- furrr::future_map_dfr(
+  refine_seeds, 
+  calculate_seeds, 
+  seed_map = seed_map, 
+  .progress = TRUE
+)
+
+min(p2$location)
+```
+
+    ## [1] 57451709
+
+``` r
+tictoc::toc()
+```
+
+    ## 167.667 sec elapsed
