@@ -1,0 +1,76 @@
+---
+title: 'Advent Of Code: 2023-06'
+author: Tan Ho
+date: "2023-12-06"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+Advent Of Code: 2023-06
+================
+Tan Ho
+2023-12-06
+
+<https://adventofcode.com/2023/day/6>
+
+``` r
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  library(aoc.elf)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+— Data —
+
+``` r
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 6, year = 2023)
+```
+
+``` r
+input_raw <- readLines(here::here("2023/day-06-input.txt"))
+input <- tibble::tibble(
+  time = stringr::str_extract_all(input_raw[1], "\\d+") |> unlist() |> as.numeric(),
+  distance = stringr::str_extract_all(input_raw[2], "\\d+") |> unlist() |> as.numeric()
+) |> 
+  dplyr::mutate(id = dplyr::row_number(), .before = 1)
+```
+
+— Part 1 —
+
+``` r
+input |> 
+  dplyr::mutate(hold = purrr::map(time, seq_len)) |> 
+  tidyr::unnest(hold) |> 
+  dplyr::mutate(result = (time - hold) * hold) |> 
+  dplyr::filter(result > distance) |> 
+  dplyr::group_by(id) |> 
+  dplyr::summarise(n = dplyr::n()) |> 
+  dplyr::summarise(prod(n))
+```
+
+    ## # A tibble: 1 × 1
+    ##   `prod(n)`
+    ##       <dbl>
+    ## 1    588588
+
+— Part 2 —
+
+``` r
+time <- stringr::str_extract_all(input_raw[1], "\\d+") |> unlist() |> paste(collapse = "") |> as.numeric()
+distance <-  stringr::str_extract_all(input_raw[2], "\\d+") |> unlist() |> paste(collapse = "") |>  as.numeric()
+
+sum(((time-seq_len(time)) * seq_len(time)) > distance)
+```
+
+    ## [1] 34655848
