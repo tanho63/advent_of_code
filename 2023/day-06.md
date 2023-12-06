@@ -67,8 +67,8 @@ input |>
 — Part 2 —
 
 ``` r
-time <- stringr::str_extract_all(input_raw[1], "\\d+") |> unlist() |> paste(collapse = "") |> as.numeric()
-distance <-  stringr::str_extract_all(input_raw[2], "\\d+") |> unlist() |> paste(collapse = "") |>  as.numeric()
+time <- input$time |> paste(collapse = "") |> as.numeric()
+distance <-  input$distance |> paste(collapse = "") |> as.numeric()
 
 sum(((time-seq_len(time)) * seq_len(time)) > distance)
 ```
