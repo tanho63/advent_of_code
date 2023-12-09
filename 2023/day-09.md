@@ -79,7 +79,7 @@ ahh. recursion. *knocks off some dust*
 
 ``` r
 next_val <- function(v){
-  d <- na.omit(v - dplyr::lag(v, default = NA))
+  d <- diff(v)
   if (!all(d == 0)) d <- next_val(d)
   return(tail(v, 1) + d[[1]])
 }
