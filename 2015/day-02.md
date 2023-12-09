@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-02
+================
+Tan Ho
+2021-12-07
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 2, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-02-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 tibble(x = input) |> 
   separate(x, into = c("l","w","h"), sep = "x",convert = TRUE) |> 
   mutate(lw = l * w,
@@ -45,9 +50,11 @@ tibble(x = input) |>
   sum()
 ```
 
---- Part 2 ---
+    ## [1] 1586300
 
-```{r}
+— Part 2 —
+
+``` r
 tibble(x = input) |> 
   separate(x, into = c("l","w","h"), sep = "x",convert = TRUE) |> 
   mutate(lw = l + w,
@@ -59,3 +66,4 @@ tibble(x = input) |>
   sum()
 ```
 
+    ## [1] 3737498

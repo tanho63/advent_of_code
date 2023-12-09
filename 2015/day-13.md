@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-13
+================
+Tan Ho
+2022-12-02
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,21 +25,27 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 13, year = 2015)
 ```
 
-```{r}
+``` r
 input <- aoc.elf::aoc_read(day = "13", year = "2015")
 ```
 
---- Part 1 ---
+    ##                                                    
+    ##  [32m■■■■■■■■■■■■■■■■                [39m  50% |  ETA: 40s                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■■■■■■                [39m  50% |  ETA: 40s                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■■■■■■                [39m  50% |  ETA: 40s
 
-```{r eval = FALSE}
+— Part 1 —
 
+``` r
 happiness <- input |> 
   tidyr::extract(1, regex = "(\\w+) would (gain|lose) (\\d+) happiness units by sitting next to (\\w+)",
                  into = c("name", "dir", "amount", "target"), convert = TRUE) |> 
@@ -75,14 +86,12 @@ all_seatings <- getPerms(unique(happiness$name))
 vec <- apply(all_seatings,1,get_happiness)
 max(vec)
 ```
-```{r echo= FALSE}
-733
-```
 
+    ## [1] 733
 
---- Part 2 ---
+— Part 2 —
 
-```{r eval = FALSE}
+``` r
 happiness <- input |> 
   tidyr::extract(1, regex = "(\\w+) would (gain|lose) (\\d+) happiness units by sitting next to (\\w+)",
                  into = c("name", "dir", "amount", "target"), convert = TRUE) |> 
@@ -115,7 +124,5 @@ all_seatings <- getPerms(unique(happiness$name))
 vec <- apply(all_seatings,1,get_happiness)
 max(vec)
 ```
-```{r echo = FALSE}
-722
-```
 
+    ## [1] 722

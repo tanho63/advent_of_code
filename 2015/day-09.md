@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-09
+================
+Tan Ho
+2022-12-01
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,24 +25,30 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 9, year = 2015)
 ```
 
-```{r}
+``` r
 input_raw <- readLines(here::here("2015/day-09-input.txt"))
 input <- aoc.elf::aoc_read(day = "09", year = "2015")
 ```
 
---- Part 1 ---
+    ##                                                    
+    ##  [32m■■■■■■■■■■■                     [39m  33% |  ETA:  1m                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■                     [39m  33% |  ETA:  1m                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■                     [39m  33% |  ETA:  1m
 
-Travelling salesman? 
-Dijkstra's?
+— Part 1 —
 
-```{r}
+Travelling salesman? Dijkstra’s?
+
+``` r
 distances <- input |> 
   tidyr::extract(1, into = c("from", "to", "distance"), regex = "([A-z]+) to ([A-z]+) = (\\d+)", convert = TRUE) %>%
   dplyr::bind_rows(
@@ -45,15 +56,14 @@ distances <- input |>
     . |> rename(to = from, from = to)
   ) |> 
   arrange(distance)
-
 ```
 
-Eyeballing: Tristram -> Tambi (49) -> Snowdin (15) -> AlphaCentauri (12) -> Faerun (13) -> Arbre(24) -> Straylight (40) -> Norrath (54)
+Eyeballing: Tristram -\> Tambi (49) -\> Snowdin (15) -\> AlphaCentauri
+(12) -\> Faerun (13) -\> Arbre(24) -\> Straylight (40) -\> Norrath (54)
 
-A bit unsatisfying...
+A bit unsatisfying…
 
-```{r}
-
+``` r
 getPerms <- function(x) {
     if (length(x) == 1) {
         return(x)
@@ -80,12 +90,14 @@ get_distance <- function(x){
 x <- apply(all_paths,MARGIN = 1, get_distance)
 
 min(x)
-
 ```
 
---- Part 2 ---
+    ## [1] 207
 
-```{r}
+— Part 2 —
+
+``` r
 max(x)
 ```
 
+    ## [1] 804

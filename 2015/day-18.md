@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-18
+================
+Tan Ho
+2022-12-03
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 18, year = 2015)
 ```
 
-```{r}
+``` r
 example <- c(".#.#.#", "...##.", "#....#", "..#...", "#.#..#", "####..") |> 
   strsplit("") |> 
   unlist() |> 
@@ -45,9 +50,9 @@ input <- readLines(here::here("2015/day-18-input.txt")) |>
 mode(input) <- 'integer'
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r eval = FALSE}
+``` r
 count_neighbours <- function(row, col,lights_p1){
   checks <- data.table::data.table(
     r = c(-1L, -1L, -1L, 0L, 0L, 1L, 1L, 1L) + row, 
@@ -74,14 +79,12 @@ for (i in 1:100){
 }
 sum(lights_p1)
 ```
-```{r echo = FALSE}
-768
-```
 
---- Part 2 ---
+    ## [1] 768
 
+— Part 2 —
 
-```{r eval = FALSE}
+``` r
 count_neighbours <- function(row, col,lights_p1){
   checks <- data.table::data.table(
     r = c(-1L, -1L, -1L, 0L, 0L, 1L, 1L, 1L) + row, 
@@ -109,8 +112,5 @@ for (i in 1:100){
 }
 sum(lights_p2)
 ```
-```{r echo = FALSE}
-781
-```
 
-
+    ## [1] 781

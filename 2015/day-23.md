@@ -7,9 +7,14 @@ output:
     preserve_yaml: true
 ---
 
+Advent Of Code: 2015-23
+================
+Tan Ho
+2022-12-10
+
 <https://adventofcode.com/2015/day/23>
 
-```{r}
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -22,14 +27,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 23, year = 2015)
 ```
 
-```{r}
+``` r
 input_raw <- readLines(here::here("2015/day-23-input.txt"))
 input <- aoc.elf::aoc_read(day = 23, year = 2015) |> 
   separate(1, sep = " ", into = c("name","x"),extra = "merge") |> 
@@ -38,9 +43,16 @@ input <- aoc.elf::aoc_read(day = 23, year = 2015) |>
          x = NULL)
 ```
 
---- Part 1 ---
+    ##                                                    
+    ##  [32m■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   [39m  92% |  ETA:  6s                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   [39m  92% |  ETA:  6s                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   [39m  92% |  ETA:  6s
 
-```{r}
+— Part 1 —
+
+``` r
 x <- input$name
 r <- input$register
 v <- as.numeric(input$val)
@@ -76,12 +88,16 @@ run <- function(x, r, v, a = 0, b = 0){
 }
 
 run(x,r,v)
-
 ```
 
---- Part 2 ---
+    ##   a   b 
+    ##   1 307
 
-```{r}
+— Part 2 —
+
+``` r
 run(x,r,v,1)
 ```
 
+    ##   a   b 
+    ##   1 160

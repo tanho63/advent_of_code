@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-15
+================
+Tan Ho
+2022-12-03
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 15, year = 2015)
 ```
 
-```{r}
+``` r
 input <- aoc.elf::aoc_read(day = "15", year = "2015") |> 
   separate(1, 
            into = c("name", "capacity","durability", "flavor", "texture", "calories"),
@@ -36,9 +41,16 @@ input <- aoc.elf::aoc_read(day = "15", year = "2015") |>
   mutate(across(-name, readr::parse_number))
 ```
 
---- Part 1 ---
+    ##                                                    
+    ##  [32m■■■■■■■■■■■■■■■■■■■             [39m  58% |  ETA: 29s                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■■■■■■■■■             [39m  58% |  ETA: 29s                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■■■■■■■■■             [39m  58% |  ETA: 29s
 
-```{r}
+— Part 1 —
+
+``` r
 all_comb <- crossing(
   frosting = 0:100,
   candy = 0:100,
@@ -62,12 +74,13 @@ p1 <- all_comb |>
   arrange(-score)
 
 max(p1$score)
-
 ```
 
---- Part 2 ---
+    ## [1] 18965440
 
-```{r}
+— Part 2 —
+
+``` r
 p2 <- all_comb |> 
   mutate(across(c(capacity,durability, flavor, texture, calories), list(score = ~value * .x))) |> 
   group_by(id) |> 
@@ -83,3 +96,4 @@ p2 <- all_comb |>
 max(p2$score)
 ```
 
+    ## [1] 15862900

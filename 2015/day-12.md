@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-12
+================
+Tan Ho
+2022-12-01
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 12, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-12-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 p1 <- input |> 
   str_extract_all("[\\-|\\d]+") |> 
   unlist() |> 
@@ -43,9 +48,11 @@ p1 <- input |>
 p1
 ```
 
---- Part 2 ---
+    ## [1] 111754
 
-```{r}
+— Part 2 —
+
+``` r
 p2 <- jsonlite::parse_json(input)
 
 has_red_property <- \(x) {
@@ -66,3 +73,4 @@ add_num <- function(x){
 add_num(p2) |> unlist() |> sum()
 ```
 
+    ## [1] 65402

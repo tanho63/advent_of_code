@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-06
+================
+Tan Ho
+2021-12-11
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 6, year = 2015)
 ```
 
-```{r}
+``` r
 input <- tibble(x = readLines(here::here("2015/day-06-input.txt"))) |> 
   tidyr::extract(x, into = c("action","x1","y1","x2","y2"),
           regex = "([a-z, ]+) ([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)",
@@ -38,9 +43,9 @@ input <- tibble(x = readLines(here::here("2015/day-06-input.txt"))) |>
   )
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 lights <- matrix(-1,nrow = 1000, ncol = 1000)
 
 instructions <- input |> 
@@ -60,12 +65,13 @@ for(i in instructions$id){
 }
 
 sum(lights == 1)
-
 ```
 
---- Part 2 ---
+    ## [1] 377891
 
-```{r}
+— Part 2 —
+
+``` r
 lights <- matrix(0,nrow = 1000, ncol = 1000)
 
 instructions <- input |> 
@@ -89,3 +95,4 @@ for(i in instructions$id){
 sum(lights)
 ```
 
+    ## [1] 14110788

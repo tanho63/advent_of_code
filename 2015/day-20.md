@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-20
+================
+Tan Ho
+2022-12-04
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 20, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-20-input.txt")) |> as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r eval = FALSE}
+``` r
 house_vec <- numeric(input/10)
 
 for (elf_num in seq.int(from = 1, to = input/10)){
@@ -43,16 +48,13 @@ for (elf_num in seq.int(from = 1, to = input/10)){
 }
 
 min(seq_len(input/10)[house_vec >= input])
-
-```
-```{r echo = FALSE}
-776160
 ```
 
+    ## [1] 776160
 
---- Part 2 ---
+— Part 2 —
 
-```{r eval = FALSE}
+``` r
 house_vec <- numeric(input/10)
 
 for (elf_num in seq.int(from = 1, to = input/10)){
@@ -65,7 +67,5 @@ for (elf_num in seq.int(from = 1, to = input/10)){
 
 min(seq_len(input/10)[house_vec >= input])
 ```
-```{r echo = FALSE}
-786240
-```
 
+    ## [1] 786240

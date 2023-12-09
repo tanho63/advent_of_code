@@ -7,9 +7,14 @@ output:
     preserve_yaml: true
 ---
 
+Advent Of Code: 2015-24
+================
+Tan Ho
+2022-12-10
+
 <https://adventofcode.com/2015/day/24>
 
-```{r}
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -22,20 +27,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 24, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-24-input.txt")) |> as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r eval = FALSE}
+``` r
 check_n <- function(n, v){
   sums <- combn(input,n,sum)
   product <- combn(input,n,prod)
@@ -45,17 +50,14 @@ check_n <- function(n, v){
 x <- purrr::map(1:8, check_n, v= sum(input)/3)
 min(unlist(x))
 ```
-```{r echo = FALSE}
-10439961859
-```
 
---- Part 2 ---
+    ## [1] 10439961859
 
-```{r eval = FALSE}
+— Part 2 —
+
+``` r
 x <- purrr::map(1:8, check_n, v = sum(input)/4)
 min(unlist(x))
 ```
-```{r echo = FALSE}
-72050269
-```
 
+    ## [1] 72050269

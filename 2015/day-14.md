@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-14
+================
+Tan Ho
+2022-12-02
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 14, year = 2015)
 ```
 
-```{r}
+``` r
 input <- aoc.elf::aoc_read(day = "14", year = "2015") |> 
     extract(1,
           into = c("name","speed", "duration","rest"),
@@ -35,9 +40,16 @@ input <- aoc.elf::aoc_read(day = "14", year = "2015") |>
           convert = TRUE)
 ```
 
---- Part 1 ---
+    ##                                                    
+    ##  [32m■■■■■■■■■■■■■■■■■               [39m  54% |  ETA: 34s                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■■■■■■■               [39m  54% |  ETA: 34s                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■■■■■■■               [39m  54% |  ETA: 34s
 
-```{r}
+— Part 1 —
+
+``` r
 reindeer_distance <- function(total, speed, duration, rest){
   whole <- total %/% (duration + rest)
   partial <- total %% (duration + rest)
@@ -52,9 +64,11 @@ p1 <- input |>
 head(p1$distance,1)
 ```
 
---- Part 2 ---
+    ## [1] 2660
 
-```{r}
+— Part 2 —
+
+``` r
 p2 <- crossing(
   time = 1:2503,
   input
@@ -70,3 +84,4 @@ p2 <- crossing(
 head(p2$score,1)
 ```
 
+    ## [1] 1256

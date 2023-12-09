@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-04
+================
+Tan Ho
+2021-12-10
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 4, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-04-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 library(digest)
 
 i <- 1
@@ -44,19 +49,21 @@ repeat{
   if(str_starts(key,"00000")) break
   i <- i+1
 }
-
 ```
 
---- Part 2 ---
+    ## 100000
 
-Hmm. Slow. Switching to vector version, which seems to be supplied as a function factory?
+— Part 2 —
 
-```{r eval = FALSE}
+Hmm. Slow. Switching to vector version, which seems to be supplied as a
+function factory?
+
+``` r
+library(digest)
+
 hash <- digest::getVDigest(algo = "md5",errormode = "silent")
-v <- digest::hash(paste0(input,1:4000000),serialize = FALSE)
+v <- hash(paste0(input,1:4000000),serialize = FALSE)
 min(which(str_starts(v,"000000")))
 ```
-```{r echo = FALSE}
-3938038
-```
 
+    ## [1] 3938038

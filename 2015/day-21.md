@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-21
+================
+Tan Ho
+2022-12-04
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,29 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 21, year = 2015)
 ```
 
-```{r}
+``` r
 boss <- aoc.elf::aoc_read(day = 21, year = 2015) |> 
   mutate(x = tolower(x)) |> 
   separate(1, sep = ": ", into = c('attr','value'), convert = TRUE) |> 
   deframe() |> 
   as.list()
+```
 
+    ##                                                    
+    ##  [32m■■■■■■■■■■■■■■■■■■■■■■■■■■      [39m  83% |  ETA: 12s                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■■■■■■■■■■■■■■■■      [39m  83% |  ETA: 12s                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■■■■■■■■■■■■■■■■      [39m  83% |  ETA: 12s
+
+``` r
 weapons <- c("Dagger        8     4       0",
              "Shortsword   10     5       0",
              "Warhammer    25     6       0",
@@ -62,9 +76,9 @@ rings <- c("Damage+1    25     1       0",
 hp <- 100
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 simulate <- function(damage, armor){
   player_damage <- max(damage - boss$armor,1)
   boss_damage <- max(boss$damage - armor, 1)
@@ -116,9 +130,12 @@ combos <- crossing(
 min(combos$cost[combos$outcome == 1])
 ```
 
---- Part 2 ---
+    ## [1] 121
 
-```{r}
+— Part 2 —
+
+``` r
 max(combos$cost[combos$outcome == 0])
 ```
 
+    ## [1] 201

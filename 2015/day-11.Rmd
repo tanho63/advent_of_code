@@ -1,8 +1,10 @@
 ---
 title: 'Advent Of Code: 2015-11'
 author: Tan Ho
-date: "`r Sys.Date()`"
-output: html_document
+date: "2022-12-01"
+output:
+  github_document:
+    preserve_yaml: true
 ---
 
 ```{r}

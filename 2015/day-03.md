@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-03
+================
+Tan Ho
+2021-12-07
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,23 +25,22 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 3, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-03-input.txt")) |>
   strsplit("") |>
   unlist()
-
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 visit <- function(position,move){
   switch(move,
          ">" = position[1] <- position[1] + 1,
@@ -48,15 +52,15 @@ visit <- function(position,move){
 }
 
 purrr::accumulate(input,visit, .init = c(0,0)) |> unique() |> length()
-
 ```
 
---- Part 2 ---
+    ## [1] 2565
+
+— Part 2 —
 
 divvy up half to santa and half to robosanta
 
-```{r}
-
+``` r
 santa <- input[rep_len(c(TRUE,FALSE),length(input))]
 robosanta <- input[rep_len(c(FALSE,TRUE),length(input))]
 
@@ -64,6 +68,6 @@ c(purrr::accumulate(santa,visit, .init = c(0,0)),
   purrr::accumulate(robosanta,visit, .init = c(0,0))) |> 
   unique() |> 
   length()
-
 ```
 
+    ## [1] 2639

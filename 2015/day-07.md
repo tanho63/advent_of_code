@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-07
+================
+Tan Ho
+2022-12-01
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,24 +25,24 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 7, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-07-input.txt"))
-
 ```
 
---- Part 1 ---
+— Part 1 —
 
-This already comes baked in with a valid right-assign looking operator. 
-Strategy then to just execute all of these expressions and vomit them into the environment?
+This already comes baked in with a valid right-assign looking operator.
+Strategy then to just execute all of these expressions and vomit them
+into the environment?
 
-```{r eval = FALSE}
+``` r
 # create infix operators to use the base bitwise functions
 `%AND%` <- bitwAnd
 `%OR%` <- bitwOr
@@ -69,13 +74,12 @@ while(length(input) > 0){
 }
 A
 ```
-```{r echo = FALSE}
-46065
-```
 
---- Part 2 ---
+    ## [1] 46065
 
-```{r eval = FALSE}
+— Part 2 —
+
+``` r
 rm(list = ls(pattern = "[A-Z]+"))
 input <- readLines(here::here("2015/day-07-input.txt"))
 B <- 46065L
@@ -112,7 +116,5 @@ while(length(input) > 0){
 }
 A
 ```
-```{r echo = FALSE}
-14134
-```
 
+    ## [1] 14134

@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-19
+================
+Tan Ho
+2022-12-04
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 19, year = 2015)
 ```
 
-```{r}
+``` r
 input_raw <- readLines(here::here("2015/day-19-input.txt"))
 
 molecules <- head(input_raw,-2) |> 
@@ -38,9 +43,9 @@ molecules <- head(input_raw,-2) |>
 input <- tail(input_raw,1)
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 do_replace <- function(i,o,input){
   locs <- str_locate_all(input, i)[[1]]
   
@@ -52,9 +57,11 @@ do_replace <- function(i,o,input){
 purrr::map2(molecules$i,molecules$o,do_replace, input = input) |> unlist() |> unique() |> length()
 ```
 
---- Part 2 ---
+    ## [1] 576
 
-```{r}
+— Part 2 —
+
+``` r
 try_replacements <- function(molecules, input){
   try_molecules <- molecules |> 
     mutate(rand = runif(n())) |> 
@@ -84,3 +91,4 @@ while(is.null(out)) {
 out
 ```
 
+    ## [1] 207

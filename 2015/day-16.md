@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-16
+================
+Tan Ho
+2022-12-03
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,18 +25,27 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 16, year = 2015)
 ```
 
-```{r}
+``` r
 input <- aoc.elf::aoc_read(day = 16, year = 2015) |> 
   separate(1,  sep = ": ", extra = "merge", into = c("id","attributes")) |> 
   mutate(attributes = strsplit(attributes, ", "))
+```
 
+    ##                                                    
+    ##  [32m■■■■■■■■■■■■■■■■■■■■            [39m  62% |  ETA: 33s                                                   ── Column specification ───────────────────────────────────────────────────────────────
+    ##  [32m■■■■■■■■■■■■■■■■■■■■            [39m  62% |  ETA: 33s                                                   cols(
+    ##   x = col_character()
+    ## )
+    ##  [32m■■■■■■■■■■■■■■■■■■■■            [39m  62% |  ETA: 33s
+
+``` r
 target <- c("children: 3", 
             "cats: 7", 
             "samoyeds: 2", 
@@ -42,12 +56,11 @@ target <- c("children: 3",
             "trees: 3", 
             "cars: 2", 
             "perfumes: 1")
-
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 p1 <- input |> 
   mutate(
     valid = map_lgl(attributes, ~all(.x %in% target))
@@ -56,9 +69,11 @@ p1 <- input |>
 p1$id
 ```
 
---- Part 2 ---
+    ## [1] "Sue 213"
 
-```{r}
+— Part 2 —
+
+``` r
 target2 <- c("children: 3", 
              "cats: 7", 
              "samoyeds: 2", 
@@ -93,6 +108,6 @@ p2 <- input |>
   filter(flag)
 
 p2$id
-  
 ```
 
+    ## [1] "Sue 323"

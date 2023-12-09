@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-01
+================
+Tan Ho
+2021-12-06
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,27 +25,30 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 aoc.elf::aoc_get(1,2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-01-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 x <- strsplit(input,"") |> unlist()
 sum(x == "(") - sum(x == ")")
 ```
 
---- Part 2 ---
+    ## [1] 232
 
-```{r}
+— Part 2 —
+
+``` r
 y <- case_when(x == "(" ~ 1, x == ")" ~ -1, TRUE ~ 0)
 which(cumsum(y)==-1)[1]
 ```
 
+    ## [1] 1783

@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-05
+================
+Tan Ho
+2021-12-11
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,21 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 5, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-05-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
-
+``` r
 x <- input[!stringr::str_detect(input,"ab|cd|pq|xy")]
 
 y <- x[strsplit(x,"") |> map_dbl(~sum(.x %in% c("a","e","i","o","u"))) >= 3]
@@ -42,12 +46,13 @@ y <- x[strsplit(x,"") |> map_dbl(~sum(.x %in% c("a","e","i","o","u"))) >= 3]
 z <- y[map_lgl(strsplit(y,""),~any(rle(.x)$lengths>=2))]
 
 length(z)
-
 ```
 
---- Part 2 ---
+    ## [1] 258
 
-```{r}
+— Part 2 —
+
+``` r
 a <- input[strsplit(input,"") |> map_lgl(~any(lead(.x,n = 2,default = "")==.x))]
 
 pairchecker <- function(s){
@@ -62,5 +67,6 @@ pairchecker <- function(s){
 b <- a[map_lgl(a,pairchecker)]
 
 length(b)
-
 ```
+
+    ## [1] 53

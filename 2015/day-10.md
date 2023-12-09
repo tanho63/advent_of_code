@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2015-10
+================
+Tan Ho
+2022-12-01
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,23 +25,23 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 10, year = 2015)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2015/day-10-input.txt")) |> 
   strsplit("") |> 
   unlist() |> 
   as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 get_next_seq <- function(x){
   y <- rle(x)
   matrix(
@@ -53,12 +58,16 @@ for(i in 1:40){
 length(x)
 ```
 
---- Part 2 ---
+    ## [1] 329356
 
-```{r}
+— Part 2 —
+
+``` r
 # we already did it 40 times, let's do it 10 more
 for(i in 1:10){
   x <- get_next_seq(x)
 }
 length(x)
 ```
+
+    ## [1] 4666278
