@@ -1,0 +1,63 @@
+---
+title: 'Advent Of Code: 2023-09'
+author: Tan Ho
+date: "2023-12-09"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<https://adventofcode.com/2023/day/9>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 9, year = 2023)
+```
+
+```{r}
+x <- readLines(here::here("2023/day-09-input.txt")) |> 
+  strsplit("\\s+") |> 
+  lapply(as.numeric)
+head(x)
+```
+
+--- Part 1 ---
+
+ahh. recursion. _knocks off some dust_
+
+```{r}
+next_val <- function(v){
+  d <- na.omit(v - dplyr::lag(v, default = NA))
+  if (!all(d == 0)) d <- next_val(d)
+  return(tail(v, 1) + d[[1]])
+}
+
+sapply(x, next_val) |> sum()
+```
+
+--- Part 2 ---
+
+Uh, so just flip the vector and go the other way? _braces for finding some kind of catch_
+
+```{r}
+sapply(x, \(x) rev(x) |> next_val()) |> sum()
+```
+
+...there was no catch?!
