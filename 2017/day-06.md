@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2017-06'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2017-06
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,25 +25,25 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 6, year = 2017)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2017/day-06-input.txt")) |> 
   strsplit("\\t") |> 
   unlist() |> 
   as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
 naive solution. kind of shitty levels of slow.
 
-```{r eval = FALSE}
+``` r
 # v <- c(0,2,7,0)
 v <- input
 
@@ -64,25 +69,30 @@ repeat{
 }
 cycle
 ```
-```{r echo = FALSE}
-3156
-```
 
---- Part 2 ---
+    ## [1] 3156
 
-```{r eval = FALSE}
+— Part 2 —
+
+``` r
 cycle - which(x %in% list(v)) + 1
 ```
-```{r}
+
+``` r
 1610
 ```
 
---- Part 1 redux ---
+    ## [1] 1610
 
-A "better mousetrap" way to solve this is something called [Floyd's tortoise and hare](https://en.wikipedia.org/wiki/Cycle_detection#Floyd's_tortoise_and_hare), which eliminates the need to store every element of the cycle and search through every element of the cycle. 
+— Part 1 redux —
 
+A “better mousetrap” way to solve this is something called [Floyd’s
+tortoise and
+hare](https://en.wikipedia.org/wiki/Cycle_detection#Floyd's_tortoise_and_hare),
+which eliminates the need to store every element of the cycle and search
+through every element of the cycle.
 
-```{r eval = FALSE}
+``` r
 reallocate <- function(v){
   i <- which.max(v)
   a <- v[i]
@@ -107,6 +117,4 @@ while(any(tortoise != hare)){
   tortoise <- reallocate(tortoise)
   hare <- reallocate(hare) |> reallocate()
 }
-
 ```
-

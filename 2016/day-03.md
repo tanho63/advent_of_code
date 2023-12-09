@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2016-03'
 author: "Tan Ho"
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-03
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 3, year = 2016)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2016/day-03-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 p1 <- tibble(x = input) |> 
   tidyr::extract(x, into = c("x","y","z"), regex = "([0-9]+) +([0-9]+) +([0-9]+)") |> 
   mutate_all(as.numeric) |> 
@@ -48,9 +53,11 @@ p1 <- tibble(x = input) |>
 nrow(p1)
 ```
 
---- Part 2 ---
+    ## [1] 982
 
-```{r}
+— Part 2 —
+
+``` r
 p2 <- tibble(x = input) |> 
   tidyr::extract(x, into = c("x","y","z"), regex = "([0-9]+) +([0-9]+) +([0-9]+)") |> 
   mutate_all(as.numeric) |> 
@@ -73,3 +80,4 @@ p2 <- tibble(x = input) |>
 nrow(p2)
 ```
 
+    ## [1] 1826

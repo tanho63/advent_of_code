@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2018-06'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2018-06
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,26 +25,17 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 6, year = 2018)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2018/day-06-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
-
-```
-
---- Part 2 ---
-
-```{r}
-
-```
-
+— Part 2 —

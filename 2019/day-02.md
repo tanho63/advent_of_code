@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2019-02'
 author: "Tan Ho"
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2019-02
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 2, year = 2019)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2019/day-02-input.txt")) |> 
   strsplit(",") |> 
   unlist() |> 
@@ -39,10 +44,9 @@ example <- c("1,1,1,4,99,5,6,0,99") |>
   as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
-
+``` r
 add <- function(in1,in2,out,vec){
   vec[out+1] <- vec[in1+1] + vec[in2+1]
   vec
@@ -69,13 +73,13 @@ while (p1[i]!=99){
 }
 
 p1[1]
-
 ```
 
---- Part 2 ---
+    ## [1] 12490719
 
-```{r}
+— Part 2 —
 
+``` r
 attempts <- crossing(noun = 1:100, verb = 1:100)
 
 intcode_program <- function(noun,verb, input){
@@ -99,12 +103,16 @@ attempts |>
     output = map2_dbl(noun,verb,intcode_program,input)
   ) |> 
   filter(output == 19690720)
-
 ```
 
---- Intcode Program to Date ---
+    ## # A tibble: 1 × 3
+    ##    noun  verb   output
+    ##   <int> <int>    <dbl>
+    ## 1    20     3 19690720
 
-```{r}
+— Intcode Program to Date —
+
+``` r
 add <- function(in1,in2,out,vec){
   vec[out+1] <- vec[in1+1] + vec[in2+1]
   vec
@@ -130,6 +138,4 @@ intcode_program <- function(noun,verb, input){
   
   return(p[1])
 }
-
 ```
-

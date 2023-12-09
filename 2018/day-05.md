@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2018-05'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2018-05
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,21 +25,21 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 5, year = 2018)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2018/day-05-input.txt"))
 example <- "dabAcCaCBAcCcaDA"
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r eval = FALSE}
+``` r
 keys <- c(paste0(LETTERS,letters),paste0(letters,LETTERS))
 
 v <- input
@@ -48,13 +53,12 @@ repeat {
 
 str_length(v)
 ```
-```{r echo = FALSE}
-11264
-```
 
---- Part 2 ---
+    ## [1] 11264
 
-```{r eval = FALSE}
+— Part 2 —
+
+``` r
 react_polymer <- function(v){
   keys <- c(paste0(LETTERS,letters),paste0(letters,LETTERS))
   
@@ -77,7 +81,5 @@ polymer_lengths <- map_dbl(remove_keys,
 
 min(polymer_lengths)
 ```
-```{r echo = FALSE}
-4552
-```
 
+    ## [1] 4552

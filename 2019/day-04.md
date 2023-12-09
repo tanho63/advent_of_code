@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2019-04'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2019-04
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 4, year = 2019)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2019/day-04-input.txt")) |> strsplit("-") |> unlist() |> as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 v <- input[1]:input[2] |> 
   as.character() |> 
   strsplit("")
@@ -49,12 +54,13 @@ check_repeat <- function(v){
 v_s <- v[map_lgl(v,check_sort)]
 v_sr <- v_s[map_lgl(v_s,check_repeat)] 
 length(v_sr)
-
 ```
 
---- Part 2 ---
+    ## [1] 1640
 
-```{r}
+— Part 2 —
+
+``` r
 check_repeat_ish <- function(v){
   any(rle(v)$lengths == 2)
 }
@@ -62,3 +68,4 @@ check_repeat_ish <- function(v){
 length(v_sr[map_lgl(v_sr,check_repeat_ish)])
 ```
 
+    ## [1] 1126

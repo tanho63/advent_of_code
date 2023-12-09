@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2016-07'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-07
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,26 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 7, year = 2016)
 ```
 
-```{r}
+``` r
 input <- aoc.elf::aoc_read(day = "07", year = "2016")
 ```
 
---- Part 1 ---
+    ## 
+    ## ── Column specification ───────────────────────────────────────────────────────────────
+    ## cols(
+    ##   x = col_character()
+    ## )
 
-```{r}
+— Part 1 —
+
+``` r
 detect_abba <- function(vec){
   out <- 0
   for(i in seq_along(head(vec,-3))){
@@ -57,10 +68,11 @@ p1 <- input |>
 nrow(p1)
 ```
 
---- Part 2 ---
+    ## [1] 110
 
-```{r}
+— Part 2 —
 
+``` r
 detect_aba <- function(vec){
   aba <- c()
   for(i in seq_along(head(vec,-2))){
@@ -88,6 +100,6 @@ p2 <- input |>
   filter(lengths(bab) > 0)
 
 nrow(p2)
-
 ```
 
+    ## [1] 242

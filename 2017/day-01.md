@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2017-01
+================
+Tan Ho
+2021-12-06
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,23 +25,22 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 aoc.elf::aoc_get(1, 2017)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2017/day-01-input.txt")) |> 
   strsplit("") |> 
   unlist() |> 
   as.numeric()
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
-
+``` r
 p1 <- tibble(
   x = input, 
   y = c(head(lead(input),-1),input[1])
@@ -47,10 +51,11 @@ p1 <- tibble(
 p1
 ```
 
---- Part 2 ---
+    ## [1] 1044
 
-```{r}
+— Part 2 —
 
+``` r
 p2 <- tibble(
   x = input,
   y = c(tail(input,length(input)/2),head(input,length(input)/2))
@@ -58,6 +63,4 @@ p2 <- tibble(
   filter(x==y) |> 
   pull(x) |> 
   sum()
-
 ```
-

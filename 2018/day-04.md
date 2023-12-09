@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2018-04'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2018-04
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 4, year = 2018)
 ```
 
-```{r}
+``` r
 input <- tibble(x= readLines(here::here("2018/day-04-input.txt"))) |> 
   tidyr::extract(x,
           into = c("date","timestamp", "action"),
@@ -40,12 +45,11 @@ input <- tibble(x= readLines(here::here("2018/day-04-input.txt"))) |>
   ) |> 
   arrange(date,timestamp) |> 
   fill(guard)
-  
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 p1 <- input |> 
   filter(action %in% c("falls asleep", "wakes up")) |> 
   mutate(
@@ -70,13 +74,13 @@ sleepy_summary |>
   slice_max(n) |> 
   pull(timestamp) |> 
   magrittr::multiply_by(as.numeric(sleepy))
-
 ```
 
---- Part 2 ---
+    ## [1] 65489
 
-```{r}
+— Part 2 —
 
+``` r
 p1 |> 
   filter(action == "falls asleep") |> 
   count(guard,timestamp) |> 
@@ -85,6 +89,6 @@ p1 |>
     x = as.numeric(guard) * timestamp
   ) |> 
   pull(x)
-
 ```
 
+    ## [1] 3852

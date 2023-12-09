@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2016-06'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-06
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,29 +25,30 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 6, year = 2016)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2016/day-06-input.txt")) |> 
   strsplit("") |> 
   reduce(rbind)
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 apply(input,2,nflfastR:::custom_mode) |> paste(collapse = "")
 ```
 
---- Part 2 ---
+    ## [1] "usccerug"
 
-```{r}
+— Part 2 —
 
+``` r
 # nflfastR's custom mode, thanks Seb
 mode_min <- function (x, na.rm = TRUE){
     if (na.rm) {
@@ -53,6 +59,6 @@ mode_min <- function (x, na.rm = TRUE){
 }
 
 apply(input,2,mode_min) |> paste(collapse = "")
-
 ```
 
+    ## [1] "cnvvtafc"

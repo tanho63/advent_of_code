@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2019-03'
 author: "Tan Ho"
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2019-03
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 3, year = 2019)
 ```
 
-```{r}
+``` r
 input <- tibble(x = readLines(here::here("2019/day-03-input.txt")) |> strsplit(",")) |>
   mutate(cable_id = row_number()) |> 
   unnest_longer(x) |> 
@@ -37,12 +42,11 @@ example <- tibble(x = c("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51", "U98,R91,
   mutate(cable_id = row_number()) |> 
   unnest_longer(x) |> 
   tidyr::extract(x,into = c("dir","value"),"([A-z]+)([0-9]+)",convert = TRUE)
-
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 cable_paths <- input |> 
   group_by(cable_id) |> 
   mutate(
@@ -70,13 +74,13 @@ cable_paths <- input |>
 cable_paths |> 
   pull(dist) |> 
   min()
-
 ```
 
---- Part 2 ---
+    ## [1] 2193
 
-```{r}
+— Part 2 —
 
+``` r
 cable_paths <- input |> 
   group_by(cable_id) |> 
   mutate(
@@ -105,7 +109,6 @@ intersections <- cable_paths|>
 intersections |> 
   pull(step) |> 
   min()
-
-
 ```
 
+    ## [1] 63526

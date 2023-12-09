@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2019-01
+================
+Tan Ho
+2021-12-06
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,25 +25,27 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 aoc.elf::aoc_get(1, 2019)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2019/day-01-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 as.numeric(input) |> magrittr::divide_by(3) |> floor() |> magrittr::subtract(2) |> sum()
 ```
 
---- Part 2 ---
+    ## [1] 3282386
 
-```{r}
+— Part 2 —
+
+``` r
 recursive_fuel <- function(i){
   total <- 0
   while(i > 0){
@@ -52,3 +59,4 @@ recursive_fuel <- function(i){
 map_dbl(as.numeric(input), recursive_fuel) |> sum()
 ```
 
+    ## [1] 4920708

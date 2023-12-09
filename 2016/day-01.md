@@ -7,7 +7,12 @@ output:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-01
+================
+Tan Ho
+2021-12-06
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,13 +25,13 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 aoc.elf::aoc_get(1, 2016)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2016/day-01-input.txt")) |> 
   strsplit(", ") |> 
   unlist() |> 
@@ -34,12 +39,11 @@ input <- readLines(here::here("2016/day-01-input.txt")) |>
 
 dir <- str_remove(input,"[0-9]+")
 spaces <- str_remove(input,"[L|R]") |> as.numeric()
-
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 turn <- function(heading, direction){
   if(direction == "R") heading <- switch(heading,
                                         "N" = "E", 
@@ -68,12 +72,13 @@ positions <- accumulate2(headings, spaces, move, .init = c(0,0))
 tail(positions,1) |>pluck(1) |>  abs() |> sum()
 ```
 
---- Part 2 ---
+    ## [1] 250
+
+— Part 2 —
 
 First intersection? This is ugly.
 
-```{r}
-
+``` r
 move_detail <- function(position, heading, spaces){
   
   for(i in seq_len(spaces)){
@@ -103,3 +108,4 @@ p2 <- accumulate2(headings, spaces, move_detail, .init = list(c(0,0))) |>
 p2
 ```
 
+    ## [1] 151

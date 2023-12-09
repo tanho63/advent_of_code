@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2016-04'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-04
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,22 +25,22 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 4, year = 2016)
 ```
 
-```{r}
+``` r
 input <- tibble(x = readLines(here::here("2016/day-04-input.txt"))) |> 
   tidyr::extract(x, into = c("name","sector_id","checksum"),
           regex = "([a-z,\\-]+)\\-([0-9]+)\\[([a-z]+)\\]")
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 p1 <- input |> 
   mutate(name = str_remove_all(name,"\\-") |> strsplit(""),
          check = map_chr(name,
@@ -52,13 +57,13 @@ p1 |>
   pull(sector_id) |> 
   as.numeric() |> 
   sum()
-
 ```
 
---- Part 2 ---
+    ## [1] 245102
 
-```{r}
+— Part 2 —
 
+``` r
 l2n <- tibble(letter = letters, num = 1:26) |> deframe()
 
 p2 <- p1 |> 
@@ -73,6 +78,6 @@ p2 <- p1 |>
 p2 |> 
   filter(str_detect(decoded,"northpoleobjectstorage")) |> 
   pull(sector_id)
-
 ```
 
+    ## [1] "324"

@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2016-05'
 author: Tan Ho
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-05
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,20 +25,20 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 5, year = 2016)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2016/day-05-input.txt"))
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r eval = FALSE}
+``` r
 library(digest)
 
 hash <- digest::getVDigest("md5","silent")
@@ -44,13 +49,12 @@ five_zeroes <- hashes[substr(hashes,1,5)=="00000"]
 
 substr(five_zeroes[1:8],6,6) |> paste(collapse="")
 ```
-```{r echo = FALSE}
-"801b56a7"
-```
 
---- Part 2 ---
+    ## [1] "801b56a7"
 
-```{r eval = FALSE}
+— Part 2 —
+
+``` r
 library(digest)
 
 hash <- digest::getVDigest("md5","silent")
@@ -70,7 +74,5 @@ tibble(
   pull(values) |> 
   paste(collapse = "")
 ```
-```{r echo = FALSE}
-"424a0197"
-```
 
+    ## [1] "424a0197"

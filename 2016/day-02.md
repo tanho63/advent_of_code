@@ -1,13 +1,18 @@
 ---
 title: 'Advent Of Code: 2016-02'
 author: "Tan Ho"
-date: "`r Sys.Date()`"
+date: "2023-12-09"
 output:
   github_document:
     preserve_yaml: true
 ---
 
-```{r}
+Advent Of Code: 2016-02
+================
+Tan Ho
+2023-12-09
+
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -20,14 +25,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 2, year = 2016)
 ```
 
-```{r}
+``` r
 input <- readLines(here::here("2016/day-02-input.txt")) |>
   strsplit("")
 
@@ -35,10 +40,9 @@ input <- readLines(here::here("2016/day-02-input.txt")) |>
 #   strsplit("")
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
-
+``` r
 keycode <- function(key, passcode){
   for(i in passcode){
     switch(i,
@@ -56,9 +60,11 @@ keys <- accumulate(input, keycode, .init = list(y = 2,x = 2)) |> bind_rows()
 matrix(c(1,2,3,4,5,6,7,8,9),nrow = 3,byrow = TRUE)[cbind(keys$y,keys$x)][-1]
 ```
 
---- Part 2 ---
+    ## [1] 9 8 5 7 5
 
-```{r}
+— Part 2 —
+
+``` r
 key_matrix <- matrix(
   c(
     c(NA,NA,"1",NA,NA),
@@ -94,6 +100,6 @@ check_key <- function(x, y, type, otherwise){
 keys <- accumulate(input, keycode, .init = list(y = 3, x = 1)) |> bind_rows()
 
 key_matrix[cbind(keys$y,keys$x)][-1]
-
 ```
 
+    ## [1] "C" "D" "8" "D" "4"
