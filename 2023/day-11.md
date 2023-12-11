@@ -1,0 +1,110 @@
+---
+title: 'Advent Of Code: 2023-11'
+author: Tan Ho
+date: "2023-12-11"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+Advent Of Code: 2023-11
+================
+Tan Ho
+2023-12-11
+
+<https://adventofcode.com/2023/day/11>
+
+``` r
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+— Data —
+
+``` r
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 11, year = 2023)
+```
+
+``` r
+m <- readLines(here::here("2023/day-11-input.txt")) |> 
+  strsplit("") |> 
+  do.call(what = rbind)
+
+mi <- tidyr::crossing(
+  r = seq_len(nrow(m)),
+  c = seq_len(ncol(m))
+) |> 
+  dplyr::mutate(v = m[cbind(r,c)])
+```
+
+— Part 1 —
+
+``` r
+expanded_map <- mi |> 
+  dplyr::mutate(empty_row = all(v == "."), .by = r) |> 
+  dplyr::mutate(empty_col = all(v == "."), .by = c) |> 
+  dplyr::mutate(r = purrr::map2(r,empty_row, \(r,e) {if(e) list(r,r+0.5) else list(r)})) |> 
+  tidyr::unnest_longer(r) |> 
+  dplyr::mutate(c = purrr::map2(c,empty_col, \(c,e) {if(e) list(c,c+0.5) else list(c)})) |> 
+  tidyr::unnest_longer(c) |> 
+  dplyr::mutate(r = rank(r), .by = c) |> 
+  dplyr::mutate(c = rank(c), .by = r)
+
+galaxies <- expanded_map |> 
+  dplyr::filter(v == "#") |> 
+  dplyr::select(r,c,v) |> 
+  dplyr::mutate(id = dplyr::row_number(), .before = 1) |> 
+  dplyr::mutate(join = 1)
+
+p1 <- galaxies |> 
+  dplyr::left_join(galaxies, by = "join", relationship = "many-to-many") |> 
+  dplyr::filter(id.x != id.y, id.x < id.y) |> 
+  dplyr::mutate(d = abs(r.y - r.x) + abs(c.y - c.x))
+
+sum(p1$d)
+```
+
+    ## [1] 9556896
+
+— Part 2 —
+
+``` r
+star_map <- mi |> 
+  dplyr::mutate(empty_row = all(v == "."), .by = r) |> 
+  dplyr::mutate(empty_col = all(v == "."), .by = c)
+
+galaxies2 <- star_map |> 
+  dplyr::filter(v == "#") |> 
+  dplyr::select(r,c,v) |> 
+  dplyr::mutate(id = dplyr::row_number(), .before = 1) |> 
+  dplyr::mutate(join = 1)
+
+empty_rows <- star_map |> dplyr::filter(empty_row) |> getElement("r") |> unique()
+empty_cols <- star_map |> dplyr::filter(empty_col) |> getElement("c") |> unique()
+
+p2 <- galaxies2 |> 
+  dplyr::left_join(galaxies2, by = "join", relationship = "many-to-many") |> 
+  dplyr::filter(id.x != id.y, id.x < id.y) |> 
+  dplyr::mutate(
+    er = purrr::map2_dbl(r.x,r.y, \(x,y) length(intersect(seq(x,y),empty_rows))),
+    ec = purrr::map2_dbl(c.x,c.y, \(x,y) length(intersect(seq(x,y),empty_cols))),
+    r_diff = abs(r.x - r.y),
+    c_diff = abs(c.x - c.y),
+    diff = r_diff + c_diff + er * 999999 + ec * 999999
+  )
+
+sum(p2$diff)
+```
+
+    ## [1] 685038186836
