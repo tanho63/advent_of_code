@@ -1,0 +1,113 @@
+---
+title: 'Advent Of Code: 2023-12'
+author: Tan Ho
+date: "2023-12-12"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<https://adventofcode.com/2023/day/12>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 12, year = 2023)
+```
+
+```{r}
+# input <- readLines("2023/day-12-example.txt") |> 
+#   tibble::tibble(x = _) |> 
+#   tidyr::separate(x, into = c("spring_map","broken_count"), sep = " ")
+input <- aoc.elf::aoc_read(day = 12, year = 2023) |>
+  tidyr::separate(x, into = c("spring_map","broken_count"), sep = " ")
+
+s <- input$spring_map |> 
+  strsplit("")
+
+si <- tibble::tibble(
+  row = seq_along(s),
+  col = lapply(lengths(s), seq_len),
+  val = s
+) |> 
+  tidyr::unnest(c(col,val))
+
+```
+
+--- Part 1 ---
+
+```{r eval = FALSE}
+bork_count <- input |> 
+  dplyr::mutate(row = dplyr::row_number()) |> 
+  dplyr::select(row, n = broken_count)
+
+p1 <- si |> 
+  dplyr::mutate(
+    val = ifelse(val == "?", "#,.", val) |> strsplit(",")
+  ) |> 
+  tidyr::pivot_wider(
+    names_from = "col", 
+    values_from = "val", 
+    names_prefix = "col_",
+    values_fill = list(val = list(NA_character_))
+  )
+
+count_permutations <- function(i, p1 = p1, bork_count = bork_count){
+  p1 |> 
+    dplyr::slice(i) |> 
+    purrr::reduce(.x = setdiff(names(p1),"row"), tidyr::unnest_longer, .init = _) |> 
+    dplyr::mutate(id = dplyr::row_number()) |> 
+    tidyr::pivot_longer(starts_with("col"),values_drop_na = TRUE) |> 
+    dplyr::mutate(
+      con_id = dplyr::consecutive_id(value == "#"),
+      .by = c(row,id)
+    ) |> 
+    dplyr::filter(value == "#") |> 
+    dplyr::summarise(
+      n = dplyr::n(),
+      .by = c(row, id, con_id)
+    ) |> 
+    dplyr::summarise(
+      n = paste(n,collapse = ","),
+      .by = c(row,id)
+    ) |> 
+    dplyr::inner_join(bork_count, by = c("row","n"))
+}
+
+future::plan(future::multisession)
+x <- furrr::future_map(
+  seq_len(nrow(p1)),
+  count_permutations,
+  p1 = p1,
+  bork_count = bork_count,
+  .progress = TRUE
+)
+
+sapply(x,nrow) |> sum()
+```
+```{r echo = FALSE}
+7792
+```
+
+--- Part 2 ---
+
+```{r}
+
+```
+
