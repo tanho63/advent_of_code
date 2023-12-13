@@ -1,0 +1,107 @@
+---
+title: 'Advent Of Code: 2023-13'
+author: Tan Ho
+date: "2023-12-13"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<https://adventofcode.com/2023/day/13>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  library(aoc.elf) # tanho63/aoc.elf
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+aoc_get(day = 13, year = 2023)
+```
+
+```{r}
+# input_raw <- readLines(here::here("2023/day-13-input.txt"))
+input_raw <- readLines(here::here("2023/day-13-example.txt"))
+mm <- input_raw |> 
+  tibble::tibble(x = _) |> 
+  mutate(id = consecutive_id(x!=""),.before = 1) |> 
+  filter(x!="") |> 
+  summarize(x = list(do.call(rbind, strsplit(x,""))),
+            .by = id) |> 
+  getElement("x")
+```
+
+--- Part 1 ---
+
+```{r}
+find_mirror <- function(m, margin){
+  v <- apply(m, margin, paste, collapse = "")
+  fwd <- sapply(seq_along(v), \(i) identical(v[seq_len(i)], rev(v[seq_len(i) + i])))
+  bck <- sapply(rev(seq_along(v)), \(i) identical(rev(v)[seq_len(i)], rev(rev(v)[seq_len(i) + i])))
+  if(any(fwd)) return(which(fwd))
+  if(any(bck)) return(which(bck) - 1)
+  return(0)
+}
+
+sum(sapply(mm, find_mirror, margin = 1) * 100 + sapply(mm, find_mirror, margin = 2))
+
+```
+
+--- Part 2 ---
+
+```{r}
+find_smudge <- function(m){
+  
+  fr <- sapply(
+    seq_len(nrow(m)), 
+    \(i){
+      if (i * 2 > nrow(m)) return(FALSE)
+      sum(m[seq_len(i),] != m[rev(seq_len(i) + i),]) == 1
+    })
+  
+  br <- sapply(
+    rev(seq_len(nrow(m))), 
+    \(i){
+      if (i * 2 > nrow(m)) return(FALSE)
+      sum(m[seq.int(nrow(m) - i + 1, nrow(m)),] != m[seq.int(nrow(m) - i, by = -1, length.out = i),]) == 1
+    })
+  
+  score <- 0
+  if(any(fr)) score <- score + which(fr) * 100
+  if(any(br)) score <- score + (which(br) - 1) * 100
+  
+  fc <- sapply(
+    seq_len(ncol(m)), 
+    \(i){
+      if (i * 2 > ncol(m)) return(FALSE)
+      sum(m[,seq_len(i)] != m[,rev(seq_len(i) + i)]) == 1
+    })
+  
+  bc <- sapply(
+    seq_len(ncol(m)), 
+    \(i){
+      if (i * 2 > ncol(m)) return(FALSE)
+      sum(m[,seq.int(ncol(m) - i + 1, ncol(m))] != m[,seq.int(ncol(m) - i, by = -1, length.out = i)]) == 1
+    })
+  
+  if(any(fc)) score <- score + which(fc) 
+  if(any(bc)) score <- score + (which(bc) - 1)
+  
+  return(score)
+}
+
+sapply(mm, find_smudge) |> sum()
+```
+
