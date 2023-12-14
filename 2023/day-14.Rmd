@@ -1,0 +1,194 @@
+---
+title: 'Advent Of Code: 2023-14'
+author: Tan Ho
+date: "2023-12-14"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<https://adventofcode.com/2023/day/14>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 14, year = 2023)
+```
+
+```{r}
+# input <- readLines(here::here("2023/day-14-example.txt"))
+input <- readLines(here::here("2023/day-14-input.txt"))
+
+m <- input |> 
+  strsplit("") |> 
+  do.call(what = rbind)
+
+mi <- tidyr::crossing(
+  row = seq_len(nrow(m)),
+  col = seq_len(ncol(m))
+) |> 
+  mutate(
+    val = m[cbind(row,col)]
+  )
+```
+
+--- Part 1 ---
+
+```{r}
+mi |> 
+  arrange(col, row) |>
+  mutate(
+    space_id = consecutive_id(val == "#"),
+    .by = col
+  ) |> 
+  mutate(
+    stop_row = min(row)-1,
+    .by = c(col, space_id)
+  ) |> 
+  dplyr::filter(val != ".") |> 
+  mutate(
+    new_row = rank(row) + stop_row,
+    .by = c(col, space_id)
+  ) |> 
+  dplyr::filter(val == "O") |> 
+  summarise(sum(nrow(m) + 1 - new_row))
+
+```
+
+--- Part 2 ---
+
+```{r}
+spin_cycle <- function(v){
+  mi <- tidyr::crossing(row = 1:100, col = 1:100) |> 
+    dplyr::bind_cols(val = unlist(strsplit(v,"")))
+  
+  north <- mi |> 
+    arrange(col, row) |>
+    mutate(
+      space_id = consecutive_id(val == "#"),
+      .by = col
+    ) |> 
+    mutate(
+      stop_row = min(row)-1,
+      .by = c(col, space_id)
+    ) |> 
+    filter(val != ".") |> 
+    mutate(
+      new_row = rank(row) + stop_row,
+      .by = c(col, space_id)
+    ) |> 
+    select(row = new_row, col, val) |> 
+    complete(
+      row = seq_len(nrow(m)),
+      col = seq_len(ncol(m)),
+      fill = list(val = ".")
+    )
+  
+  west <- north |> 
+    arrange(row,col) |> 
+    mutate(
+      space_id = consecutive_id(val == "#"),
+      .by = row
+    ) |> 
+    mutate(
+      stop_col = min(col) - 1,
+      .by = c(row, space_id)
+    ) |> 
+    filter(val != ".") |> 
+    mutate(
+      new_col = rank(col) + stop_col,
+      .by = c(row, space_id)
+    ) |> 
+    select(row, col = new_col, val) |> 
+    complete(
+      row = seq_len(nrow(m)),
+      col = seq_len(ncol(m)),
+      fill = list(val = ".")
+    )
+  
+  south <- west |> 
+    arrange(col, row) |>
+    mutate(
+      space_id = consecutive_id(val == "#"),
+      .by = col
+    ) |> 
+    mutate(
+      stop_row = max(row) + 1,
+      .by = c(col, space_id)
+    ) |> 
+    filter(val != ".") |> 
+    mutate(
+      new_row = stop_row - rank(-row),
+      .by = c(col, space_id)
+    ) |> 
+    select(row = new_row, col, val) |> 
+    complete(
+      row = seq_len(nrow(m)),
+      col = seq_len(ncol(m)),
+      fill = list(val = ".")
+    )
+  
+  east <- south |> 
+    arrange(row, col) |> 
+    mutate(
+      space_id = consecutive_id(val == "#"),
+      .by = row
+    ) |> 
+    mutate(
+      stop_col = max(col) + 1,
+      .by = c(row, space_id)
+    ) |> 
+    filter(val != ".") |> 
+    mutate(
+      new_col = stop_col - rank(-col),
+      .by = c(row, space_id)
+    ) |> 
+    select(row, col = new_col, val) |> 
+    complete(
+      row = seq_len(nrow(m)),
+      col = seq_len(ncol(m)),
+      fill = list(val = ".")
+    )
+  out <- paste(east$val, collapse = "")
+  return(out)
+}
+
+i <- 0
+v <- paste(mi$val, collapse = "")
+seen <- c()
+
+while(!v %in% seen){
+  if (i %% 10 == 0) print(i)
+  seen <- c(seen, set_names(v,i))
+  v <- spin_cycle(v)
+  i <- i+1
+}
+
+cycle_start <- as.numeric(names(seen)[match(v, seen)])
+cycle_len <- i - cycle_start
+end_state <- (1000000000 - cycle_start) %% cycle_len + cycle_start
+
+vf <- seen[as.character(end_state)]
+
+tidyr::crossing(row = 1:100, col = 1:100) |> 
+  dplyr::bind_cols(val = unlist(strsplit(vf,""))) |> 
+  dplyr::filter(val == "O") |> 
+  summarise(sum(nrow(m) + 1 - row))
+```
+
