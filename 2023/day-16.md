@@ -229,8 +229,10 @@ start_list <- mm |>
   unnest_longer(dir) |> 
   mutate(id = row_number()) |> 
   group_split(id)
-
+tictoc::tic()
 furrr::future_map(start_list, count_beams, .progress = TRUE) |> unlist() |> max()
+tictoc::toc()
 ```
 
     [1] 8221
+    4767.075 sec elapsed
