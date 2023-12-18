@@ -51,6 +51,21 @@ input <- tibble(x = input_raw) |>
 ``` r
 m <- tibble(row = c(1,-1,0,0), col = c(0,0,1,-1), dir = c("D","U","R","L"))
 
+p1e <- example |> 
+  left_join(m, by = "dir") |> 
+  mutate(
+    row = cumsum(row * steps),
+    col = cumsum(col * steps)
+  ) 
+
+area::polygon_area(cbind(p1e$row, p1e$col)) + 1 - (sum(p1e$steps) / 2) + sum(p1e$steps)
+```
+
+    ## [1] 62
+
+``` r
+m <- tibble(row = c(1,-1,0,0), col = c(0,0,1,-1), dir = c("D","U","R","L"))
+
 p1 <- input |> 
   left_join(m, by = "dir") |> 
   mutate(
