@@ -9,9 +9,14 @@ editor_options:
   chunk_output_type: console
 ---
 
+Advent Of Code: 2023-19
+================
+Tan Ho
+2023-12-19
+
 <https://adventofcode.com/2023/day/19>
 
-```{r}
+``` r
 suppressPackageStartupMessages({
   library(tidyverse)
   library(here)
@@ -24,14 +29,14 @@ options(scipen = 9999999)
 options(dplyr.summarise.inform = FALSE)
 ```
 
---- Data ---
+— Data —
 
-```{r eval = FALSE}
+``` r
 # tanho63/aoc.elf
 aoc.elf::aoc_get(day = 19, year = 2023)
 ```
 
-```{r}
+``` r
 example_raw <- readLines(here::here("2023/day-19-example.txt"))
 input_raw <- readLines(here::here("2023/day-19-input.txt"))
 
@@ -44,12 +49,11 @@ ratings <- input_raw[seq(which(input_raw == "")+1,length(input_raw))] |>
   tibble(x = _) |> 
   mutate(id = row_number()) |> 
   extract(x, into = c("x","m","a","s"), "{x=(\\d+),m=(\\d+),a=(\\d+),s=(\\d+)}", convert = TRUE)
-
 ```
 
---- Part 1 ---
+— Part 1 —
 
-```{r}
+``` r
 apply_workflow <- function(x, w = "in"){
   rules <- strsplit(workflows[w], ",") |> unlist()
   i <- 0
@@ -79,27 +83,28 @@ ratings |>
   ) |> 
   filter(ok == "A") |> 
   summarise(sum(x,m,a,s))
-
 ```
 
---- Part 2 ---
-_in progress_
+    ## # A tibble: 1 × 1
+    ##   `sum(x, m, a, s)`
+    ##               <int>
+    ## 1            319295
 
-this looks like that recursive range splitting problem from day five. 
+— Part 2 — *in progress*
 
-i'm not a fan of this theme that seems to be appearing (as coined by @jonocarroll)
-of:
+this looks like that recursive range splitting problem from day five.
 
-> Day N: "You should learn XYZ to solve this problem"
+i’m not a fan of this theme that seems to be appearing (as coined by
+@jonocarroll) of:
+
+> Day N: “You should learn XYZ to solve this problem”
 >
-> Day N+10: "I wasn't asking" :muscle:
+> Day N+10: “I wasn’t asking” :muscle:
 
-```{r}
+``` r
 wf <- input_raw[seq(1, which(input_raw == "")-1)] |> 
   tibble(x = _) |> 
   mutate(id = row_number()) |> 
   extract(x,into = c("workflow","rules"),"([a-z]+){(.+)}") |> 
   separate_rows(rules, sep = ",")
-
 ```
-
