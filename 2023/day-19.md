@@ -40,12 +40,14 @@ aoc.elf::aoc_get(day = 19, year = 2023)
 example_raw <- readLines(here::here("2023/day-19-example.txt"))
 input_raw <- readLines(here::here("2023/day-19-input.txt"))
 
-workflows <- input_raw[seq(1, which(input_raw == "")-1)] |> 
+input <- input_raw
+
+workflows <- input[seq(1, which(input == "")-1)] |> 
   tibble(x = _) |> 
   extract(x,into = c("workflow","rules"),"([a-z]+){(.+)}") |> 
   deframe()
   
-ratings <- input_raw[seq(which(input_raw == "")+1,length(input_raw))] |> 
+ratings <- input[seq(which(input == "")+1,length(input))] |> 
   tibble(x = _) |> 
   mutate(id = row_number()) |> 
   extract(x, into = c("x","m","a","s"), "{x=(\\d+),m=(\\d+),a=(\\d+),s=(\\d+)}", convert = TRUE)
@@ -102,9 +104,34 @@ i’m not a fan of this theme that seems to be appearing (as coined by
 > Day N+10: “I wasn’t asking” :muscle:
 
 ``` r
-wf <- input_raw[seq(1, which(input_raw == "")-1)] |> 
-  tibble(x = _) |> 
-  mutate(id = row_number()) |> 
-  extract(x,into = c("workflow","rules"),"([a-z]+){(.+)}") |> 
-  separate_rows(rules, sep = ",")
+parse_workflow <-  \(w = "in", x = list(x = 1:4000, m = 1:4000, a = 1:4000, s = 1:4000)){
+  ok <- vector("list")
+  rules <- strsplit(workflows[w], ",") |> unlist()
+  i <- 0
+  while(i <= length(rules)){
+    i <- i + 1
+    r <- rules[[i]]
+    if (identical(r, "A")) {ok <- c(ok, list(x)); return(ok)}
+    if (identical(r, "R")) return(ok)
+    if (grepl(":",r)){
+      var <- substr(r,1,1)
+      pattern <- gsub(x = r, pattern = "(.+)\\:(.+)", replacement = "\\1")
+      x_matches <- x
+      x_matches[[var]] <- x[[var]][eval(parse(text = pattern),envir = x)]
+      x[[var]] <- x[[var]][!eval(parse(text = pattern), envir = x)]
+      outcome <- gsub(x = r, pattern = "(.+)\\:(.+)", replacement = "\\2")
+      if (identical(outcome, "A")) {ok <- c(ok, list(x_matches)); next}
+      if (identical(outcome, "R")) next
+      ok <- c(ok, parse_workflow(outcome, x = x_matches))
+    }
+    
+    if (!grepl(":", r)) {ok <- c(ok, parse_workflow(r, x)); return(ok);}
+  }
+  
+  return(ok)
+}
+
+parse_workflow() |> sapply(\(x) lengths(x) |> prod()) |> sum()
 ```
+
+    ## [1] 110807725108076
