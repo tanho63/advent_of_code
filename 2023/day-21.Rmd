@@ -1,0 +1,86 @@
+---
+title: 'Advent Of Code: 2023-21'
+author: Tan Ho
+date: "2023-12-21"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<https://adventofcode.com/2023/day/21>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 21, year = 2023)
+```
+
+```{r}
+input <- readLines(here::here("2023/day-21-input.txt"))
+example <- readLines(here::here("2023/day-21-example.txt"))
+
+m <- input |> 
+  strsplit("") |> 
+  do.call(what = rbind)
+
+mm <- crossing(
+  row = seq_len(nrow(m)),
+  col = seq_len(ncol(m))
+) |> 
+  mutate(val = m[cbind(row,col)]) |> 
+  mutate(id = row_number())
+```
+
+--- Part 1 ---
+
+```{r}
+queue <- mm |> 
+  filter(val == "S") |> 
+  mutate(step = 0) |> 
+  select(row,col,step)
+
+i <- 0
+
+repeat {
+  next_steps <- data.frame(
+    r = c(1,-1,0,0), 
+    c = c(0,0,-1,1)
+  )
+  
+  queue <- crossing(queue, next_steps) |> 
+    mutate(row = row + r,
+           col = col + c,
+           step = step + 1) |> 
+    distinct(row,col,step) |> 
+    filter(row >= 1, row <= nrow(m), col >= 1, col <= ncol(m)) |> 
+    filter(m[cbind(row,col)] != "#") |> 
+    select(row,col,step)
+  
+  if (queue$step[[1]] == 64) break
+}
+
+nrow(queue)
+```
+
+--- Part 2 ---
+
+```{r}
+# completed |> count(step) |> mutate(diff = n - lag(n, default = 0)) |> View()
+```
+
