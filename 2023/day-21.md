@@ -60,8 +60,6 @@ queue <- mm |>
   mutate(step = 0) |> 
   select(row,col,step)
 
-i <- 0
-
 repeat {
   next_steps <- data.frame(
     r = c(1,-1,0,0), 
