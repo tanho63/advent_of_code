@@ -1,0 +1,119 @@
+---
+title: 'Advent Of Code: 2023-22'
+author: Tan Ho
+date: "2023-12-22"
+output: 
+  github_document:
+    preserve_yaml: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<https://adventofcode.com/2023/day/22>
+
+```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(glue)
+  
+  knitr::opts_chunk$set(echo = TRUE)
+})
+
+options(scipen = 9999999)
+options(dplyr.summarise.inform = FALSE)
+```
+
+--- Data ---
+
+```{r eval = FALSE}
+# tanho63/aoc.elf
+aoc.elf::aoc_get(day = 22, year = 2023)
+```
+
+```{r}
+example_raw <- readLines(here::here("2023/day-22-example.txt"))
+input_raw <- readLines(here::here("2023/day-22-input.txt"))
+
+input <- tibble(x = input_raw) |> 
+  extract(
+    x, 
+    into = c("x1","y1","z1","x2","y2","z2"), 
+    regex = c("(\\d+),(\\d+),(\\d+)~(\\d+),(\\d+),(\\d+)"), 
+    convert = TRUE
+  ) |> 
+  arrange(map2_dbl(z1,z2,min),map2_dbl(z1,z2,sum)) |>
+  mutate(
+    id = row_number(),
+    x = map2(x1,x2,seq.int),
+    y = map2(y1,y2,seq.int),
+    z = map2(z1,z2,seq.int)
+  ) |>
+  unnest(x) |> 
+  unnest(y) |> 
+  unnest(z) |> 
+  select(id,x,y,z)
+
+```
+
+--- Part 1 ---
+
+```{r}
+ground <- input |> filter(FALSE)
+i <- 0
+while (i < max(input$id)){
+  i <- i + 1
+  b <- input |> 
+    filter(id == i) |> 
+    left_join(
+      ground |> slice_max(z, by = c(x,y)) |> select(x,y,z.g = z),
+      by = c("x","y")
+    ) |> 
+    mutate(z = z - min(z - replace_na(z.g,0) - 1)) |> 
+    select(id,x,y,z)
+  ground <- bind_rows(ground, b)
+}
+i <- NULL
+```
+
+
+```{r}
+get_deps <- function(i){
+  ground |> 
+    filter(id == i) |> 
+    mutate(z.b = z - 1) |> 
+    inner_join(ground, by = c("x","y","z.b" = "z")) |>
+    distinct(id = id.x, dep = id.y) |> 
+    filter(id != dep)
+}
+
+deps <- lapply(unique(ground$id),get_deps) |> 
+  bind_rows() |> 
+  add_count(id)
+  
+deps |> 
+  summarise(
+    min_dep = min(n),
+    .by = dep
+  ) |> 
+  complete(dep = input$id,fill = list(min_dep = 0)) |> 
+  filter(min_dep != 1) |> 
+  nrow()
+
+```
+
+```{r}
+# saveRDS(deps, "2023/day-22-checkpoint.rds")
+```
+
+
+--- Part 2 ---
+
+```{r}
+nodes <- input |> distinct(id)
+edges <- deps |> 
+  select(from = id, to = dep)
+
+tidygraph::tbl_graph(nodes = nodes, edges = edges, directed = TRUE) |> ggraph::autograph()
+```
+
